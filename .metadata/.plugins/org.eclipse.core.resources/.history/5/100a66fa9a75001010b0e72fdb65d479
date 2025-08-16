@@ -1,0 +1,39 @@
+#define STM32F411xE
+
+#include <stdint.h>
+#include "stm32f4xx.h"
+
+const uint32_t THRESHOLD = 1333333;
+
+int main(void) {
+	RCC->AHB1ENR |= (RCC_AHB1ENR_GPIOAEN + RCC_AHB1ENR_GPIOBEN);
+
+	GPIOA->MODER &= ~(GPIO_MODER_MODER5);
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER5_Pos);
+	GPIOA->OTYPER &= ~(GPIO_OTYPER_OT5);
+	GPIOA->OSPEEDR &= ~(GPIO_OSPEEDR_OSPEED5);
+
+	GPIOB->MODER &= ~(GPIO_MODER_MODER6);
+	GPIOB->MODER |= (0b01 << GPIO_MODER_MODER6_Pos);
+	GPIOB->OTYPER &= ~(GPIO_OTYPER_OT6);
+	GPIOB->OSPEEDR &= ~(GPIO_OSPEEDR_OSPEED6);
+
+	GPIOB->MODER &= ~(GPIO_MODER_MODER4);
+	GPIOB->PUPDR &= ~(GPIO_PUPDR_PUPD4);
+	GPIOB->PUPDR |= (0b01 << GPIO_PUPDR_PUPD4_Pos);
+
+	while(1){
+		if((GPIOB->IDR & GPIO_IDR_ID4) == 0){
+			GPIOB->ODR |= GPIO_ODR_OD6;
+		}
+		else {
+			GPIOB->ODR &= ~(GPIO_ODR_OD6);
+		}
+
+		GPIOA->ODR ^= (GPIO_ODR_OD5);
+		for (uint32_t iter = 0; iter < THRESHOLD; iter++){
+
+		}
+	}
+	return 0;
+}

@@ -1,0 +1,206 @@
+14:06:48 **** Build of configuration Debug for project Training_Lab3.3 ****
+make -j12 all 
+arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -DDEBUG -c -x assembler-with-cpp -MMD -MP -MF"Startup/startup_stm32f411retx.d" -MT"Startup/startup_stm32f411retx.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Startup/startup_stm32f411retx.o" "../Startup/startup_stm32f411retx.s"
+arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
+arm-none-eabi-gcc "../Src/syscalls.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/syscalls.d" -MT"Src/syscalls.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/syscalls.o"
+arm-none-eabi-gcc "../Src/sysmem.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/sysmem.d" -MT"Src/sysmem.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/sysmem.o"
+../Src/main.c: In function 'main':
+../Src/main.c:32:25: warning: implicit declaration of function 'sprintf' [-Wimplicit-function-declaration]
+   32 |                         sprintf(stringBuffer, "Button status = %d\n", 1);
+      |                         ^~~~~~~
+../Src/main.c:4:1: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+    3 | #include "stm32f4xx.h"
+  +++ |+#include <stdio.h>
+    4 | 
+../Src/main.c:32:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+   32 |                         sprintf(stringBuffer, "Button status = %d\n", 1);
+      |                         ^~~~~~~
+../Src/main.c:32:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+../Src/main.c:35:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+   35 |                         sprintf(stringBuffer, "Button status = %d\n", 0);
+      |                         ^~~~~~~
+../Src/main.c:35:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+../Src/main.c:35:63: warning: 'Button status = ' directive writing 16 bytes into a region of size 15 [-Wformat-overflow=]
+   35 |                         sprintf(stringBuffer, "Button status = %d\n", 0);
+      |                                                ~~~~~~~~~~~~~~~^
+../Src/main.c:35:25: note: 'sprintf' output 19 bytes into a destination of size 15
+   35 |                         sprintf(stringBuffer, "Button status = %d\n", 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../Src/main.c:32:63: warning: 'Button status = ' directive writing 16 bytes into a region of size 15 [-Wformat-overflow=]
+   32 |                         sprintf(stringBuffer, "Button status = %d\n", 1);
+      |                                                ~~~~~~~~~~~~~~~^
+../Src/main.c:32:25: note: 'sprintf' output 19 bytes into a destination of size 15
+   32 |                         sprintf(stringBuffer, "Button status = %d\n", 1);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+arm-none-eabi-gcc -o "Training_Lab3.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab3.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab3.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Training_Lab3.3.elf
+ 
+arm-none-eabi-size  Training_Lab3.3.elf 
+arm-none-eabi-objdump -h -S Training_Lab3.3.elf  > "Training_Lab3.3.list"
+   text	   data	    bss	    dec	    hex	filename
+   3588	     80	   1912	   5580	   15cc	Training_Lab3.3.elf
+Finished building: default.size.stdout
+ 
+Finished building: Training_Lab3.3.list
+ 
+14:06:57 **** Incremental Build of configuration Debug for project Training_Lab3.3 ****
+make -j12 all 
+arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -DDEBUG -c -x assembler-with-cpp -MMD -MP -MF"Startup/startup_stm32f411retx.d" -MT"Startup/startup_stm32f411retx.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Startup/startup_stm32f411retx.o" "../Startup/startup_stm32f411retx.s"
+arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
+arm-none-eabi-gcc "../Src/syscalls.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/syscalls.d" -MT"Src/syscalls.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/syscalls.o"
+arm-none-eabi-gcc "../Src/sysmem.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/sysmem.d" -MT"Src/sysmem.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/sysmem.o"
+../Src/main.c: In function 'main':
+../Src/main.c:32:25: warning: implicit declaration of function 'sprintf' [-Wimplicit-function-declaration]
+   32 |                         sprintf(stringBuffer, "Button status = %d\n", 1);
+      |                         ^~~~~~~
+../Src/main.c:4:1: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+    3 | #include "stm32f4xx.h"
+  +++ |+#include <stdio.h>
+    4 | 
+../Src/main.c:32:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+   32 |                         sprintf(stringBuffer, "Button status = %d\n", 1);
+      |                         ^~~~~~~
+../Src/main.c:32:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+../Src/main.c:35:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+   35 |                         sprintf(stringBuffer, "Button status = %d\n", 0);
+      |                         ^~~~~~~
+../Src/main.c:35:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+../Src/main.c:35:63: warning: 'Button status = ' directive writing 16 bytes into a region of size 15 [-Wformat-overflow=]
+   35 |                         sprintf(stringBuffer, "Button status = %d\n", 0);
+      |                                                ~~~~~~~~~~~~~~~^
+../Src/main.c:35:25: note: 'sprintf' output 19 bytes into a destination of size 15
+   35 |                         sprintf(stringBuffer, "Button status = %d\n", 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../Src/main.c:32:63: warning: 'Button status = ' directive writing 16 bytes into a region of size 15 [-Wformat-overflow=]
+   32 |                         sprintf(stringBuffer, "Button status = %d\n", 1);
+      |                                                ~~~~~~~~~~~~~~~^
+../Src/main.c:32:25: note: 'sprintf' output 19 bytes into a destination of size 15
+   32 |                         sprintf(stringBuffer, "Button status = %d\n", 1);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+arm-none-eabi-gcc -o "Training_Lab3.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab3.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab3.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Training_Lab3.3.elf
+ 
+arm-none-eabi-size  Training_Lab3.3.elf 
+arm-none-eabi-objdump -h -S Training_Lab3.3.elf  > "Training_Lab3.3.list"
+   text	   data	    bss	    dec	    hex	filename
+   3588	     80	   1912	   5580	   15cc	Training_Lab3.3.elf
+Finished building: default.size.stdout
+ 
+Finished building: Training_Lab3.3.list
+ 
+14:07:14 **** Incremental Build of configuration Debug for project Training_Lab3.3 ****
+make -j12 all 
+arm-none-eabi-size  Training_Lab3.3.elf 
+   text	   data	    bss	    dec	    hex	filename
+   3588	     80	   1912	   5580	   15cc	Training_Lab3.3.elf
+Finished building: default.size.stdout
+ 
+14:07:16 **** Incremental Build of configuration Debug for project Training_Lab3.3 ****
+make -j12 all 
+arm-none-eabi-size  Training_Lab3.3.elf 
+   text	   data	    bss	    dec	    hex	filename
+   3588	     80	   1912	   5580	   15cc	Training_Lab3.3.elf
+Finished building: default.size.stdout
+ 
+14:08:21 **** Incremental Build of configuration Debug for project Training_Lab3.3 ****
+make -j12 all 
+arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
+../Src/main.c: In function 'main':
+../Src/main.c:33:25: warning: implicit declaration of function 'sprintf' [-Wimplicit-function-declaration]
+   33 |                         sprintf(stringBuffer, "Button status = %d\n", 1);
+      |                         ^~~~~~~
+../Src/main.c:4:1: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+    3 | #include "stm32f4xx.h"
+  +++ |+#include <stdio.h>
+    4 | 
+../Src/main.c:33:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+   33 |                         sprintf(stringBuffer, "Button status = %d\n", 1);
+      |                         ^~~~~~~
+../Src/main.c:33:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+../Src/main.c:36:25: warning: incompatible implicit declaration of built-in function 'sprintf' [-Wbuiltin-declaration-mismatch]
+   36 |                         sprintf(stringBuffer, "Button status = %d\n", 0);
+      |                         ^~~~~~~
+../Src/main.c:36:25: note: include '<stdio.h>' or provide a declaration of 'sprintf'
+../Src/main.c:36:63: warning: 'Button status = ' directive writing 16 bytes into a region of size 15 [-Wformat-overflow=]
+   36 |                         sprintf(stringBuffer, "Button status = %d\n", 0);
+      |                                                ~~~~~~~~~~~~~~~^
+../Src/main.c:36:25: note: 'sprintf' output 19 bytes into a destination of size 15
+   36 |                         sprintf(stringBuffer, "Button status = %d\n", 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../Src/main.c:33:63: warning: 'Button status = ' directive writing 16 bytes into a region of size 15 [-Wformat-overflow=]
+   33 |                         sprintf(stringBuffer, "Button status = %d\n", 1);
+      |                                                ~~~~~~~~~~~~~~~^
+../Src/main.c:33:25: note: 'sprintf' output 19 bytes into a destination of size 15
+   33 |                         sprintf(stringBuffer, "Button status = %d\n", 1);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+arm-none-eabi-gcc -o "Training_Lab3.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab3.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab3.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Training_Lab3.3.elf
+ 
+arm-none-eabi-size  Training_Lab3.3.elf 
+arm-none-eabi-objdump -h -S Training_Lab3.3.elf  > "Training_Lab3.3.list"
+   text	   data	    bss	    dec	    hex	filename
+   3588	     80	   1912	   5580	   15cc	Training_Lab3.3.elf
+Finished building: default.size.stdout
+ 
+Finished building: Training_Lab3.3.list
+ 
+02:50:59 **** Build of configuration Debug for project Training_Lab1.2 ****
+make -j12 all 
+arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
+arm-none-eabi-gcc -o "Training_Lab1.2.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab1.2\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab1.2.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Training_Lab1.2.elf
+ 
+arm-none-eabi-size  Training_Lab1.2.elf 
+arm-none-eabi-objdump -h -S Training_Lab1.2.elf  > "Training_Lab1.2.list"
+   text	   data	    bss	    dec	    hex	filename
+    796	      0	   1568	   2364	    93c	Training_Lab1.2.elf
+Finished building: default.size.stdout
+ 
+Finished building: Training_Lab1.2.list
+ 
+02:53:02 **** Clean-only build of configuration Debug for project Training_Lab1.3 ****
+make -j12 clean 
+rm -rf ./Startup/startup_stm32f411retx.d ./Startup/startup_stm32f411retx.o
+rm -rf ./Src/main.cyclo ./Src/main.d ./Src/main.o ./Src/main.su ./Src/syscalls.cyclo ./Src/syscalls.d ./Src/syscalls.o ./Src/syscalls.su ./Src/sysmem.cyclo ./Src/sysmem.d ./Src/sysmem.o ./Src/sysmem.su
+rm -rf Training_Lab1.3.elf Training_Lab1.3.list Training_Lab1.3.map default.size.stdout
+ 
+02:53:02 **** Build of configuration Debug for project Training_Lab1.3 ****
+make -j12 all 
+arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -DDEBUG -c -x assembler-with-cpp -MMD -MP -MF"Startup/startup_stm32f411retx.d" -MT"Startup/startup_stm32f411retx.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Startup/startup_stm32f411retx.o" "../Startup/startup_stm32f411retx.s"
+arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
+arm-none-eabi-gcc "../Src/syscalls.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/syscalls.d" -MT"Src/syscalls.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/syscalls.o"
+arm-none-eabi-gcc "../Src/sysmem.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/sysmem.d" -MT"Src/sysmem.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/sysmem.o"
+arm-none-eabi-gcc -o "Training_Lab1.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab1.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab1.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Training_Lab1.3.elf
+ 
+arm-none-eabi-size  Training_Lab1.3.elf 
+arm-none-eabi-objdump -h -S Training_Lab1.3.elf  > "Training_Lab1.3.list"
+   text	   data	    bss	    dec	    hex	filename
+    832	      0	   1568	   2400	    960	Training_Lab1.3.elf
+Finished building: default.size.stdout
+ 
+Finished building: Training_Lab1.3.list
+ 
+02:57:14 **** Clean-only build of configuration Debug for project Training_Lab1.4 ****
+make -j12 clean 
+rm -rf ./Startup/startup_stm32f411retx.d ./Startup/startup_stm32f411retx.o
+rm -rf ./Src/main.cyclo ./Src/main.d ./Src/main.o ./Src/main.su ./Src/syscalls.cyclo ./Src/syscalls.d ./Src/syscalls.o ./Src/syscalls.su ./Src/sysmem.cyclo ./Src/sysmem.d ./Src/sysmem.o ./Src/sysmem.su
+rm -rf Training_Lab1.4.elf Training_Lab1.4.list Training_Lab1.4.map default.size.stdout
+ 
+02:57:15 **** Build of configuration Debug for project Training_Lab1.4 ****
+make -j12 all 
+arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -DDEBUG -c -x assembler-with-cpp -MMD -MP -MF"Startup/startup_stm32f411retx.d" -MT"Startup/startup_stm32f411retx.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Startup/startup_stm32f411retx.o" "../Startup/startup_stm32f411retx.s"
+arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
+arm-none-eabi-gcc "../Src/syscalls.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/syscalls.d" -MT"Src/syscalls.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/syscalls.o"
+arm-none-eabi-gcc "../Src/sysmem.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/sysmem.d" -MT"Src/sysmem.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/sysmem.o"
+arm-none-eabi-gcc -o "Training_Lab1.4.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab1.4\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab1.4.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Training_Lab1.4.elf
+ 
+arm-none-eabi-size  Training_Lab1.4.elf 
+arm-none-eabi-objdump -h -S Training_Lab1.4.elf  > "Training_Lab1.4.list"
+   text	   data	    bss	    dec	    hex	filename
+    876	      0	   1576	   2452	    994	Training_Lab1.4.elf
+Finished building: default.size.stdout
+ 
+Finished building: Training_Lab1.4.list
+ 

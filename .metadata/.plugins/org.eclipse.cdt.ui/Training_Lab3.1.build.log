@@ -1,0 +1,22 @@
+11:55:07 **** Incremental Build of configuration Debug for project Training_Lab3.1 ****
+make -j12 all 
+arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
+../Src/main.c: In function 'main':
+../Src/main.c:15:9: error: 'GPIOA_AFR' undeclared (first use in this function); did you mean 'GPIOA_BASE'?
+   15 |         GPIOA_AFR[0] &= ~(GPIO_AFRL_AFRL2 | GPIO_AFRL_AFRL3);
+      |         ^~~~~~~~~
+      |         GPIOA_BASE
+../Src/main.c:15:9: note: each undeclared identifier is reported only once for each function it appears in
+../Src/main.c:16:36: error: 'GPIO_AFRL_AFRL2_Pos' undeclared (first use in this function); did you mean 'GPIO_AFRL_AFSEL2_Pos'?
+   16 |         GPIOA_AFR[0] |= (0b0111 << GPIO_AFRL_AFRL2_Pos) + (0b0111 << GPIO_AFRL_AFRL3_Pos);
+      |                                    ^~~~~~~~~~~~~~~~~~~
+      |                                    GPIO_AFRL_AFSEL2_Pos
+../Src/main.c:16:70: error: 'GPIO_AFRL_AFRL3_Pos' undeclared (first use in this function); did you mean 'GPIO_AFRL_AFSEL3_Pos'?
+   16 |         GPIOA_AFR[0] |= (0b0111 << GPIO_AFRL_AFRL2_Pos) + (0b0111 << GPIO_AFRL_AFRL3_Pos);
+      |                                                                      ^~~~~~~~~~~~~~~~~~~
+      |                                                                      GPIO_AFRL_AFSEL3_Pos
+make: *** [Src/subdir.mk:25: Src/main.o] Error 1
+"make -j12 all" terminated with exit code 2. Build might be incomplete.
+
+11:55:07 Build Failed. 4 errors, 0 warnings. (took 202ms)
+
