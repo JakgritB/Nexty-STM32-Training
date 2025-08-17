@@ -1,0 +1,29 @@
+#include <stdint.h>
+#define STM32F411xE
+#include "stm32f4xx.h"
+
+int main(void) {
+	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER5_Pos);
+
+	GPIOA->MODER |= (0b11 << GPIO_MODER_MODER4_Pos);
+	ADC1->CR2 |= ADC_CR2_ADON;
+	ADC1->CR1 |= (0b10 << ADC_CR1_RES_Pos);
+	ADC1->SMPR2 |= (0b11 << ADC_SMPR2_SMP4_Pos);
+	ADC1->SQR1 &= ~(0b1111 << ADC_SQR1_L_Pos);
+	ADC1->SQR3 |= (0x04 << ADC_SQR3_SQ1_Pos);
+
+	ADC1->CR2 |= ADC_CR2_SWSTART;
+
+
+	while ((ADC1->SR & ADC_SR_EOC) ==0);
+
+	while(1){
+		uint16_t u2t_adcData = ADC1->DR;
+		if(u2t_adcData <= 100){
+			GPIOA->ODR |= (GPIO_ODR_OD5);
+		}
+	}
+}

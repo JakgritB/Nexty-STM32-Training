@@ -1,0 +1,62 @@
+#include <stdint.h>
+#include <stdio.h>
+#include <math.h>
+#define STM32F411xE
+#include "stm32f4xx.h"
+
+#define VREF 3.3f
+#define VCC 3.3f
+#define ADC_MAXRES 4095.0f
+#define RX 10000.0f
+#define R0 10000.0f
+#define T0 298.15f
+#define BETA 3950.0f
+
+char stringOut[50];
+
+const uint32_t THRESHOLD = 133333;
+
+void vdg_UART_TxString(char strOut[]) {
+	for (uint8_t idx = 0; strOut[idx] != '\0'; idx++) {
+		while((USART2->SR & USART_SR_TXE) == 0);
+		USART2->DR = strOut[idx];
+	}
+}
+
+int main(void) {
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
+
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER5_Pos);
+
+	GPIOA->MODER &= ~(GPIO_MODER_MODER4);
+	GPIOA->MODER |= (0b11 << GPIO_MODER_MODER4_Pos);
+
+	ADC1->CR2 |= ADC_CR2_ADON;
+
+	ADC1->SMPR2 |= ADC_SMPR2_SMP4;
+
+	ADC1->SQR1 &= ~(ADC_SQR1_L);
+	ADC1->SQR1 |= (0b111 << ADC_SQR1_L_Pos);
+
+	ADC1->SQR3 &= ~(ADC_SQR3_SQ1);
+	ADC1->SQR3 |= (0x04 << ADC_SQR3_SQ1_Pos);
+
+	//ADC1->CR1 |= (0b10 << ADC_CR1_RES_Pos);
+
+	while (1) {
+		ADC1->CR2 |= ADC_CR2_SWSTART;
+		while ((ADC1->SR & ADC_SR_EOC) == 0)
+			;
+
+		uint16_t u2t_adcData = ADC1->DR;
+		if (u2t_adcData <= 2048) {
+			GPIOA->ODR |= (GPIO_ODR_OD5);
+		} else {
+			GPIOA->ODR &= ~(GPIO_ODR_OD5);
+		}
+		for (uint32_t iter = 0; iter < THRESHOLD; iter++) {
+
+		}
+	}
+}
