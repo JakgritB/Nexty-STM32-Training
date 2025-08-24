@@ -1,0 +1,86 @@
+#include <stdint.h>
+#define STM32F411xE
+#include "stm32f4xx.h"
+
+const uint8_t segment_map[10] = {
+    0b00111111, // 0
+    0b00000110, // 1
+    0b01011011, // 2
+    0b01001111, // 3
+    0b01100110, // 4
+    0b01101101, // 5
+    0b01111101, // 6
+    0b00000111, // 7
+    0b01111111, // 8
+    0b01101111  // 9
+};
+
+volatile uint8_t number = 0;
+
+void delay(uint32_t ms) {
+    for(uint32_t i=0; i<ms*1000; i++);
+}
+
+void display_7seg(uint8_t num){
+    // ล้าง bits ก่อน
+    GPIOA->BSRR = 0x7F << 0; // Reset PA0-PA6
+
+    // Set bits ตามตัวเลข
+    uint8_t seg = segment_map[num];
+    for(uint8_t i=0; i<7; i++){
+        if(seg & (1<<i)){
+            GPIOA->BSRR = (1<<i); // Set pin i
+        }
+    }
+}
+
+int main(void){
+    // เปิด clock
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN;
+
+    // ตั้ง GPIOA 0-6 เป็น output
+    for(uint8_t i=0; i<7; i++){
+        GPIOA->MODER &= ~(0b11<<(i*2));
+        GPIOA->MODER |= 0b01<<(i*2);
+    }
+
+    // ตั้ง PA10, PB3, PB5 เป็น input
+    GPIOA->MODER &= ~(0b11<<(10*2)); // PA10
+    GPIOB->MODER &= ~(0b11<<(3*2));  // PB3
+    GPIOB->MODER &= ~(0b11<<(5*2));  // PB5
+
+    // เปิด pull-up สำหรับปุ่ม
+    GPIOA->PUPDR &= ~(0b11<<(10*2));
+    GPIOA->PUPDR |= 0b01<<(10*2);
+    GPIOB->PUPDR &= ~(0b11<<(3*2));
+    GPIOB->PUPDR |= 0b01<<(3*2);
+    GPIOB->PUPDR &= ~(0b11<<(5*2));
+    GPIOB->PUPDR |= 0b01<<(5*2);
+
+    display_7seg(number);
+
+    while(1){
+        // เพิ่ม
+        if(!(GPIOA->IDR & (1<<10))){
+            number++;
+            if(number > 9) number = 0; // wrap-around
+            display_7seg(number);
+            delay(200); // debounce & hold
+        }
+
+        // ลด
+        if(!(GPIOB->IDR & (1<<3))){
+            if(number == 0) number = 9;
+            else number--;
+            display_7seg(number);
+            delay(200); // debounce & hold
+        }
+
+        // รีเซ็ต
+        if(!(GPIOB->IDR & (1<<5))){
+            number = 0;
+            display_7seg(number);
+            delay(200); // debounce & hold
+        }
+    }
+}

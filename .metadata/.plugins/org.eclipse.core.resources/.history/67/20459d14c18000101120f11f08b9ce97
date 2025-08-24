@@ -1,0 +1,76 @@
+#include <stdint.h>
+#define STM32F411xE
+#include "stm32f4xx.h"
+
+int main(void) {
+	// --- 1. เปิดสัญญาณนาฬิกา (Clock) ---
+	// เปิดให้ GPIO Port A, Port B, และ ADC1
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
+
+	// --- 2. ตั้งค่า GPIO Pins ---
+	// ตั้งค่าขา LED ทั้ง 4 เป็น Output
+	// PA5, PA6, PA7
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER5_Pos);
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER6_Pos);
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER7_Pos);
+	// PB6
+	GPIOB->MODER |= (0b01 << GPIO_MODER_MODER6_Pos);
+
+	// ตั้งค่าขา PA4 (ต่อกับ Potentiometer) เป็น Analog Input
+	GPIOA->MODER |= (0b11 << GPIO_MODER_MODER4_Pos);
+
+	// --- 3. ตั้งค่า ADC1 ---
+	// กำหนดลำดับการแปลงค่า (Sequence) ให้มีแค่ 1 channel
+	ADC1->SQR1 &= ~(ADC_SQR1_L); // L=0b0000 หมายถึง 1 conversion
+
+	// กำหนดให้ channel ที่จะแปลงค่าคือ Channel 4 (เพราะใช้ PA4)
+	ADC1->SQR3 &= ~(ADC_SQR3_SQ1);
+	ADC1->SQR3 |= (4 << ADC_SQR3_SQ1_Pos);
+
+	// เปิดใช้งาน ADC1
+	ADC1->CR2 |= ADC_CR2_ADON;
+
+	// --- 4. Main Loop ---
+	while (1) {
+		// เริ่มการแปลงค่า ADC
+		ADC1->CR2 |= ADC_CR2_SWSTART;
+
+		// รอจนกว่าการแปลงค่าจะเสร็จสิ้น (รอธง EOC - End of Conversion)
+		while ((ADC1->SR & ADC_SR_EOC) == 0);
+
+		// อ่านค่าที่แปลงได้จาก Data Register
+		uint16_t adc_value = ADC1->DR;
+
+		// --- ตรรกะควบคุมการเปิด-ปิด LED ตามค่า ADC ---
+		// ค่า ADC มีความละเอียด 12-bit (0 - 4095)
+		// เราจะแบ่งช่วงค่านี้ออกเป็น 5 ระดับ เพื่อควบคุม LED 0-4 ดวง
+		if (adc_value < 3280) { // ระดับ 0: ปิดทุกดวง 820
+			GPIOB->ODR &= ~(GPIO_ODR_OD6);
+			GPIOA->ODR &= ~(GPIO_ODR_OD7);
+			GPIOA->ODR &= ~(GPIO_ODR_OD6);
+			GPIOA->ODR &= ~(GPIO_ODR_OD5);
+		} else if (adc_value < 2460) { // ระดับ 1: เปิดดวงที่ 1 (PB6) 1640
+			GPIOB->ODR |= (GPIO_ODR_OD6);
+			GPIOA->ODR &= ~(GPIO_ODR_OD7);
+			GPIOA->ODR &= ~(GPIO_ODR_OD6);
+			GPIOA->ODR &= ~(GPIO_ODR_OD5);
+		} else if (adc_value < 1640) { // ระดับ 2: เปิด 2 ดวง (PB6, PA7) 2460
+			GPIOB->ODR |= (GPIO_ODR_OD6);
+			GPIOA->ODR |= (GPIO_ODR_OD7);
+			GPIOA->ODR &= ~(GPIO_ODR_OD6);
+			GPIOA->ODR &= ~(GPIO_ODR_OD5);
+		} else if (adc_value < 820) { // ระดับ 3: เปิด 3 ดวง (PB6, PA7, PA6) 3280
+			GPIOB->ODR |= (GPIO_ODR_OD6);
+			GPIOA->ODR |= (GPIO_ODR_OD7);
+			GPIOA->ODR |= (GPIO_ODR_OD6);
+			GPIOA->ODR &= ~(GPIO_ODR_OD5);
+		} else { // ระดับ 4: เปิดทุกดวง
+			GPIOB->ODR |= (GPIO_ODR_OD6);
+			GPIOA->ODR |= (GPIO_ODR_OD7);
+			GPIOA->ODR |= (GPIO_ODR_OD6);
+			GPIOA->ODR |= (GPIO_ODR_OD5);
+		}
+	}
+}

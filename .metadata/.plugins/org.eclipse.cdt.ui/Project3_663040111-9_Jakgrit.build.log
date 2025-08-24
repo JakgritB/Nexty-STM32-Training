@@ -1,0 +1,17 @@
+16:37:54 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
+make -j12 all 
+arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
+arm-none-eabi-gcc -o "Project3_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project3_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project3_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project3_663040111-9_Jakgrit.elf
+ 
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project3_663040111-9_Jakgrit.elf  > "Project3_663040111-9_Jakgrit.list"
+   text	   data	    bss	    dec	    hex	filename
+  12332	     96	   2008	  14436	   3864	Project3_663040111-9_Jakgrit.elf
+Finished building: default.size.stdout
+ 
+Finished building: Project3_663040111-9_Jakgrit.list
+ 
+
+16:37:54 Build Finished. 0 errors, 0 warnings. (took 503ms)
+

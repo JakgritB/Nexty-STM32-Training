@@ -1,0 +1,149 @@
+#include <stdint.h>
+#include <stdio.h> // สำหรับการใช้ sprintf
+#include <string.h> // สำหรับการใช้ strlen
+#define STM32F411xE
+#include "stm32f4xx.h"
+
+// --- Global Variables ---
+
+// สำหรับ ADC ที่ทำงานร่วมกับ DMA
+// DMA จะนำค่าที่แปลงได้จาก Channel 0 (Temp) และ 1 (Light) มาใส่ในนี้อัตโนมัติ
+volatile uint16_t g_adc_results[2];
+
+// สำหรับการรับข้อมูลผ่าน UART
+volatile char g_received_char = 0;
+volatile uint8_t g_new_data_flag = 0; // ธงสำหรับบอก main loop ว่ามีข้อมูลใหม่เข้ามา
+
+// สำหรับการส่งข้อมูลผ่าน UART
+#define TX_BUFFER_SIZE 100
+char g_tx_buffer[TX_BUFFER_SIZE];
+volatile uint16_t g_tx_read_idx = 0;
+volatile uint16_t g_tx_write_idx = 0;
+
+
+// --- Helper Function: เริ่มการส่งข้อความผ่าน UART ---
+// ฟังก์ชันนี้จะไม่ส่งเอง แต่จะเอาข้อความไปใส่ Buffer แล้วเปิด Interrupt ให้ Hardware จัดการต่อ
+void uart_send_string(const char* str) {
+    // รอให้การส่งครั้งก่อนหน้าเสร็จสิ้น (ถ้ามี)
+    while (g_tx_read_idx != g_tx_write_idx);
+
+    // คัดลอกข้อความใหม่ไปยัง Buffer
+    strncpy(g_tx_buffer, str, TX_BUFFER_SIZE);
+    g_tx_read_idx = 0;
+    g_tx_write_idx = strlen(str);
+
+    // เปิดใช้งาน "Transmit Data Register Empty" Interrupt (TXEIE)
+    // เพื่อให้ ISR เริ่มส่งข้อมูลตัวแรก
+    USART2->CR1 |= USART_CR1_TXEIE;
+}
+
+
+// --- Interrupt Service Routines (ISRs) ---
+
+void USART2_IRQHandler(void) {
+    // 1. ตรวจสอบว่า Interrupt เกิดจากการรับข้อมูล (RXNE) หรือไม่
+    if (USART2->SR & USART_SR_RXNE) {
+        g_received_char = USART2->DR; // อ่านข้อมูล (การอ่านจะล้างธง RXNE อัตโนมัติ)
+        g_new_data_flag = 1;         // ตั้งธงบอก main loop
+    }
+
+    // 2. ตรวจสอบว่า Interrupt เกิดจากการส่งข้อมูล (TXE) หรือไม่
+    if (USART2->SR & USART_SR_TXE) {
+        if (g_tx_read_idx < g_tx_write_idx) {
+            // ถ้ายังมีข้อมูลใน Buffer ให้ส่งตัวถัดไป
+            USART2->DR = g_tx_buffer[g_tx_read_idx++];
+        } else {
+            // ถ้าส่งหมดแล้ว ให้ปิด TXE Interrupt
+            USART2->CR1 &= ~USART_CR1_TXEIE;
+        }
+    }
+}
+
+
+int main(void) {
+    // --- 1. เปิด Clock ให้อุปกรณ์ทั้งหมด ---
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_DMA2EN;
+    RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+    RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
+
+    // --- 2. ตั้งค่า GPIO ---
+    // LEDs (PA5, PA6, PA7) -> Output
+    GPIOA->MODER |= (0b01 << GPIO_MODER_MODER5_Pos);
+    GPIOA->MODER |= (0b01 << GPIO_MODER_MODER6_Pos);
+    GPIOA->MODER |= (0b01 << GPIO_MODER_MODER7_Pos);
+    // Sensor Pins (PA0, PA1) -> Analog
+    GPIOA->MODER |= (0b11 << GPIO_MODER_MODER0_Pos);
+    GPIOA->MODER |= (0b11 << GPIO_MODER_MODER1_Pos);
+    // UART Pins (PA2-TX, PA3-RX) -> Alternate Function 7
+    GPIOA->MODER |= (0b10 << GPIO_MODER_MODER2_Pos);
+    GPIOA->MODER |= (0b10 << GPIO_MODER_MODER3_Pos);
+    GPIOA->AFR[0] |= (7 << GPIO_AFRL_AFSEL2_Pos);
+    GPIOA->AFR[0] |= (7 << GPIO_AFRL_AFSEL3_Pos);
+
+    // --- 3. ตั้งค่า USART2 ---
+    USART2->BRR = 139; // 115200 baud at 16MHz
+    USART2->CR1 |= USART_CR1_TE | USART_CR1_RE; // Enable Tx, Rx
+    USART2->CR1 |= USART_CR1_RXNEIE; // Enable Rx Interrupt
+    USART2->CR1 |= USART_CR1_UE; // Enable USART
+
+    // --- 4. ตั้งค่า ADC1 + DMA2 ---
+    // ตั้งค่า DMA (Stream 0, Channel 0 สำหรับ ADC1)
+    DMA2_Stream0->CR &= ~DMA_SxCR_EN; // ปิด Stream ก่อนตั้งค่า
+    DMA2_Stream0->PAR = (uint32_t)&(ADC1->DR); // Source: ADC Data Register
+    DMA2_Stream0->M0AR = (uint32_t)g_adc_results; // Destination: Global array
+    DMA2_Stream0->NDTR = 2; // จำนวนข้อมูลที่จะโอน = 2 (Temp, Light)
+    DMA2_Stream0->CR |= DMA_SxCR_CHSEL_0; // เลือก Channel 0 ของ DMA
+    DMA2_Stream0->CR |= DMA_SxCR_MINC; // Memory Increment Mode
+    DMA2_Stream0->CR |= DMA_SxCR_PSIZE_0 | DMA_SxCR_MSIZE_0; // Size: 16-bit
+    DMA2_Stream0->CR |= DMA_SxCR_CIRC; // Circular Mode (วนซ้ำอัตโนมัติ)
+    DMA2_Stream0->CR |= DMA_SxCR_EN; // เปิด Stream
+
+    // ตั้งค่า ADC
+    ADC1->SQR1 = (1 << ADC_SQR1_L_Pos); // จำนวน Conversion ใน Sequence = 2
+    ADC1->SQR3 = (0 << ADC_SQR3_SQ1_Pos) | (1 << ADC_SQR3_SQ2_Pos); // ลำดับ: Ch0 -> Ch1
+    ADC1->CR1 |= ADC_CR1_SCAN; // Scan Mode
+    ADC1->CR2 |= ADC_CR2_CONT; // Continuous Conversion Mode
+    ADC1->CR2 |= ADC_CR2_DMA | ADC_CR2_DDS; // Enable DMA
+    ADC1->CR2 |= ADC_CR2_ADON; // เปิด ADC
+    ADC1->CR2 |= ADC_CR2_SWSTART; // เริ่มการแปลงค่า (จะทำงานต่อเนื่องตลอดไป)
+
+    // --- 5. ตั้งค่า NVIC ---
+    NVIC_EnableIRQ(USART2_IRQn);
+
+    // --- 6. Main Loop ---
+    char buffer[50]; // Buffer สำหรับสร้างข้อความที่จะส่ง
+    while (1) {
+        // รอให้มีข้อมูลใหม่เข้ามา (รอให้ธงถูกตั้งโดย ISR)
+        if (g_new_data_flag) {
+            g_new_data_flag = 0; // เคลียร์ธงทันทีที่เริ่มประมวลผล
+
+            switch (g_received_char) {
+                case '0':
+                    // ปิด LED ทั้งหมดด้วย BSRR
+                    GPIOA->BSRR = GPIO_BSRR_BR5 | GPIO_BSRR_BR6 | GPIO_BSRR_BR7;
+                    uart_send_string("OK\n");
+                    break;
+                case '1':
+                    // เปิด LED ทั้งหมดด้วย BSRR
+                    GPIOA->BSRR = GPIO_BSRR_BS5 | GPIO_BSRR_BS6 | GPIO_BSRR_BS7;
+                    uart_send_string("OK\n");
+                    break;
+                case 't':
+                    // สร้างข้อความ โดยอ่านค่าล่าสุดจาก g_adc_results[0] (Temp)
+                    sprintf(buffer, "Temperature = %d millidegree Celcius\n", g_adc_results[0]);
+                    uart_send_string(buffer);
+                    break;
+                case 'l':
+                    // สร้างข้อความ โดยอ่านค่าล่าสุดจาก g_adc_results[1] (Light)
+                    sprintf(buffer, "Light intensity = %d Lux\n", g_adc_results[1]);
+                    uart_send_string(buffer);
+                    break;
+                default:
+                    uart_send_string("Invalid Command\n");
+                    break;
+            }
+        }
+        // CPU สามารถอยู่ในโหมดประหยัดพลังงานตรงนี้ได้ (WFI)
+        // เพราะเราไม่ต้องทำอะไรเลยนอกจากการรอ Interrupt
+    }
+}

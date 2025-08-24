@@ -1,0 +1,98 @@
+#include <stdint.h>
+#define STM32F411xE
+#include "stm32f4xx.h"
+
+// ฟังก์ชันสำหรับส่งค่าเลขฐานสอง (BCD) ไปให้ Decoder IC
+// ใช้ BSRR register เพื่อ set/reset pin
+void display_bcd(int number) {
+    // ---- Bit 0 (LSB) -> PC7 ----
+    if (number & 0b0001) {
+        GPIOC->BSRR = GPIO_BSRR_BS7; // Set PC7
+    } else {
+        GPIOC->BSRR = GPIO_BSRR_BR7; // Reset PC7
+    }
+
+    // ---- Bit 1 -> PA8 ----
+    if (number & 0b0010) {
+        GPIOA->BSRR = GPIO_BSRR_BS8; // Set PA8
+    } else {
+        GPIOA->BSRR = GPIO_BSRR_BR8; // Reset PA8
+    }
+
+    // ---- Bit 2 -> PB10 ----
+    if (number & 0b0100) {
+        GPIOB->BSRR = GPIO_BSRR_BS10; // Set PB10
+    } else {
+        GPIOB->BSRR = GPIO_BSRR_BR10; // Reset PB10
+    }
+
+    // ---- Bit 3 (MSB) -> PA9 ----
+    if (number & 0b1000) {
+        GPIOA->BSRR = GPIO_BSRR_BS9; // Set PA9
+    } else {
+        GPIOA->BSRR = GPIO_BSRR_BR9; // Reset PA9
+    }
+}
+
+
+int main(void) {
+    // 1. เปิด Clock ให้กับ GPIO Port A, B, C
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
+
+    // 2. ตั้งค่า GPIO Pins สำหรับส่งข้อมูล BCD (Output)
+    // PC7 (LSB), PA8, PB10, PA9 (MSB)
+    GPIOC->MODER |= (0b01 << GPIO_MODER_MODER7_Pos);
+    GPIOA->MODER |= (0b01 << GPIO_MODER_MODER8_Pos);
+    GPIOB->MODER |= (0b01 << GPIO_MODER_MODER10_Pos);
+    GPIOA->MODER |= (0b01 << GPIO_MODER_MODER9_Pos);
+
+    // 3. ตั้งค่า GPIO Pins สำหรับปุ่มกด (Input with Pull-up)
+    // PA10 (Increment), PB3 (Decrement), PB5 (Reset)
+
+    // ตั้งค่า PA10 เป็น Input และเปิดใช้งาน Pull-up
+    GPIOA->MODER &= ~(0b11 << GPIO_MODER_MODER10_Pos);
+    GPIOA->PUPDR |= (0b01 << GPIO_PUPDR_PUPD10_Pos);
+
+    // ตั้งค่า PB3 เป็น Input และเปิดใช้งาน Pull-up
+    GPIOB->MODER &= ~(0b11 << GPIO_MODER_MODER3_Pos);
+    GPIOB->PUPDR |= (0b01 << GPIO_PUPDR_PUPD3_Pos);
+
+    // ตั้งค่า PB5 เป็น Input และเปิดใช้งาน Pull-up
+    GPIOB->MODER &= ~(0b11 << GPIO_MODER_MODER5_Pos);
+    GPIOB->PUPDR |= (0b01 << GPIO_PUPDR_PUPD5_Pos);
+
+
+    // --- Main Program ---
+    int count = 0;
+    display_bcd(count); // แสดงค่าเริ่มต้น (0)
+
+    while (1) {
+        // ตรวจสอบปุ่ม Increment (PA10)
+        if ((GPIOA->IDR & GPIO_IDR_ID10) == 0) {
+            count++;
+            if (count > 9) {
+                count = 0; // Wrap-around
+            }
+            display_bcd(count);
+            for(volatile int i = 0; i < 100000; i++);
+        }
+        // ตรวจสอบปุ่ม Decrement (PB3)
+        else if ((GPIOB->IDR & GPIO_IDR_ID3) == 0) {
+            count--;
+            if (count < 0) {
+                count = 9; // Wrap-around
+            }
+            display_bcd(count);
+            for(volatile int i = 0; i < 100000; i++);
+        }
+        // ตรวจสอบปุ่ม Reset (PB5)
+        else if ((GPIOB->IDR & GPIO_IDR_ID5) == 0) {
+            count = 0;
+            display_bcd(count);
+            for(volatile int i = 0; i < 100000; i++);
+        }
+    }
+    return 0;
+}

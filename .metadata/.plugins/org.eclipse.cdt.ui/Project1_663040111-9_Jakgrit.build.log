@@ -1,0 +1,10 @@
+15:27:33 **** Incremental Build of configuration Debug for project Project1_663040111-9_Jakgrit ****
+make -j12 all 
+arm-none-eabi-size  Project1_663040111-9_Jakgrit.elf 
+   text	   data	    bss	    dec	    hex	filename
+   1156	      0	   1568	   2724	    aa4	Project1_663040111-9_Jakgrit.elf
+Finished building: default.size.stdout
+ 
+
+15:27:33 Build Finished. 0 errors, 0 warnings. (took 146ms)
+

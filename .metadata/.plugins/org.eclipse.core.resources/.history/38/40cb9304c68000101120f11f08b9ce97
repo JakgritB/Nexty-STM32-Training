@@ -1,0 +1,391 @@
+
+Project4_663040111-9_Jakgrit.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .isr_vector   00000198  08000000  08000000  00001000  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  1 .text         000001f0  08000198  08000198  00001198  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .rodata       00000000  08000388  08000390  00001390  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  3 .ARM.extab    00000000  08000388  08000388  00001390  2**0
+                  CONTENTS
+  4 .ARM          00000000  08000388  08000388  00001390  2**0
+                  CONTENTS
+  5 .preinit_array 00000000  08000388  08000390  00001390  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  6 .init_array   00000004  08000388  08000388  00001388  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  7 .fini_array   00000004  0800038c  0800038c  0000138c  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  8 .data         00000000  20000000  20000000  00001390  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  9 .bss          0000001c  20000000  08000390  00002000  2**2
+                  ALLOC
+ 10 ._user_heap_stack 00000604  2000001c  08000390  0000201c  2**0
+                  ALLOC
+ 11 .ARM.attributes 00000030  00000000  00000000  00001390  2**0
+                  CONTENTS, READONLY
+ 12 .debug_info   00000462  00000000  00000000  000013c0  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 13 .debug_abbrev 0000013c  00000000  00000000  00001822  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 14 .debug_aranges 00000048  00000000  00000000  00001960  2**3
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 15 .debug_rnglists 0000002d  00000000  00000000  000019a8  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 16 .debug_macro  0000dfe4  00000000  00000000  000019d5  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 17 .debug_line   0000064b  00000000  00000000  0000f9b9  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 18 .debug_str    00050c37  00000000  00000000  00010004  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 19 .comment      00000043  00000000  00000000  00060c3b  2**0
+                  CONTENTS, READONLY
+ 20 .debug_frame  00000058  00000000  00000000  00060c80  2**2
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 21 .debug_line_str 00000052  00000000  00000000  00060cd8  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+
+Disassembly of section .text:
+
+08000198 <__do_global_dtors_aux>:
+ 8000198:	b510      	push	{r4, lr}
+ 800019a:	4c05      	ldr	r4, [pc, #20]	@ (80001b0 <__do_global_dtors_aux+0x18>)
+ 800019c:	7823      	ldrb	r3, [r4, #0]
+ 800019e:	b933      	cbnz	r3, 80001ae <__do_global_dtors_aux+0x16>
+ 80001a0:	4b04      	ldr	r3, [pc, #16]	@ (80001b4 <__do_global_dtors_aux+0x1c>)
+ 80001a2:	b113      	cbz	r3, 80001aa <__do_global_dtors_aux+0x12>
+ 80001a4:	4804      	ldr	r0, [pc, #16]	@ (80001b8 <__do_global_dtors_aux+0x20>)
+ 80001a6:	f3af 8000 	nop.w
+ 80001aa:	2301      	movs	r3, #1
+ 80001ac:	7023      	strb	r3, [r4, #0]
+ 80001ae:	bd10      	pop	{r4, pc}
+ 80001b0:	20000000 	.word	0x20000000
+ 80001b4:	00000000 	.word	0x00000000
+ 80001b8:	08000370 	.word	0x08000370
+
+080001bc <frame_dummy>:
+ 80001bc:	b508      	push	{r3, lr}
+ 80001be:	4b03      	ldr	r3, [pc, #12]	@ (80001cc <frame_dummy+0x10>)
+ 80001c0:	b11b      	cbz	r3, 80001ca <frame_dummy+0xe>
+ 80001c2:	4903      	ldr	r1, [pc, #12]	@ (80001d0 <frame_dummy+0x14>)
+ 80001c4:	4803      	ldr	r0, [pc, #12]	@ (80001d4 <frame_dummy+0x18>)
+ 80001c6:	f3af 8000 	nop.w
+ 80001ca:	bd08      	pop	{r3, pc}
+ 80001cc:	00000000 	.word	0x00000000
+ 80001d0:	20000004 	.word	0x20000004
+ 80001d4:	08000370 	.word	0x08000370
+
+080001d8 <main>:
+#include "stm32f4xx.h"
+
+// กำหนดความละเอียดของ Software PWM (ยิ่งเยอะ ยิ่งเนียน แต่ยิ่งกินพลัง CPU)
+#define PWM_RESOLUTION 1000
+
+int main(void) {
+ 80001d8:	b480      	push	{r7}
+ 80001da:	b085      	sub	sp, #20
+ 80001dc:	af00      	add	r7, sp, #0
+	// --- 1. เปิดสัญญาณนาฬิกา (Clock) ---
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN;
+ 80001de:	4b38      	ldr	r3, [pc, #224]	@ (80002c0 <main+0xe8>)
+ 80001e0:	6b1b      	ldr	r3, [r3, #48]	@ 0x30
+ 80001e2:	4a37      	ldr	r2, [pc, #220]	@ (80002c0 <main+0xe8>)
+ 80001e4:	f043 0303 	orr.w	r3, r3, #3
+ 80001e8:	6313      	str	r3, [r2, #48]	@ 0x30
+	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
+ 80001ea:	4b35      	ldr	r3, [pc, #212]	@ (80002c0 <main+0xe8>)
+ 80001ec:	6c5b      	ldr	r3, [r3, #68]	@ 0x44
+ 80001ee:	4a34      	ldr	r2, [pc, #208]	@ (80002c0 <main+0xe8>)
+ 80001f0:	f443 7380 	orr.w	r3, r3, #256	@ 0x100
+ 80001f4:	6453      	str	r3, [r2, #68]	@ 0x44
+
+	// --- 2. ตั้งค่า GPIO Pins ---
+	// ตั้งค่าขา LED ทั้ง 4 เป็น Output
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER5_Pos);
+ 80001f6:	4b33      	ldr	r3, [pc, #204]	@ (80002c4 <main+0xec>)
+ 80001f8:	681b      	ldr	r3, [r3, #0]
+ 80001fa:	4a32      	ldr	r2, [pc, #200]	@ (80002c4 <main+0xec>)
+ 80001fc:	f443 6380 	orr.w	r3, r3, #1024	@ 0x400
+ 8000200:	6013      	str	r3, [r2, #0]
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER6_Pos);
+ 8000202:	4b30      	ldr	r3, [pc, #192]	@ (80002c4 <main+0xec>)
+ 8000204:	681b      	ldr	r3, [r3, #0]
+ 8000206:	4a2f      	ldr	r2, [pc, #188]	@ (80002c4 <main+0xec>)
+ 8000208:	f443 5380 	orr.w	r3, r3, #4096	@ 0x1000
+ 800020c:	6013      	str	r3, [r2, #0]
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER7_Pos);
+ 800020e:	4b2d      	ldr	r3, [pc, #180]	@ (80002c4 <main+0xec>)
+ 8000210:	681b      	ldr	r3, [r3, #0]
+ 8000212:	4a2c      	ldr	r2, [pc, #176]	@ (80002c4 <main+0xec>)
+ 8000214:	f443 4380 	orr.w	r3, r3, #16384	@ 0x4000
+ 8000218:	6013      	str	r3, [r2, #0]
+	GPIOB->MODER |= (0b01 << GPIO_MODER_MODER6_Pos);
+ 800021a:	4b2b      	ldr	r3, [pc, #172]	@ (80002c8 <main+0xf0>)
+ 800021c:	681b      	ldr	r3, [r3, #0]
+ 800021e:	4a2a      	ldr	r2, [pc, #168]	@ (80002c8 <main+0xf0>)
+ 8000220:	f443 5380 	orr.w	r3, r3, #4096	@ 0x1000
+ 8000224:	6013      	str	r3, [r2, #0]
+
+	// ตั้งค่าขา PA4 (Potentiometer) เป็น Analog Input
+	GPIOA->MODER |= (0b11 << GPIO_MODER_MODER4_Pos);
+ 8000226:	4b27      	ldr	r3, [pc, #156]	@ (80002c4 <main+0xec>)
+ 8000228:	681b      	ldr	r3, [r3, #0]
+ 800022a:	4a26      	ldr	r2, [pc, #152]	@ (80002c4 <main+0xec>)
+ 800022c:	f443 7340 	orr.w	r3, r3, #768	@ 0x300
+ 8000230:	6013      	str	r3, [r2, #0]
+
+	// --- 3. ตั้งค่า ADC (แบบ Polling ธรรมดา) ---
+	ADC1->SQR3 = (4 << ADC_SQR3_SQ1_Pos); // เลือก Channel 4 (PA4)
+ 8000232:	4b26      	ldr	r3, [pc, #152]	@ (80002cc <main+0xf4>)
+ 8000234:	2204      	movs	r2, #4
+ 8000236:	635a      	str	r2, [r3, #52]	@ 0x34
+	ADC1->CR2 |= ADC_CR2_ADON; // เปิด ADC
+ 8000238:	4b24      	ldr	r3, [pc, #144]	@ (80002cc <main+0xf4>)
+ 800023a:	689b      	ldr	r3, [r3, #8]
+ 800023c:	4a23      	ldr	r2, [pc, #140]	@ (80002cc <main+0xf4>)
+ 800023e:	f043 0301 	orr.w	r3, r3, #1
+ 8000242:	6093      	str	r3, [r2, #8]
+
+	// ตัวแปรสำหรับเก็บค่าความสว่าง
+	uint32_t brightness = 0;
+ 8000244:	2300      	movs	r3, #0
+ 8000246:	60bb      	str	r3, [r7, #8]
+
+	// --- 4. Main Loop ---
+	while (1) {
+		// --- ส่วนที่ 1: อ่านค่า ADC เพื่อกำหนดความสว่าง ---
+		ADC1->CR2 |= ADC_CR2_SWSTART; // เริ่มแปลงค่า
+ 8000248:	4b20      	ldr	r3, [pc, #128]	@ (80002cc <main+0xf4>)
+ 800024a:	689b      	ldr	r3, [r3, #8]
+ 800024c:	4a1f      	ldr	r2, [pc, #124]	@ (80002cc <main+0xf4>)
+ 800024e:	f043 4380 	orr.w	r3, r3, #1073741824	@ 0x40000000
+ 8000252:	6093      	str	r3, [r2, #8]
+		while ((ADC1->SR & ADC_SR_EOC) == 0); // รอจนกว่าจะแปลงเสร็จ
+ 8000254:	bf00      	nop
+ 8000256:	4b1d      	ldr	r3, [pc, #116]	@ (80002cc <main+0xf4>)
+ 8000258:	681b      	ldr	r3, [r3, #0]
+ 800025a:	f003 0302 	and.w	r3, r3, #2
+ 800025e:	2b00      	cmp	r3, #0
+ 8000260:	d0f9      	beq.n	8000256 <main+0x7e>
+		uint16_t adc_value = ADC1->DR; // อ่านค่า (0-4095)
+ 8000262:	4b1a      	ldr	r3, [pc, #104]	@ (80002cc <main+0xf4>)
+ 8000264:	6cdb      	ldr	r3, [r3, #76]	@ 0x4c
+ 8000266:	80fb      	strh	r3, [r7, #6]
+
+		// แปลงค่า ADC (0-4095) ให้เป็นค่าความสว่าง (0-1000)
+		brightness = (adc_value * PWM_RESOLUTION) / 4095;
+ 8000268:	88fb      	ldrh	r3, [r7, #6]
+ 800026a:	f44f 727a 	mov.w	r2, #1000	@ 0x3e8
+ 800026e:	fb02 f303 	mul.w	r3, r2, r3
+ 8000272:	4a17      	ldr	r2, [pc, #92]	@ (80002d0 <main+0xf8>)
+ 8000274:	fb82 1203 	smull	r1, r2, r2, r3
+ 8000278:	441a      	add	r2, r3
+ 800027a:	12d2      	asrs	r2, r2, #11
+ 800027c:	17db      	asrs	r3, r3, #31
+ 800027e:	1ad3      	subs	r3, r2, r3
+ 8000280:	60bb      	str	r3, [r7, #8]
+
+
+		// --- ส่วนที่ 2: สร้างสัญญาณ PWM ด้วย Software ---
+		// ลูปนี้คือการสร้าง 1 คาบของสัญญาณ PWM
+		for (int i = 0; i < PWM_RESOLUTION; i++) {
+ 8000282:	2300      	movs	r3, #0
+ 8000284:	60fb      	str	r3, [r7, #12]
+ 8000286:	e015      	b.n	80002b4 <main+0xdc>
+			if (i < brightness) {
+ 8000288:	68fb      	ldr	r3, [r7, #12]
+ 800028a:	68ba      	ldr	r2, [r7, #8]
+ 800028c:	429a      	cmp	r2, r3
+ 800028e:	d906      	bls.n	800029e <main+0xc6>
+				// ช่วง "เปิด" ไฟ (ON time)
+				GPIOA->BSRR = GPIO_BSRR_BS5 | GPIO_BSRR_BS6 | GPIO_BSRR_BS7;
+ 8000290:	4b0c      	ldr	r3, [pc, #48]	@ (80002c4 <main+0xec>)
+ 8000292:	22e0      	movs	r2, #224	@ 0xe0
+ 8000294:	619a      	str	r2, [r3, #24]
+				GPIOB->BSRR = GPIO_BSRR_BS6;
+ 8000296:	4b0c      	ldr	r3, [pc, #48]	@ (80002c8 <main+0xf0>)
+ 8000298:	2240      	movs	r2, #64	@ 0x40
+ 800029a:	619a      	str	r2, [r3, #24]
+ 800029c:	e007      	b.n	80002ae <main+0xd6>
+			} else {
+				// ช่วง "ปิด" ไฟ (OFF time)
+				GPIOA->BSRR = GPIO_BSRR_BR5 | GPIO_BSRR_BR6 | GPIO_BSRR_BR7;
+ 800029e:	4b09      	ldr	r3, [pc, #36]	@ (80002c4 <main+0xec>)
+ 80002a0:	f44f 0260 	mov.w	r2, #14680064	@ 0xe00000
+ 80002a4:	619a      	str	r2, [r3, #24]
+				GPIOB->BSRR = GPIO_BSRR_BR6;
+ 80002a6:	4b08      	ldr	r3, [pc, #32]	@ (80002c8 <main+0xf0>)
+ 80002a8:	f44f 0280 	mov.w	r2, #4194304	@ 0x400000
+ 80002ac:	619a      	str	r2, [r3, #24]
+		for (int i = 0; i < PWM_RESOLUTION; i++) {
+ 80002ae:	68fb      	ldr	r3, [r7, #12]
+ 80002b0:	3301      	adds	r3, #1
+ 80002b2:	60fb      	str	r3, [r7, #12]
+ 80002b4:	68fb      	ldr	r3, [r7, #12]
+ 80002b6:	f5b3 7f7a 	cmp.w	r3, #1000	@ 0x3e8
+ 80002ba:	dbe5      	blt.n	8000288 <main+0xb0>
+	while (1) {
+ 80002bc:	e7c4      	b.n	8000248 <main+0x70>
+ 80002be:	bf00      	nop
+ 80002c0:	40023800 	.word	0x40023800
+ 80002c4:	40020000 	.word	0x40020000
+ 80002c8:	40020400 	.word	0x40020400
+ 80002cc:	40012000 	.word	0x40012000
+ 80002d0:	80080081 	.word	0x80080081
+
+080002d4 <Reset_Handler>:
+
+  .section .text.Reset_Handler
+  .weak Reset_Handler
+  .type Reset_Handler, %function
+Reset_Handler:
+  ldr   r0, =_estack
+ 80002d4:	480d      	ldr	r0, [pc, #52]	@ (800030c <LoopForever+0x2>)
+  mov   sp, r0          /* set stack pointer */
+ 80002d6:	4685      	mov	sp, r0
+/* Call the clock system initialization function.*/
+  bl  SystemInit
+ 80002d8:	f3af 8000 	nop.w
+
+/* Copy the data segment initializers from flash to SRAM */
+  ldr r0, =_sdata
+ 80002dc:	480c      	ldr	r0, [pc, #48]	@ (8000310 <LoopForever+0x6>)
+  ldr r1, =_edata
+ 80002de:	490d      	ldr	r1, [pc, #52]	@ (8000314 <LoopForever+0xa>)
+  ldr r2, =_sidata
+ 80002e0:	4a0d      	ldr	r2, [pc, #52]	@ (8000318 <LoopForever+0xe>)
+  movs r3, #0
+ 80002e2:	2300      	movs	r3, #0
+  b LoopCopyDataInit
+ 80002e4:	e002      	b.n	80002ec <LoopCopyDataInit>
+
+080002e6 <CopyDataInit>:
+
+CopyDataInit:
+  ldr r4, [r2, r3]
+ 80002e6:	58d4      	ldr	r4, [r2, r3]
+  str r4, [r0, r3]
+ 80002e8:	50c4      	str	r4, [r0, r3]
+  adds r3, r3, #4
+ 80002ea:	3304      	adds	r3, #4
+
+080002ec <LoopCopyDataInit>:
+
+LoopCopyDataInit:
+  adds r4, r0, r3
+ 80002ec:	18c4      	adds	r4, r0, r3
+  cmp r4, r1
+ 80002ee:	428c      	cmp	r4, r1
+  bcc CopyDataInit
+ 80002f0:	d3f9      	bcc.n	80002e6 <CopyDataInit>
+
+/* Zero fill the bss segment. */
+  ldr r2, =_sbss
+ 80002f2:	4a0a      	ldr	r2, [pc, #40]	@ (800031c <LoopForever+0x12>)
+  ldr r4, =_ebss
+ 80002f4:	4c0a      	ldr	r4, [pc, #40]	@ (8000320 <LoopForever+0x16>)
+  movs r3, #0
+ 80002f6:	2300      	movs	r3, #0
+  b LoopFillZerobss
+ 80002f8:	e001      	b.n	80002fe <LoopFillZerobss>
+
+080002fa <FillZerobss>:
+
+FillZerobss:
+  str  r3, [r2]
+ 80002fa:	6013      	str	r3, [r2, #0]
+  adds r2, r2, #4
+ 80002fc:	3204      	adds	r2, #4
+
+080002fe <LoopFillZerobss>:
+
+LoopFillZerobss:
+  cmp r2, r4
+ 80002fe:	42a2      	cmp	r2, r4
+  bcc FillZerobss
+ 8000300:	d3fb      	bcc.n	80002fa <FillZerobss>
+
+/* Call static constructors */
+  bl __libc_init_array
+ 8000302:	f000 f811 	bl	8000328 <__libc_init_array>
+/* Call the application's entry point.*/
+  bl main
+ 8000306:	f7ff ff67 	bl	80001d8 <main>
+
+0800030a <LoopForever>:
+
+LoopForever:
+  b LoopForever
+ 800030a:	e7fe      	b.n	800030a <LoopForever>
+  ldr   r0, =_estack
+ 800030c:	20020000 	.word	0x20020000
+  ldr r0, =_sdata
+ 8000310:	20000000 	.word	0x20000000
+  ldr r1, =_edata
+ 8000314:	20000000 	.word	0x20000000
+  ldr r2, =_sidata
+ 8000318:	08000390 	.word	0x08000390
+  ldr r2, =_sbss
+ 800031c:	20000000 	.word	0x20000000
+  ldr r4, =_ebss
+ 8000320:	2000001c 	.word	0x2000001c
+
+08000324 <ADC_IRQHandler>:
+ * @retval : None
+*/
+  .section .text.Default_Handler,"ax",%progbits
+Default_Handler:
+Infinite_Loop:
+  b Infinite_Loop
+ 8000324:	e7fe      	b.n	8000324 <ADC_IRQHandler>
+	...
+
+08000328 <__libc_init_array>:
+ 8000328:	b570      	push	{r4, r5, r6, lr}
+ 800032a:	4d0d      	ldr	r5, [pc, #52]	@ (8000360 <__libc_init_array+0x38>)
+ 800032c:	4c0d      	ldr	r4, [pc, #52]	@ (8000364 <__libc_init_array+0x3c>)
+ 800032e:	1b64      	subs	r4, r4, r5
+ 8000330:	10a4      	asrs	r4, r4, #2
+ 8000332:	2600      	movs	r6, #0
+ 8000334:	42a6      	cmp	r6, r4
+ 8000336:	d109      	bne.n	800034c <__libc_init_array+0x24>
+ 8000338:	4d0b      	ldr	r5, [pc, #44]	@ (8000368 <__libc_init_array+0x40>)
+ 800033a:	4c0c      	ldr	r4, [pc, #48]	@ (800036c <__libc_init_array+0x44>)
+ 800033c:	f000 f818 	bl	8000370 <_init>
+ 8000340:	1b64      	subs	r4, r4, r5
+ 8000342:	10a4      	asrs	r4, r4, #2
+ 8000344:	2600      	movs	r6, #0
+ 8000346:	42a6      	cmp	r6, r4
+ 8000348:	d105      	bne.n	8000356 <__libc_init_array+0x2e>
+ 800034a:	bd70      	pop	{r4, r5, r6, pc}
+ 800034c:	f855 3b04 	ldr.w	r3, [r5], #4
+ 8000350:	4798      	blx	r3
+ 8000352:	3601      	adds	r6, #1
+ 8000354:	e7ee      	b.n	8000334 <__libc_init_array+0xc>
+ 8000356:	f855 3b04 	ldr.w	r3, [r5], #4
+ 800035a:	4798      	blx	r3
+ 800035c:	3601      	adds	r6, #1
+ 800035e:	e7f2      	b.n	8000346 <__libc_init_array+0x1e>
+ 8000360:	08000388 	.word	0x08000388
+ 8000364:	08000388 	.word	0x08000388
+ 8000368:	08000388 	.word	0x08000388
+ 800036c:	0800038c 	.word	0x0800038c
+
+08000370 <_init>:
+ 8000370:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8000372:	bf00      	nop
+ 8000374:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8000376:	bc08      	pop	{r3}
+ 8000378:	469e      	mov	lr, r3
+ 800037a:	4770      	bx	lr
+
+0800037c <_fini>:
+ 800037c:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 800037e:	bf00      	nop
+ 8000380:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8000382:	bc08      	pop	{r3}
+ 8000384:	469e      	mov	lr, r3
+ 8000386:	4770      	bx	lr

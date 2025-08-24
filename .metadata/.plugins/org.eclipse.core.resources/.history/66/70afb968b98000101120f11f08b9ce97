@@ -1,0 +1,148 @@
+#include <stdint.h>
+#define STM32F411xE
+#include "stm32f4xx.h"
+
+// 7-segment patterns (common cathode)
+// Segments: a(PA5), b(PC7), c(PA8), d(PB10), e(PA9), f(PA6), g(PC8)
+// Bit order: gfedcba
+const uint8_t segment_patterns[] = {
+    0b0111111,  // 0: abcdef
+    0b0000110,  // 1: bc
+    0b1011011,  // 2: abged
+    0b1001111,  // 3: abgcd
+    0b1100110,  // 4: fgbc
+    0b1101101,  // 5: afgcd
+    0b1111101,  // 6: afgedc
+    0b0000111,  // 7: abc
+    0b1111111,  // 8: abcdefg
+    0b1101111   // 9: abcdfg
+};
+
+// Global variables
+volatile uint8_t current_number = 0;
+volatile uint32_t button_timer = 0;
+volatile uint8_t button_pressed = 0;
+
+void delay_ms(uint32_t ms) {
+    for(uint32_t i = 0; i < ms * 1000; i++);
+}
+
+void display_number(uint8_t number) {
+    uint8_t pattern = segment_patterns[number];
+
+    // Clear all segments first using BSRR (reset bits)
+    GPIOA->BSRR = (GPIO_BSRR_BR5 | GPIO_BSRR_BR6 | GPIO_BSRR_BR8 | GPIO_BSRR_BR9);
+    GPIOC->BSRR = (GPIO_BSRR_BR7 | GPIO_BSRR_BR8);
+    GPIOB->BSRR = GPIO_BSRR_BR10;
+
+    // Set segments according to pattern using BSRR (set bits)
+    if (pattern & 0x01) GPIOA->BSRR = GPIO_BSRR_BS5;   // a -> PA5
+    if (pattern & 0x02) GPIOC->BSRR = GPIO_BSRR_BS7;   // b -> PC7
+    if (pattern & 0x04) GPIOA->BSRR = GPIO_BSRR_BS8;   // c -> PA8
+    if (pattern & 0x08) GPIOB->BSRR = GPIO_BSRR_BS10;  // d -> PB10
+    if (pattern & 0x10) GPIOA->BSRR = GPIO_BSRR_BS9;   // e -> PA9
+    if (pattern & 0x20) GPIOA->BSRR = GPIO_BSRR_BS6;   // f -> PA6
+    if (pattern & 0x40) GPIOC->BSRR = GPIO_BSRR_BS8;   // g -> PC8
+}
+
+uint8_t read_button(GPIO_TypeDef* gpio, uint16_t pin) {
+    return !(gpio->IDR & pin);  // Active low (assuming pull-up)
+}
+
+void handle_buttons() {
+    static uint32_t last_press_time = 0;
+    static uint8_t last_button = 0;
+    uint32_t current_time = button_timer;
+
+    // Read buttons
+    uint8_t btn_up = read_button(GPIOA, GPIO_IDR_ID10);    // PA10 - increment
+    uint8_t btn_down = read_button(GPIOB, GPIO_IDR_ID3);   // PB3 - decrement
+    uint8_t btn_reset = read_button(GPIOB, GPIO_IDR_ID5);  // PB5 - reset
+
+    // Handle reset button (highest priority)
+    if (btn_reset) {
+        if (last_button != 3 || (current_time - last_press_time > 50)) {
+            current_number = 0;
+            last_button = 3;
+            last_press_time = current_time;
+        }
+        return;
+    }
+
+    // Handle increment button
+    if (btn_up) {
+        if (last_button != 1 || (current_time - last_press_time > 200)) {
+            current_number++;
+            if (current_number > 9) current_number = 0;  // Wrap around
+            last_button = 1;
+            last_press_time = current_time;
+        }
+        return;
+    }
+
+    // Handle decrement button
+    if (btn_down) {
+        if (last_button != 2 || (current_time - last_press_time > 200)) {
+            if (current_number == 0) {
+                current_number = 9;  // Wrap around
+            } else {
+                current_number--;
+            }
+            last_button = 2;
+            last_press_time = current_time;
+        }
+        return;
+    }
+
+    // No button pressed
+    last_button = 0;
+}
+
+// Simple timer for button handling
+void SysTick_Handler(void) {
+    button_timer++;
+}
+
+int main(void) {
+    // Enable clocks
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIOBEN;
+
+    // Configure 7-segment display pins as output
+    // PA5, PA6, PA8, PA9 as output
+    GPIOA->MODER |= (0b01 << GPIO_MODER_MODER5_Pos) |   // PA5 (a)
+                    (0b01 << GPIO_MODER_MODER6_Pos) |   // PA6 (f)
+                    (0b01 << GPIO_MODER_MODER8_Pos) |   // PA8 (c)
+                    (0b01 << GPIO_MODER_MODER9_Pos);    // PA9 (e)
+
+    // PC7, PC8 as output
+    GPIOC->MODER |= (0b01 << GPIO_MODER_MODER7_Pos) |   // PC7 (b)
+                    (0b01 << GPIO_MODER_MODER8_Pos);    // PC8 (g)
+
+    // PB10 as output
+    GPIOB->MODER |= (0b01 << GPIO_MODER_MODER10_Pos);   // PB10 (d)
+
+    // Configure button pins as input with pull-up
+    // PA10 as input
+    GPIOA->MODER &= ~(0b11 << GPIO_MODER_MODER10_Pos);  // Input mode
+    GPIOA->PUPDR |= (0b01 << GPIO_PUPDR_PUPDR10_Pos);   // Pull-up
+
+    // PB3, PB5 as input
+    GPIOB->MODER &= ~((0b11 << GPIO_MODER_MODER3_Pos) |
+                      (0b11 << GPIO_MODER_MODER5_Pos));  // Input mode
+    GPIOB->PUPDR |= (0b01 << GPIO_PUPDR_PUPDR3_Pos) |   // Pull-up
+                    (0b01 << GPIO_PUPDR_PUPDR5_Pos);     // Pull-up
+
+    // Configure SysTick for 1ms interrupt
+    SysTick_Config(SystemCoreClock / 1000);
+
+    // Initial display
+    display_number(current_number);
+
+    while (1) {
+        handle_buttons();
+        display_number(current_number);
+        delay_ms(10);  // Small delay to reduce CPU usage
+    }
+
+    return 0;
+}

@@ -1,487 +1,252 @@
-15:50:37 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
+15:29:21 **** Clean-only build of configuration Debug for project Project4_663040111-9_Jakgrit ****
+make -j12 clean 
+rm -rf ./Startup/startup_stm32f411retx.d ./Startup/startup_stm32f411retx.o
+rm -rf ./Src/main.cyclo ./Src/main.d ./Src/main.o ./Src/main.su ./Src/syscalls.cyclo ./Src/syscalls.d ./Src/syscalls.o ./Src/syscalls.su ./Src/sysmem.cyclo ./Src/sysmem.d ./Src/sysmem.o ./Src/sysmem.su
+rm -rf Project2_663040111-9_Jakgrit.elf Project2_663040111-9_Jakgrit.list Project2_663040111-9_Jakgrit.map default.size.stdout
+ 
+15:39:25 **** Build of configuration Debug for project Project4_663040111-9_Jakgrit ****
 make -j12 all 
-arm-none-eabi-size  Training_Lab4.3.elf 
+arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -DDEBUG -c -x assembler-with-cpp -MMD -MP -MF"Startup/startup_stm32f411retx.d" -MT"Startup/startup_stm32f411retx.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Startup/startup_stm32f411retx.o" "../Startup/startup_stm32f411retx.s"
+arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
+arm-none-eabi-gcc "../Src/syscalls.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/syscalls.d" -MT"Src/syscalls.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/syscalls.o"
+arm-none-eabi-gcc "../Src/sysmem.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/sysmem.d" -MT"Src/sysmem.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/sysmem.o"
+arm-none-eabi-gcc -o "Project4_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project4_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project4_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project4_663040111-9_Jakgrit.elf
+ 
+arm-none-eabi-size  Project4_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project4_663040111-9_Jakgrit.elf  > "Project4_663040111-9_Jakgrit.list"
    text	   data	    bss	    dec	    hex	filename
-   3944	     80	   1952	   5976	   1758	Training_Lab4.3.elf
+    912	      0	   1568	   2480	    9b0	Project4_663040111-9_Jakgrit.elf
 Finished building: default.size.stdout
  
-15:50:50 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
+Finished building: Project4_663040111-9_Jakgrit.list
+ 
+15:39:39 **** Incremental Build of configuration Debug for project Project4_663040111-9_Jakgrit ****
 make -j12 all 
-arm-none-eabi-size  Training_Lab4.3.elf 
+arm-none-eabi-size  Project4_663040111-9_Jakgrit.elf 
    text	   data	    bss	    dec	    hex	filename
-   3944	     80	   1952	   5976	   1758	Training_Lab4.3.elf
+    912	      0	   1568	   2480	    9b0	Project4_663040111-9_Jakgrit.elf
 Finished building: default.size.stdout
  
-15:53:39 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
+15:42:29 **** Incremental Build of configuration Debug for project Project4_663040111-9_Jakgrit ****
+make -j12 all 
+arm-none-eabi-size  Project4_663040111-9_Jakgrit.elf 
+   text	   data	    bss	    dec	    hex	filename
+    912	      0	   1568	   2480	    9b0	Project4_663040111-9_Jakgrit.elf
+Finished building: default.size.stdout
+ 
+15:43:46 **** Incremental Build of configuration Debug for project Project4_663040111-9_Jakgrit ****
 make -j12 all 
 arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:75:56: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long int' [-Wformat=]
-   75 |                 sprintf(stringOut, "Light intensity = %d Lux\n",
-      |                                                       ~^
-      |                                                        |
-      |                                                        int
-      |                                                       %ld
-   76 |                                 (int32_t) lightintensity);
-      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                 |
-      |                                 long int
-../Src/main.c:72:23: warning: unused variable 'r_ntc' [-Wunused-variable]
-   72 |                 float r_ntc = RX * adc_voltage / (VCC - adc_voltage);
-      |                       ^~~~~
-arm-none-eabi-gcc -o "Training_Lab4.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab4.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab4.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab4.3.elf
+arm-none-eabi-gcc -o "Project4_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project4_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project4_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project4_663040111-9_Jakgrit.elf
  
-arm-none-eabi-size  Training_Lab4.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab4.3.elf  > "Training_Lab4.3.list"
+arm-none-eabi-size  Project4_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project4_663040111-9_Jakgrit.elf  > "Project4_663040111-9_Jakgrit.list"
    text	   data	    bss	    dec	    hex	filename
-   3940	     80	   1952	   5972	   1754	Training_Lab4.3.elf
+    912	      0	   1568	   2480	    9b0	Project4_663040111-9_Jakgrit.elf
 Finished building: default.size.stdout
  
-Finished building: Training_Lab4.3.list
+Finished building: Project4_663040111-9_Jakgrit.list
  
-15:53:51 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
-make -j12 all 
-arm-none-eabi-size  Training_Lab4.3.elf 
-   text	   data	    bss	    dec	    hex	filename
-   3940	     80	   1952	   5972	   1754	Training_Lab4.3.elf
-Finished building: default.size.stdout
- 
-15:53:53 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
-make -j12 all 
-arm-none-eabi-size  Training_Lab4.3.elf 
-   text	   data	    bss	    dec	    hex	filename
-   3940	     80	   1952	   5972	   1754	Training_Lab4.3.elf
-Finished building: default.size.stdout
- 
-15:54:22 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
+16:02:05 **** Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
 make -j12 all 
 arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:75:56: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long int' [-Wformat=]
-   75 |                 sprintf(stringOut, "Light intensity = %d Lux\n",
-      |                                                       ~^
-      |                                                        |
-      |                                                        int
-      |                                                       %ld
-   76 |                                 (int32_t) lightintensity);
-      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                 |
-      |                                 long int
-../Src/main.c:72:23: warning: unused variable 'r_ntc' [-Wunused-variable]
-   72 |                 float r_ntc = RX * adc_voltage / (VCC - adc_voltage);
-      |                       ^~~~~
-arm-none-eabi-gcc -o "Training_Lab4.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab4.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab4.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab4.3.elf
+arm-none-eabi-gcc -o "Project3_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project3_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project3_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project3_663040111-9_Jakgrit.elf
  
-arm-none-eabi-size  Training_Lab4.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab4.3.elf  > "Training_Lab4.3.list"
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project3_663040111-9_Jakgrit.elf  > "Project3_663040111-9_Jakgrit.list"
    text	   data	    bss	    dec	    hex	filename
-   3940	     80	   1952	   5972	   1754	Training_Lab4.3.elf
+   4260	     80	   2008	   6348	   18cc	Project3_663040111-9_Jakgrit.elf
 Finished building: default.size.stdout
  
-Finished building: Training_Lab4.3.list
+Finished building: Project3_663040111-9_Jakgrit.list
  
-15:54:57 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
+16:02:22 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
 make -j12 all 
 arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:75:56: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long int' [-Wformat=]
-   75 |                 sprintf(stringOut, "Light intensity = %d Lux\n",
-      |                                                       ~^
-      |                                                        |
-      |                                                        int
-      |                                                       %ld
-   76 |                                 (int32_t) lightintensity);
-      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                 |
-      |                                 long int
-../Src/main.c:72:23: warning: unused variable 'r_ntc' [-Wunused-variable]
-   72 |                 float r_ntc = RX * adc_voltage / (VCC - adc_voltage);
-      |                       ^~~~~
-arm-none-eabi-gcc -o "Training_Lab4.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab4.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab4.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab4.3.elf
+arm-none-eabi-gcc -o "Project3_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project3_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project3_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project3_663040111-9_Jakgrit.elf
  
-arm-none-eabi-size  Training_Lab4.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab4.3.elf  > "Training_Lab4.3.list"
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project3_663040111-9_Jakgrit.elf  > "Project3_663040111-9_Jakgrit.list"
    text	   data	    bss	    dec	    hex	filename
-   3936	     80	   1952	   5968	   1750	Training_Lab4.3.elf
+   4260	     80	   2008	   6348	   18cc	Project3_663040111-9_Jakgrit.elf
 Finished building: default.size.stdout
  
-Finished building: Training_Lab4.3.list
+Finished building: Project3_663040111-9_Jakgrit.list
  
-15:54:59 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
+16:08:33 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
 make -j12 all 
 arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:75:56: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long int' [-Wformat=]
-   75 |                 sprintf(stringOut, "Light intensity = %d Lux\n",
-      |                                                       ~^
-      |                                                        |
-      |                                                        int
-      |                                                       %ld
-   76 |                                 (int32_t) lightintensity);
-      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                 |
-      |                                 long int
-../Src/main.c:72:23: warning: unused variable 'r_ntc' [-Wunused-variable]
-   72 |                 float r_ntc = RX * adc_voltage / (VCC - adc_voltage);
-      |                       ^~~~~
-arm-none-eabi-gcc -o "Training_Lab4.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab4.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab4.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab4.3.elf
+arm-none-eabi-gcc -o "Project3_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project3_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project3_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project3_663040111-9_Jakgrit.elf
  
-arm-none-eabi-size  Training_Lab4.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab4.3.elf  > "Training_Lab4.3.list"
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project3_663040111-9_Jakgrit.elf  > "Project3_663040111-9_Jakgrit.list"
    text	   data	    bss	    dec	    hex	filename
-   3936	     80	   1952	   5968	   1750	Training_Lab4.3.elf
+  12276	     96	   2008	  14380	   382c	Project3_663040111-9_Jakgrit.elf
 Finished building: default.size.stdout
  
-Finished building: Training_Lab4.3.list
+Finished building: Project3_663040111-9_Jakgrit.list
  
-15:59:49 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
+16:08:47 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
 make -j12 all 
 arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:75:56: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long int' [-Wformat=]
-   75 |                 sprintf(stringOut, "Light intensity = %d Lux\n",
-      |                                                       ~^
-      |                                                        |
-      |                                                        int
-      |                                                       %ld
-   76 |                                 (int32_t) lightintensity);
-      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                 |
-      |                                 long int
-arm-none-eabi-gcc -o "Training_Lab4.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab4.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab4.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab4.3.elf
+arm-none-eabi-gcc -o "Project3_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project3_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project3_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project3_663040111-9_Jakgrit.elf
  
-arm-none-eabi-size  Training_Lab4.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab4.3.elf  > "Training_Lab4.3.list"
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project3_663040111-9_Jakgrit.elf  > "Project3_663040111-9_Jakgrit.list"
    text	   data	    bss	    dec	    hex	filename
-   3928	     80	   1952	   5960	   1748	Training_Lab4.3.elf
+  12276	     96	   2008	  14380	   382c	Project3_663040111-9_Jakgrit.elf
 Finished building: default.size.stdout
  
-Finished building: Training_Lab4.3.list
+Finished building: Project3_663040111-9_Jakgrit.list
  
-16:00:19 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
+16:08:50 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
+make -j12 all 
+arm-none-eabi-gcc -o "Project3_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project3_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project3_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project3_663040111-9_Jakgrit.elf
+ 
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project3_663040111-9_Jakgrit.elf  > "Project3_663040111-9_Jakgrit.list"
+   text	   data	    bss	    dec	    hex	filename
+  12276	     96	   2008	  14380	   382c	Project3_663040111-9_Jakgrit.elf
+Finished building: default.size.stdout
+ 
+Finished building: Project3_663040111-9_Jakgrit.list
+ 
+16:18:18 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
 make -j12 all 
 arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:75:56: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long int' [-Wformat=]
-   75 |                 sprintf(stringOut, "Light intensity = %d Lux\n",
-      |                                                       ~^
-      |                                                        |
-      |                                                        int
-      |                                                       %ld
-   76 |                                 (int32_t) lightintensity);
-      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                 |
-      |                                 long int
-arm-none-eabi-gcc -o "Training_Lab4.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab4.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab4.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab4.3.elf
+arm-none-eabi-gcc -o "Project3_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project3_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project3_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project3_663040111-9_Jakgrit.elf
  
-arm-none-eabi-size  Training_Lab4.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab4.3.elf  > "Training_Lab4.3.list"
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project3_663040111-9_Jakgrit.elf  > "Project3_663040111-9_Jakgrit.list"
    text	   data	    bss	    dec	    hex	filename
-   3928	     80	   1952	   5960	   1748	Training_Lab4.3.elf
+  12308	     96	   2008	  14412	   384c	Project3_663040111-9_Jakgrit.elf
 Finished building: default.size.stdout
  
-Finished building: Training_Lab4.3.list
+Finished building: Project3_663040111-9_Jakgrit.list
  
-16:00:53 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
+16:18:22 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
+make -j12 all 
+arm-none-eabi-gcc -o "Project3_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project3_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project3_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project3_663040111-9_Jakgrit.elf
+ 
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project3_663040111-9_Jakgrit.elf  > "Project3_663040111-9_Jakgrit.list"
+   text	   data	    bss	    dec	    hex	filename
+  12308	     96	   2008	  14412	   384c	Project3_663040111-9_Jakgrit.elf
+Finished building: default.size.stdout
+ 
+Finished building: Project3_663040111-9_Jakgrit.list
+ 
+16:19:19 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
+make -j12 all 
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+   text	   data	    bss	    dec	    hex	filename
+  12308	     96	   2008	  14412	   384c	Project3_663040111-9_Jakgrit.elf
+Finished building: default.size.stdout
+ 
+16:19:23 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
 make -j12 all 
 arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:75:56: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long int' [-Wformat=]
-   75 |                 sprintf(stringOut, "Light intensity = %d Lux\n",
-      |                                                       ~^
-      |                                                        |
-      |                                                        int
-      |                                                       %ld
-   76 |                                 (int32_t) lightintensity);
-      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                 |
-      |                                 long int
-arm-none-eabi-gcc -o "Training_Lab4.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab4.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab4.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab4.3.elf
+arm-none-eabi-gcc -o "Project3_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project3_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project3_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project3_663040111-9_Jakgrit.elf
  
-arm-none-eabi-size  Training_Lab4.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab4.3.elf  > "Training_Lab4.3.list"
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project3_663040111-9_Jakgrit.elf  > "Project3_663040111-9_Jakgrit.list"
    text	   data	    bss	    dec	    hex	filename
-   3932	     80	   1952	   5964	   174c	Training_Lab4.3.elf
+  12308	     96	   2008	  14412	   384c	Project3_663040111-9_Jakgrit.elf
 Finished building: default.size.stdout
  
-Finished building: Training_Lab4.3.list
+Finished building: Project3_663040111-9_Jakgrit.list
  
-16:00:56 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
+16:19:36 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
+make -j12 all 
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+   text	   data	    bss	    dec	    hex	filename
+  12308	     96	   2008	  14412	   384c	Project3_663040111-9_Jakgrit.elf
+Finished building: default.size.stdout
+ 
+16:19:37 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
+make -j12 all 
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+   text	   data	    bss	    dec	    hex	filename
+  12308	     96	   2008	  14412	   384c	Project3_663040111-9_Jakgrit.elf
+Finished building: default.size.stdout
+ 
+16:25:06 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
 make -j12 all 
 arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:75:56: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long int' [-Wformat=]
-   75 |                 sprintf(stringOut, "Light intensity = %d Lux\n",
-      |                                                       ~^
-      |                                                        |
-      |                                                        int
-      |                                                       %ld
-   76 |                                 (int32_t) lightintensity);
-      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                 |
-      |                                 long int
-arm-none-eabi-gcc -o "Training_Lab4.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab4.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab4.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab4.3.elf
+arm-none-eabi-gcc -o "Project3_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project3_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project3_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project3_663040111-9_Jakgrit.elf
  
-arm-none-eabi-size  Training_Lab4.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab4.3.elf  > "Training_Lab4.3.list"
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project3_663040111-9_Jakgrit.elf  > "Project3_663040111-9_Jakgrit.list"
    text	   data	    bss	    dec	    hex	filename
-   3932	     80	   1952	   5964	   174c	Training_Lab4.3.elf
+   3612	     80	   1896	   5588	   15d4	Project3_663040111-9_Jakgrit.elf
 Finished building: default.size.stdout
  
-Finished building: Training_Lab4.3.list
+Finished building: Project3_663040111-9_Jakgrit.list
  
-16:01:19 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
+16:36:06 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
 make -j12 all 
 arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:75:56: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long int' [-Wformat=]
-   75 |                 sprintf(stringOut, "Light intensity = %d Lux\n",
-      |                                                       ~^
-      |                                                        |
-      |                                                        int
-      |                                                       %ld
-   76 |                                 (int32_t) lightintensity);
-      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                 |
-      |                                 long int
-arm-none-eabi-gcc -o "Training_Lab4.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab4.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab4.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab4.3.elf
+arm-none-eabi-gcc -o "Project3_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project3_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project3_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project3_663040111-9_Jakgrit.elf
  
-arm-none-eabi-size  Training_Lab4.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab4.3.elf  > "Training_Lab4.3.list"
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project3_663040111-9_Jakgrit.elf  > "Project3_663040111-9_Jakgrit.list"
    text	   data	    bss	    dec	    hex	filename
-   3932	     80	   1952	   5964	   174c	Training_Lab4.3.elf
+  12332	     96	   2008	  14436	   3864	Project3_663040111-9_Jakgrit.elf
 Finished building: default.size.stdout
  
-Finished building: Training_Lab4.3.list
+Finished building: Project3_663040111-9_Jakgrit.list
  
-16:01:22 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
+16:36:21 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
 make -j12 all 
 arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:75:56: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long int' [-Wformat=]
-   75 |                 sprintf(stringOut, "Light intensity = %d Lux\n",
-      |                                                       ~^
-      |                                                        |
-      |                                                        int
-      |                                                       %ld
-   76 |                                 (int32_t) lightintensity);
-      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                 |
-      |                                 long int
-arm-none-eabi-gcc -o "Training_Lab4.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab4.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab4.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab4.3.elf
+arm-none-eabi-gcc -o "Project3_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project3_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project3_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project3_663040111-9_Jakgrit.elf
  
-arm-none-eabi-size  Training_Lab4.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab4.3.elf  > "Training_Lab4.3.list"
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project3_663040111-9_Jakgrit.elf  > "Project3_663040111-9_Jakgrit.list"
    text	   data	    bss	    dec	    hex	filename
-   3932	     80	   1952	   5964	   174c	Training_Lab4.3.elf
+  12332	     96	   2008	  14436	   3864	Project3_663040111-9_Jakgrit.elf
 Finished building: default.size.stdout
  
-Finished building: Training_Lab4.3.list
+Finished building: Project3_663040111-9_Jakgrit.list
  
-16:07:57 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
+16:37:51 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
 make -j12 all 
 arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:74:56: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long int' [-Wformat=]
-   74 |                 sprintf(stringOut, "Light intensity = %d Lux\n",
-      |                                                       ~^
-      |                                                        |
-      |                                                        int
-      |                                                       %ld
-   75 |                                 (int32_t) lightintensity);
-      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                 |
-      |                                 long int
-arm-none-eabi-gcc -o "Training_Lab4.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab4.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab4.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab4.3.elf
+arm-none-eabi-gcc -o "Project3_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project3_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project3_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project3_663040111-9_Jakgrit.elf
  
-arm-none-eabi-size  Training_Lab4.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab4.3.elf  > "Training_Lab4.3.list"
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project3_663040111-9_Jakgrit.elf  > "Project3_663040111-9_Jakgrit.list"
    text	   data	    bss	    dec	    hex	filename
-  11580	     96	   1952	  13628	   353c	Training_Lab4.3.elf
+  12332	     96	   2008	  14436	   3864	Project3_663040111-9_Jakgrit.elf
 Finished building: default.size.stdout
  
-Finished building: Training_Lab4.3.list
+Finished building: Project3_663040111-9_Jakgrit.list
  
-16:08:00 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
+16:37:54 **** Incremental Build of configuration Debug for project Project3_663040111-9_Jakgrit ****
 make -j12 all 
 arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:74:56: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long int' [-Wformat=]
-   74 |                 sprintf(stringOut, "Light intensity = %d Lux\n",
-      |                                                       ~^
-      |                                                        |
-      |                                                        int
-      |                                                       %ld
-   75 |                                 (int32_t) lightintensity);
-      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                 |
-      |                                 long int
-arm-none-eabi-gcc -o "Training_Lab4.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab4.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab4.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab4.3.elf
+arm-none-eabi-gcc -o "Project3_663040111-9_Jakgrit.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Project3_663040111-9_Jakgrit\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Project3_663040111-9_Jakgrit.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Project3_663040111-9_Jakgrit.elf
  
-arm-none-eabi-size  Training_Lab4.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab4.3.elf  > "Training_Lab4.3.list"
+arm-none-eabi-size  Project3_663040111-9_Jakgrit.elf 
+arm-none-eabi-objdump -h -S Project3_663040111-9_Jakgrit.elf  > "Project3_663040111-9_Jakgrit.list"
    text	   data	    bss	    dec	    hex	filename
-  11580	     96	   1952	  13628	   353c	Training_Lab4.3.elf
+  12332	     96	   2008	  14436	   3864	Project3_663040111-9_Jakgrit.elf
 Finished building: default.size.stdout
  
-Finished building: Training_Lab4.3.list
- 
-16:09:06 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
-make -j12 all 
-arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:74:56: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long int' [-Wformat=]
-   74 |                 sprintf(stringOut, "Light intensity = %d Lux\n",
-      |                                                       ~^
-      |                                                        |
-      |                                                        int
-      |                                                       %ld
-   75 |                                 (int32_t) lightintensity);
-      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                 |
-      |                                 long int
-arm-none-eabi-gcc -o "Training_Lab4.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab4.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab4.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab4.3.elf
- 
-arm-none-eabi-size  Training_Lab4.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab4.3.elf  > "Training_Lab4.3.list"
-   text	   data	    bss	    dec	    hex	filename
-  11580	     96	   1952	  13628	   353c	Training_Lab4.3.elf
-Finished building: default.size.stdout
- 
-Finished building: Training_Lab4.3.list
- 
-16:09:09 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
-make -j12 all 
-arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:74:56: warning: format '%d' expects argument of type 'int', but argument 3 has type 'long int' [-Wformat=]
-   74 |                 sprintf(stringOut, "Light intensity = %d Lux\n",
-      |                                                       ~^
-      |                                                        |
-      |                                                        int
-      |                                                       %ld
-   75 |                                 (int32_t) lightintensity);
-      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                 |
-      |                                 long int
-arm-none-eabi-gcc -o "Training_Lab4.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab4.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab4.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab4.3.elf
- 
-arm-none-eabi-size  Training_Lab4.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab4.3.elf  > "Training_Lab4.3.list"
-   text	   data	    bss	    dec	    hex	filename
-  11580	     96	   1952	  13628	   353c	Training_Lab4.3.elf
-Finished building: default.size.stdout
- 
-Finished building: Training_Lab4.3.list
- 
-16:14:55 **** Incremental Build of configuration Debug for project Training_Lab3.1.3 ****
-make -j12 all 
-arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-arm-none-eabi-gcc -o "Training_Lab3.1.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab3.1.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab3.1.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab3.1.3.elf
- 
-arm-none-eabi-size  Training_Lab3.1.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab3.1.3.elf  > "Training_Lab3.1.3.list"
-   text	   data	    bss	    dec	    hex	filename
-   2092	      0	   1568	   3660	    e4c	Training_Lab3.1.3.elf
-Finished building: default.size.stdout
- 
-Finished building: Training_Lab3.1.3.list
- 
-16:14:59 **** Incremental Build of configuration Debug for project Training_Lab3.1.3 ****
-make -j12 all 
-arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-arm-none-eabi-gcc -o "Training_Lab3.1.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab3.1.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab3.1.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab3.1.3.elf
- 
-arm-none-eabi-size  Training_Lab3.1.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab3.1.3.elf  > "Training_Lab3.1.3.list"
-   text	   data	    bss	    dec	    hex	filename
-   2092	      0	   1568	   3660	    e4c	Training_Lab3.1.3.elf
-Finished building: default.size.stdout
- 
-Finished building: Training_Lab3.1.3.list
- 
-16:15:53 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
-make -j12 all 
-arm-none-eabi-size  Training_Lab4.3.elf 
-   text	   data	    bss	    dec	    hex	filename
-  11580	     96	   1952	  13628	   353c	Training_Lab4.3.elf
-Finished building: default.size.stdout
- 
-16:15:55 **** Incremental Build of configuration Debug for project Training_Lab4.3 ****
-make -j12 all 
-arm-none-eabi-size  Training_Lab4.3.elf 
-   text	   data	    bss	    dec	    hex	filename
-  11580	     96	   1952	  13628	   353c	Training_Lab4.3.elf
-Finished building: default.size.stdout
- 
-16:17:35 **** Incremental Build of configuration Debug for project Training_Lab3.1.3 ****
-make -j12 all 
-arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:147:37: error: 'ODR' undeclared (first use in this function)
-  147 |                         GPIOA - 0 > ODR |= (GPIO_ODR_OD9);
-      |                                     ^~~
-../Src/main.c:147:37: note: each undeclared identifier is reported only once for each function it appears in
-make: *** [Src/subdir.mk:25: Src/main.o] Error 1
-"make -j12 all" terminated with exit code 2. Build might be incomplete.
-16:17:37 **** Incremental Build of configuration Debug for project Training_Lab3.1.3 ****
-make -j12 all 
-arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-../Src/main.c: In function 'main':
-../Src/main.c:147:37: error: 'ODR' undeclared (first use in this function)
-  147 |                         GPIOA - 0 > ODR |= (GPIO_ODR_OD9);
-      |                                     ^~~
-../Src/main.c:147:37: note: each undeclared identifier is reported only once for each function it appears in
-make: *** [Src/subdir.mk:25: Src/main.o] Error 1
-"make -j12 all" terminated with exit code 2. Build might be incomplete.
-16:18:02 **** Incremental Build of configuration Debug for project Training_Lab3.1.3 ****
-make -j12 all 
-arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-arm-none-eabi-gcc -o "Training_Lab3.1.3.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\Training_Lab3.1.3\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Training_Lab3.1.3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: Training_Lab3.1.3.elf
- 
-arm-none-eabi-size  Training_Lab3.1.3.elf 
-arm-none-eabi-objdump -h -S Training_Lab3.1.3.elf  > "Training_Lab3.1.3.list"
-   text	   data	    bss	    dec	    hex	filename
-   2152	      0	   1568	   3720	    e88	Training_Lab3.1.3.elf
-Finished building: default.size.stdout
- 
-Finished building: Training_Lab3.1.3.list
- 
-16:18:19 **** Incremental Build of configuration Debug for project Training_Lab3.1.3 ****
-make -j12 all 
-arm-none-eabi-size  Training_Lab3.1.3.elf 
-   text	   data	    bss	    dec	    hex	filename
-   2152	      0	   1568	   3720	    e88	Training_Lab3.1.3.elf
-Finished building: default.size.stdout
- 
-16:18:20 **** Incremental Build of configuration Debug for project Training_Lab3.1.3 ****
-make -j12 all 
-arm-none-eabi-size  Training_Lab3.1.3.elf 
-   text	   data	    bss	    dec	    hex	filename
-   2152	      0	   1568	   3720	    e88	Training_Lab3.1.3.elf
-Finished building: default.size.stdout
- 
-16:18:26 **** Incremental Build of configuration Debug for project Training_Lab3.1.3 ****
-make -j12 all 
-arm-none-eabi-size  Training_Lab3.1.3.elf 
-   text	   data	    bss	    dec	    hex	filename
-   2152	      0	   1568	   3720	    e88	Training_Lab3.1.3.elf
-Finished building: default.size.stdout
+Finished building: Project3_663040111-9_Jakgrit.list
  

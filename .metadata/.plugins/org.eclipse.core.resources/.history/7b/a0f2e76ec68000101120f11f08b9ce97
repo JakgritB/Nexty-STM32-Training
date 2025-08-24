@@ -1,0 +1,55 @@
+#include <stdint.h>
+#define STM32F411xE
+#include "stm32f4xx.h"
+
+// กำหนดความละเอียดของ Software PWM (ยิ่งเยอะ ยิ่งเนียน แต่ยิ่งกินพลัง CPU)
+#define PWM_RESOLUTION 1000
+
+int main(void) {
+	// --- 1. เปิดสัญญาณนาฬิกา (Clock) ---
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN;
+	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
+
+	// --- 2. ตั้งค่า GPIO Pins ---
+	// ตั้งค่าขา LED ทั้ง 4 เป็น Output
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER5_Pos);
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER6_Pos);
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER7_Pos);
+	GPIOB->MODER |= (0b01 << GPIO_MODER_MODER6_Pos);
+
+	// ตั้งค่าขา PA4 (Potentiometer) เป็น Analog Input
+	GPIOA->MODER |= (0b11 << GPIO_MODER_MODER4_Pos);
+
+	// --- 3. ตั้งค่า ADC (แบบ Polling ธรรมดา) ---
+	ADC1->SQR3 = (4 << ADC_SQR3_SQ1_Pos); // เลือก Channel 4 (PA4)
+	ADC1->CR2 |= ADC_CR2_ADON; // เปิด ADC
+
+	// ตัวแปรสำหรับเก็บค่าความสว่าง
+	uint32_t brightness = 0;
+
+	// --- 4. Main Loop ---
+	while (1) {
+		// --- ส่วนที่ 1: อ่านค่า ADC เพื่อกำหนดความสว่าง ---
+		ADC1->CR2 |= ADC_CR2_SWSTART; // เริ่มแปลงค่า
+		while ((ADC1->SR & ADC_SR_EOC) == 0); // รอจนกว่าจะแปลงเสร็จ
+		uint16_t adc_value = ADC1->DR; // อ่านค่า (0-4095)
+
+		// แปลงค่า ADC (0-4095) ให้เป็นค่าความสว่าง (0-1000)
+		brightness = (adc_value * PWM_RESOLUTION) / 4095;
+
+
+		// --- ส่วนที่ 2: สร้างสัญญาณ PWM ด้วย Software ---
+		// ลูปนี้คือการสร้าง 1 คาบของสัญญาณ PWM
+		for (int i = 0; i < PWM_RESOLUTION; i++) {
+			if (i < brightness) {
+				// ช่วง "เปิด" ไฟ (ON time)
+				GPIOA->BSRR = GPIO_BSRR_BS5 | GPIO_BSRR_BS6 | GPIO_BSRR_BS7;
+				GPIOB->BSRR = GPIO_BSRR_BS6;
+			} else {
+				// ช่วง "ปิด" ไฟ (OFF time)
+				GPIOA->BSRR = GPIO_BSRR_BR5 | GPIO_BSRR_BR6 | GPIO_BSRR_BR7;
+				GPIOB->BSRR = GPIO_BSRR_BR6;
+			}
+		}
+	}
+}

@@ -1,0 +1,89 @@
+#include <stdint.h>
+#define STM32F411xE
+#include "stm32f4xx.h"
+
+// ฟังก์ชันสำหรับส่งค่าเลขฐานสอง (BCD) ไปให้ Decoder IC
+void display_bcd(int number) {
+    // ---- Bit 0 (LSB) -> PC7 ----
+    if (number & 0b0001) {
+        GPIOC->BSRR = GPIO_BSRR_BS7;
+    } else {
+        GPIOC->BSRR = GPIO_BSRR_BR7;
+    }
+    // ---- Bit 1 -> PA8 ----
+    if (number & 0b0010) {
+        GPIOA->BSRR = GPIO_BSRR_BS8;
+    } else {
+        GPIOA->BSRR = GPIO_BSRR_BR8;
+    }
+    // ---- Bit 2 -> PB10 ----
+    if (number & 0b0100) {
+        GPIOB->BSRR = GPIO_BSRR_BS10;
+    } else {
+        GPIOB->BSRR = GPIO_BSRR_BR10;
+    }
+    // ---- Bit 3 (MSB) -> PA9 ----
+    if (number & 0b1000) {
+        GPIOA->BSRR = GPIO_BSRR_BS9;
+    } else {
+        GPIOA->BSRR = GPIO_BSRR_BR9;
+    }
+}
+
+
+int main(void) {
+    // --- 1. ตั้งค่า THRESHOLD สำหรับดีเลย์ ---
+    // คุณสามารถปรับค่านี้เพื่อเปลี่ยนความเร็วในการตอบสนองเมื่อกดค้าง
+    const uint32_t THRESHOLD = 133333;
+
+    // --- 2. เปิด Clock และตั้งค่า GPIO ---
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOCEN;
+
+    // ตั้งค่า GPIO Pins สำหรับส่งข้อมูล BCD (Output)
+    GPIOC->MODER |= (0b01 << GPIO_MODER_MODER7_Pos);
+    GPIOA->MODER |= (0b01 << GPIO_MODER_MODER8_Pos);
+    GPIOB->MODER |= (0b01 << GPIO_MODER_MODER10_Pos);
+    GPIOA->MODER |= (0b01 << GPIO_MODER_MODER9_Pos);
+
+    // ตั้งค่า GPIO Pins สำหรับปุ่มกด (Input with Pull-up)
+    GPIOA->MODER &= ~(GPIO_MODER_MODER10);
+    GPIOA->PUPDR |= (0b01 << GPIO_PUPDR_PUPD10_Pos);
+
+    GPIOB->MODER &= ~(GPIO_MODER_MODER3);
+    GPIOB->PUPDR |= (0b01 << GPIO_PUPDR_PUPD3_Pos);
+
+    GPIOB->MODER &= ~(GPIO_MODER_MODER5);
+    GPIOB->PUPDR |= (0b01 << GPIO_PUPDR_PUPD5_Pos);
+
+
+    // --- 3. Main Program ---
+    int count = 0;
+
+    while (1) {
+        // --- ส่วนตรวจสอบ Input ---
+        if ((GPIOA->IDR & GPIO_IDR_ID10) == 0) { // ปุ่ม Increment
+            count++;
+            if (count > 9) {
+                count = 0; // Wrap-around
+            }
+        }
+        else if ((GPIOB->IDR & GPIO_IDR_ID3) == 0) { // ปุ่ม Decrement
+            count--;
+            if (count < 0) {
+                count = 9; // Wrap-around
+            }
+        }
+        else if ((GPIOB->IDR & GPIO_IDR_ID5) == 0) { // ปุ่ม Reset
+            count = 0;
+        }
+
+        // --- ส่วนอัปเดต Output ---
+        // ย้ายมาไว้ตรงนี้เพื่ออัปเดตหน้าจอทุกรอบการทำงานของลูป
+        display_bcd(count);
+
+        // --- ส่วนดีเลย์ ---
+        // ดีเลย์จะทำงานทุกรอบของ while(1) ทำให้ลูปทำงานช้าลงอย่างสม่ำเสมอ
+        for(volatile uint32_t i = 0; i < THRESHOLD; i++);
+    }
+    return 0;
+}

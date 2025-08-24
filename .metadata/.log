@@ -1827,3 +1827,219 @@ java.io.FileNotFoundException: D:\NextyLab\Training_Lab4.2\Debug\Training_Lab4.2
 
 !ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-17 16:18:03.610
 !MESSAGE Won't launch debug session since we failed to locate the binary.
+!SESSION 2568-08-24 09:11:11.422 -----------------------------------------------
+eclipse.buildId=Version 1.15.1
+java.version=17.0.8.1
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2568-08-24 09:11:35.687
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2568-08-24 09:11:35.695
+!MESSAGE Log4j2 initialized with config file D:\NextyLab\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2568-08-24 09:11:43.375
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-08-24 09:52:17.565
+!MESSAGE Indexed 'Training_Lab5.1' (5 sources, 60 headers) in 1.61 sec: 2,716 declarations; 3,925 references; 4 unresolved inclusions; 30 syntax errors; 578 unresolved names (8%)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 10:04:16.378
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 10:05:02.158
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-08-24 10:09:49.592
+!MESSAGE Indexed 'Training_Lab5.2' (3 sources, 60 headers) in 0.386 sec: 2,659 declarations; 3,801 references; 4 unresolved inclusions; 30 syntax errors; 581 unresolved names (8.3%)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 10:23:53.341
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-08-24 10:36:52.512
+!MESSAGE Indexed 'Training_Lab5.3' (3 sources, 60 headers) in 0.332 sec: 2,657 declarations; 3,761 references; 4 unresolved inclusions; 30 syntax errors; 578 unresolved names (8.3%)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 11:19:31.008
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 11:22:42.944
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-08-24 13:58:42.159
+!MESSAGE Indexed 'Project1_663040111-9_Jakgrit' (5 sources, 60 headers) in 0.767 sec: 2,718 declarations; 4,081 references; 4 unresolved inclusions; 30 syntax errors; 578 unresolved names (7.8%)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 13:59:54.340
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 14:10:36.393
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 14:11:58.124
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-08-24 14:34:31.334
+!MESSAGE Indexed 'Project2_663040111-9_Jakgrit' (3 sources, 60 headers) in 0.335 sec: 2,664 declarations; 3,888 references; 4 unresolved inclusions; 30 syntax errors; 580 unresolved names (8.1%)
+
+!ENTRY org.eclipse.cdt.dsf.gdb 4 104 2025-08-24 14:35:35.381
+!MESSAGE Program file does not exist
+!STACK 0
+java.io.FileNotFoundException: D:\NextyLab\Project1_663040111-9_Jakgrit\Debug\Project1_663040111-9_Jakgrit.elf not found
+	at org.eclipse.cdt.dsf.gdb.launching.LaunchUtils.verifyProgramPath(LaunchUtils.java:130)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.checkBinaryDetails(GdbLaunchDelegate.java:330)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launchDebugSession(GdbLaunchDelegate.java:152)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launchDebugger(GdbLaunchDelegate.java:109)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launch(GdbLaunchDelegate.java:97)
+	at com.st.stm32cube.ide.mcu.debug.launch.DSFDelegate.launch(DSFDelegate.java:334)
+	at org.eclipse.debug.internal.core.LaunchConfiguration.launch(LaunchConfiguration.java:805)
+	at org.eclipse.debug.internal.core.LaunchConfiguration.launch(LaunchConfiguration.java:716)
+	at org.eclipse.debug.internal.ui.DebugUIPlugin.buildAndLaunch(DebugUIPlugin.java:1040)
+	at org.eclipse.debug.internal.ui.DebugUIPlugin$1.run(DebugUIPlugin.java:1243)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.cdt.dsf.gdb 4 104 2025-08-24 14:35:35.381
+!MESSAGE D:\NextyLab\Project1_663040111-9_Jakgrit\Debug\Project1_663040111-9_Jakgrit.elf not found
+!STACK 0
+java.io.FileNotFoundException: D:\NextyLab\Project1_663040111-9_Jakgrit\Debug\Project1_663040111-9_Jakgrit.elf not found
+	at org.eclipse.cdt.dsf.gdb.launching.LaunchUtils.verifyProgramPath(LaunchUtils.java:130)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.checkBinaryDetails(GdbLaunchDelegate.java:330)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launchDebugSession(GdbLaunchDelegate.java:152)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launchDebugger(GdbLaunchDelegate.java:109)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launch(GdbLaunchDelegate.java:97)
+	at com.st.stm32cube.ide.mcu.debug.launch.DSFDelegate.launch(DSFDelegate.java:334)
+	at org.eclipse.debug.internal.core.LaunchConfiguration.launch(LaunchConfiguration.java:805)
+	at org.eclipse.debug.internal.core.LaunchConfiguration.launch(LaunchConfiguration.java:716)
+	at org.eclipse.debug.internal.ui.DebugUIPlugin.buildAndLaunch(DebugUIPlugin.java:1040)
+	at org.eclipse.debug.internal.ui.DebugUIPlugin$1.run(DebugUIPlugin.java:1243)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 14:36:26.478
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-08-24 14:44:40.247
+!MESSAGE Indexed 'Project2_663040111-9_Jakgrit' (3 sources, 64 headers) in 0.36 sec: 3,130 declarations; 5,489 references; 0 unresolved inclusions; 1 syntax errors; 2 unresolved names (0.023%)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 15:00:00.400
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 15:00:10.325
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 15:00:26.620
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 15:00:33.879
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 15:00:46.850
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 15:01:08.098
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 15:01:12.334
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-08-24 15:02:31.537
+!MESSAGE Indexed 'Project2_663040111-9_Jakgrit' (3 sources, 64 headers) in 0.311 sec: 3,123 declarations; 5,568 references; 0 unresolved inclusions; 1 syntax errors; 2 unresolved names (0.023%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-08-24 15:02:59.053
+!MESSAGE Indexed 'Project2_663040111-9_Jakgrit' (3 sources, 64 headers) in 0.31 sec: 3,127 declarations; 5,510 references; 0 unresolved inclusions; 1 syntax errors; 2 unresolved names (0.023%)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 15:03:28.901
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-08-24 15:09:59.461
+!MESSAGE Indexed 'Project3_663040111-9_Jakgrit' (3 sources, 64 headers) in 0.259 sec: 3,123 declarations; 5,568 references; 0 unresolved inclusions; 1 syntax errors; 2 unresolved names (0.023%)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 15:23:51.256
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 15:23:57.917
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 15:24:42.007
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 15:24:46.715
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY org.eclipse.cdt.dsf.gdb 4 104 2025-08-24 15:25:37.556
+!MESSAGE Program file does not exist
+!STACK 0
+java.io.FileNotFoundException: D:\NextyLab\Project2_663040111-9_Jakgrit\Debug\Project2_663040111-9_Jakgrit.elf not found
+	at org.eclipse.cdt.dsf.gdb.launching.LaunchUtils.verifyProgramPath(LaunchUtils.java:130)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.checkBinaryDetails(GdbLaunchDelegate.java:330)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launchDebugSession(GdbLaunchDelegate.java:152)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launchDebugger(GdbLaunchDelegate.java:109)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launch(GdbLaunchDelegate.java:97)
+	at com.st.stm32cube.ide.mcu.debug.launch.DSFDelegate.launch(DSFDelegate.java:336)
+	at org.eclipse.debug.internal.core.LaunchConfiguration.launch(LaunchConfiguration.java:805)
+	at org.eclipse.debug.internal.core.LaunchConfiguration.launch(LaunchConfiguration.java:716)
+	at org.eclipse.debug.internal.ui.DebugUIPlugin.buildAndLaunch(DebugUIPlugin.java:1040)
+	at org.eclipse.debug.internal.ui.DebugUIPlugin$1.run(DebugUIPlugin.java:1243)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.cdt.dsf.gdb 4 104 2025-08-24 15:25:37.556
+!MESSAGE D:\NextyLab\Project2_663040111-9_Jakgrit\Debug\Project2_663040111-9_Jakgrit.elf not found
+!STACK 0
+java.io.FileNotFoundException: D:\NextyLab\Project2_663040111-9_Jakgrit\Debug\Project2_663040111-9_Jakgrit.elf not found
+	at org.eclipse.cdt.dsf.gdb.launching.LaunchUtils.verifyProgramPath(LaunchUtils.java:130)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.checkBinaryDetails(GdbLaunchDelegate.java:330)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launchDebugSession(GdbLaunchDelegate.java:152)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launchDebugger(GdbLaunchDelegate.java:109)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launch(GdbLaunchDelegate.java:97)
+	at com.st.stm32cube.ide.mcu.debug.launch.DSFDelegate.launch(DSFDelegate.java:336)
+	at org.eclipse.debug.internal.core.LaunchConfiguration.launch(LaunchConfiguration.java:805)
+	at org.eclipse.debug.internal.core.LaunchConfiguration.launch(LaunchConfiguration.java:716)
+	at org.eclipse.debug.internal.ui.DebugUIPlugin.buildAndLaunch(DebugUIPlugin.java:1040)
+	at org.eclipse.debug.internal.ui.DebugUIPlugin$1.run(DebugUIPlugin.java:1243)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-08-24 15:25:44.751
+!MESSAGE Indexed 'Project3_663040111-9_Jakgrit' (3 sources, 64 headers) in 0.27 sec: 3,126 declarations; 5,572 references; 0 unresolved inclusions; 1 syntax errors; 2 unresolved names (0.023%)
+
+!ENTRY org.eclipse.cdt.dsf.gdb 4 104 2025-08-24 15:26:36.915
+!MESSAGE Program file does not exist
+!STACK 0
+java.io.FileNotFoundException: D:\NextyLab\Project1_663040111-9_Jakgrit\Debug\Project1_663040111-9_Jakgrit.elf not found
+	at org.eclipse.cdt.dsf.gdb.launching.LaunchUtils.verifyProgramPath(LaunchUtils.java:130)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.checkBinaryDetails(GdbLaunchDelegate.java:330)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launchDebugSession(GdbLaunchDelegate.java:152)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launchDebugger(GdbLaunchDelegate.java:109)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launch(GdbLaunchDelegate.java:97)
+	at com.st.stm32cube.ide.mcu.debug.launch.DSFDelegate.launch(DSFDelegate.java:334)
+	at org.eclipse.debug.internal.core.LaunchConfiguration.launch(LaunchConfiguration.java:805)
+	at org.eclipse.debug.internal.core.LaunchConfiguration.launch(LaunchConfiguration.java:716)
+	at org.eclipse.debug.internal.ui.DebugUIPlugin.buildAndLaunch(DebugUIPlugin.java:1040)
+	at org.eclipse.debug.internal.ui.DebugUIPlugin$1.run(DebugUIPlugin.java:1243)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.cdt.dsf.gdb 4 104 2025-08-24 15:26:36.915
+!MESSAGE D:\NextyLab\Project1_663040111-9_Jakgrit\Debug\Project1_663040111-9_Jakgrit.elf not found
+!STACK 0
+java.io.FileNotFoundException: D:\NextyLab\Project1_663040111-9_Jakgrit\Debug\Project1_663040111-9_Jakgrit.elf not found
+	at org.eclipse.cdt.dsf.gdb.launching.LaunchUtils.verifyProgramPath(LaunchUtils.java:130)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.checkBinaryDetails(GdbLaunchDelegate.java:330)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launchDebugSession(GdbLaunchDelegate.java:152)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launchDebugger(GdbLaunchDelegate.java:109)
+	at org.eclipse.cdt.dsf.gdb.launching.GdbLaunchDelegate.launch(GdbLaunchDelegate.java:97)
+	at com.st.stm32cube.ide.mcu.debug.launch.DSFDelegate.launch(DSFDelegate.java:334)
+	at org.eclipse.debug.internal.core.LaunchConfiguration.launch(LaunchConfiguration.java:805)
+	at org.eclipse.debug.internal.core.LaunchConfiguration.launch(LaunchConfiguration.java:716)
+	at org.eclipse.debug.internal.ui.DebugUIPlugin.buildAndLaunch(DebugUIPlugin.java:1040)
+	at org.eclipse.debug.internal.ui.DebugUIPlugin$1.run(DebugUIPlugin.java:1243)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 15:28:22.509
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-08-24 15:29:16.376
+!MESSAGE Indexed 'Project4_663040111-9_Jakgrit' (3 sources, 60 headers) in 0.298 sec: 2,660 declarations; 3,971 references; 4 unresolved inclusions; 30 syntax errors; 580 unresolved names (8%)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 15:39:25.821
+!MESSAGE Won't launch debug session since we failed to locate the binary.
+
+!ENTRY org.eclipse.cdt.core 1 0 2025-08-24 15:40:32.447
+!MESSAGE Indexed 'Project3_663040111-9_Jakgrit' (3 sources, 64 headers) in 0.299 sec: 3,125 declarations; 5,417 references; 0 unresolved inclusions; 1 syntax errors; 2 unresolved names (0.023%)
+
+!ENTRY com.st.stm32cube.ide.mcu.debug.launch 2 0 2025-08-24 16:02:06.202
+!MESSAGE Won't launch debug session since we failed to locate the binary.
