@@ -1,0 +1,110 @@
+#include <stdint.h>
+#include <stdbool.h>
+#define STM32F411xE
+#include "stm32f4xx.h"
+
+bool isSpeedZero(int speed){ // is speed = 0
+	if (speed == 0){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+bool isSpeedEQGearN(int speed){
+	// is speed 0 //check gear N
+	if (speed == 0){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+bool isSpeedEQGearOne(int speed){
+	// is speed 0 - 30 //check gear 1
+	if (speed >= 0 && speed <= 30){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+bool isSpeedEQGearTwo(int speed){
+	// is speed 20 - 50 //check gear 2
+	if (speed >= 20 && speed <= 50){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+bool isSpeedEQGearThree(int speed){
+	// is speed 40 - 70 //check gear 3
+	if (speed >= 40 && speed <= 70){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+bool isSpeedEQGearFour(int speed){
+	// is speed 60 - 90 //check gear 4
+	if (speed >= 60 && speed <= 90){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+bool isSpeedEQGearFive(int speed){
+	// is speed 80 - 130 //check gear 5
+	if (speed >= 80 && speed <= 130){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+void EXTI4_IRQHandler(void) {
+	if ((EXTI->PR & EXTI_PR_PR4) != 0) {
+		if ((GPIOB->IDR & GPIO_IDR_ID4) == 0) {
+			GPIOA->ODR |= (GPIO_ODR_OD5);
+		} else {
+			GPIOA->ODR &= ~(GPIO_ODR_OD5);
+		}
+		EXTI->PR |= EXTI_PR_PR4;
+	}
+}
+
+int main(void) {
+	RCC->AHB1ENR |= (RCC_AHB1ENR_GPIOAEN + RCC_AHB1ENR_GPIOBEN);
+	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+
+	//PB3
+	GPIOB->MODER &= ~(GPIO_MODER_MODER3);
+	GPIOB->PUPDR &= ~(GPIO_PUPDR_PUPD3);
+	GPIOB->PUPDR |= (0b01 << GPIO_PUPDR_PUPD3_Pos);
+
+	//EXTI both edge
+	EXTI->IMR |= EXTI_IMR_IM3;
+	EXTI->RTSR |= EXTI_RTSR_TR3;
+	EXTI->FTSR |= EXTI_FTSR_TR3;
+
+	//EXTI port mux
+	SYSCFG->EXTICR[0] &= ~SYSCFG_EXTICR1_EXTI3;
+	SYSCFG->EXTICR[0] |= (1 << SYSCFG_EXTICR1_EXTI3_Pos);
+
+	NVIC_EnableIRQ(EXTI3_IRQn);
+	NVIC_SetPriority(EXTI3_IRQn, 0);
+
+	while (1) {
+
+	}
+}

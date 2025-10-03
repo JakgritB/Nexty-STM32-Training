@@ -1,0 +1,581 @@
+/*
+ * Manual Transmission Car Simulator for STM32F411xE
+ * Bare-metal implementation with Timer Interrupt at 100Hz
+ *
+ * Pin Mapping:
+ * - PA5:  Engine LED
+ * - PB6:  Wiper LED
+ * - PA9, PB10, PA8, PC7: BCD 7-Segment (MSB to LSB)
+ * - PA10: Clutch Button (Pull-up, Active Low)
+ * - PB3:  Brake Button (Pull-up, Active Low)
+ * - PB5:  Gas Button (Pull-up, Active Low)
+ * - PB4:  Wiper Button (Pull-up, Active Low)
+ * - PA4:  Gear Potentiometer (ADC1 Channel 4)
+ * - PA2:  UART TX
+ * - PA3:  UART RX (115200 baud)
+ */
+
+#define STM32F411xE
+#include "stm32f4xx.h"
+#include <stdint.h>
+#include <stdio.h>
+
+/* System Clock (assuming 16MHz HSI or configured PLL) */
+#define SYSTEM_CLOCK 16000000  // Adjust if using PLL
+#define TIMER_FREQ   1000       // 100Hz update rate
+
+/* Driving Modes */
+typedef enum {
+	MODE_ECO = 0, MODE_NORMAL, MODE_SPORT
+} DrivingMode;
+
+/* Wiper Modes */
+typedef enum {
+	WIPER_OFF = 0, WIPER_SLOW, WIPER_MEDIUM, WIPER_FAST
+} WiperMode;
+
+/* Gear Definition */
+typedef enum {
+	GEAR_N = 0, GEAR_1, GEAR_2, GEAR_3, GEAR_4, GEAR_5
+} Gear;
+
+/* Speed Ranges for each gear (km/h) */
+typedef struct {
+	uint8_t min;
+	uint8_t max;
+} SpeedRange;
+
+const SpeedRange GEAR_SPEEDS[] = { { 0, 0 },     // N
+		{ 0, 30 },    // 1
+		{ 20, 50 },   // 2
+		{ 40, 70 },   // 3
+		{ 60, 90 },   // 4
+		{ 80, 130 }   // 5
+};
+
+/* Acceleration rates (km/h per second) */
+#define ACCEL_ECO       25.0f
+#define ACCEL_NORMAL    75.0f
+#define ACCEL_SPORT     100.0f
+#define DECEL_BRAKE     100.0f
+#define DECEL_COASTING  5.0f
+
+/* Global volatile variables (shared with interrupts) */
+volatile uint8_t engine_running = 0;
+volatile float current_speed = 0.0f;
+volatile Gear current_gear = GEAR_N;
+volatile Gear previous_gear = GEAR_N;
+volatile DrivingMode drive_mode = MODE_NORMAL;
+volatile WiperMode wiper_mode = WIPER_OFF;
+
+volatile uint8_t clutch_pressed = 0;
+volatile uint8_t brake_pressed = 0;
+volatile uint8_t gas_pressed = 0;
+volatile uint8_t wiper_button_pressed = 0;
+volatile uint8_t wiper_button_last = 1;
+
+volatile uint16_t adc_value = 0;
+volatile uint16_t wiper_counter = 0;
+volatile uint16_t wiper_led_state = 0;
+volatile uint16_t uart_send_counter = 0;
+
+/* UART buffer */
+volatile char uart_rx_char = 0;
+volatile uint8_t uart_rx_flag = 0;
+
+/* Function prototypes */
+void SystemInit(void);
+void GPIO_Init(void);
+void ADC_Init(void);
+void USART2_Init(void);
+void TIM2_Init(void);
+void USART2_SendString(const char *str);
+void USART2_SendSpeed(void);
+void Update_7Segment(uint8_t value);
+void Update_Engine_LED(void);
+void Update_Wiper_LED(void);
+uint16_t ADC_Read(void);
+Gear ADC_to_Gear(uint16_t adc_val);
+void Read_Buttons(void);
+void Check_Stall_Conditions(void);
+void Update_Speed(void);
+void Process_UART_Command(char cmd);
+
+/* Main function */
+int main(void) {
+	SystemInit();
+	GPIO_Init();
+	ADC_Init();
+	USART2_Init();
+	TIM2_Init();
+
+	USART2_SendString("Manual Transmission Car Simulator\r\n");
+	USART2_SendString(
+			"Commands: o=start, f=stop, e=eco, n=normal, s=sport\r\n");
+
+	while (1) {
+		// Main loop: process UART commands
+		if (uart_rx_flag) {
+			uart_rx_flag = 0;
+			Process_UART_Command(uart_rx_char);
+		}
+	}
+}
+
+/* System initialization (basic clock setup) */
+void SystemInit(void) {
+	// Enable FPU (Floating Point Unit)
+	SCB->CPACR |= (0xF << 20);
+
+	// Using default HSI 16MHz clock
+	// For higher frequency, configure PLL here
+}
+
+/* GPIO initialization */
+void GPIO_Init(void) {
+	// Enable GPIO clocks
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN
+			| RCC_AHB1ENR_GPIOCEN;
+
+	/* Output pins */
+	// PA5: Engine LED (Output)
+	GPIOA->MODER &= ~GPIO_MODER_MODER5;
+	GPIOA->MODER |= GPIO_MODER_MODER5_0;
+
+	// PB6: Wiper LED (Output)
+	GPIOB->MODER &= ~GPIO_MODER_MODER6;
+	GPIOB->MODER |= GPIO_MODER_MODER6_0;
+
+	// BCD outputs: PA9, PB10, PA8, PC7 (MSB to LSB)
+	GPIOA->MODER &= ~(GPIO_MODER_MODER9 | GPIO_MODER_MODER8);
+	GPIOA->MODER |= GPIO_MODER_MODER9_0 | GPIO_MODER_MODER8_0;
+
+	GPIOB->MODER &= ~GPIO_MODER_MODER10;
+	GPIOB->MODER |= GPIO_MODER_MODER10_0;
+
+	GPIOC->MODER &= ~GPIO_MODER_MODER7;
+	GPIOC->MODER |= GPIO_MODER_MODER7_0;
+
+	/* Input pins with pull-up */
+	// PA10: Clutch (Input, Pull-up)
+	GPIOA->MODER &= ~GPIO_MODER_MODER10;
+	GPIOA->PUPDR &= ~GPIO_PUPDR_PUPD10;
+	GPIOA->PUPDR |= GPIO_PUPDR_PUPD10_0;
+
+	// PB3: Brake (Input, Pull-up)
+	GPIOB->MODER &= ~GPIO_MODER_MODER3;
+	GPIOB->PUPDR &= ~GPIO_PUPDR_PUPD3;
+	GPIOB->PUPDR |= GPIO_PUPDR_PUPD3_0;
+
+	// PB5: Gas (Input, Pull-up)
+	GPIOB->MODER &= ~GPIO_MODER_MODER5;
+	GPIOB->PUPDR &= ~GPIO_PUPDR_PUPD5;
+	GPIOB->PUPDR |= GPIO_PUPDR_PUPD5_0;
+
+	// PB4: Wiper (Input, Pull-up)
+	GPIOB->MODER &= ~GPIO_MODER_MODER4;
+	GPIOB->PUPDR &= ~GPIO_PUPDR_PUPD4;
+	GPIOB->PUPDR |= GPIO_PUPDR_PUPD4_0;
+
+	// PA4: ADC (Analog mode)
+	GPIOA->MODER |= GPIO_MODER_MODER4;
+
+	// USART2 pins (PA2=TX, PA3=RX, AF7)
+	GPIOA->MODER &= ~(GPIO_MODER_MODER2 | GPIO_MODER_MODER3);
+	GPIOA->MODER |= GPIO_MODER_MODER2_1 | GPIO_MODER_MODER3_1;
+	GPIOA->AFR[0] &= ~(GPIO_AFRL_AFSEL2 | GPIO_AFRL_AFSEL3);
+	GPIOA->AFR[0] |= (7 << GPIO_AFRL_AFSEL2_Pos) | (7 << GPIO_AFRL_AFSEL3_Pos);
+}
+
+/* ADC initialization */
+void ADC_Init(void) {
+	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
+
+	// ADC configuration
+	ADC1->CR2 = 0;
+	ADC1->CR1 = 0;
+
+	// Sampling time for channel 4 (PA4): 84 cycles
+	ADC1->SMPR2 |= (4 << ADC_SMPR2_SMP4_Pos);
+
+	// Regular sequence: 1 conversion, channel 4
+	ADC1->SQR1 = 0; // 1 conversion
+	ADC1->SQR3 = 4; // Channel 4
+
+	// Enable ADC
+	ADC1->CR2 |= ADC_CR2_ADON;
+}
+
+/* USART2 initialization (115200 baud) */
+void USART2_Init(void) {
+	RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+
+	// Baud rate: 115200 (assuming 16MHz APB1 clock)
+	// BRR = 16MHz / 115200 ≈ 139 (0x8B)
+	USART2->BRR = 139;
+
+	// Enable USART, TX, RX, and RXNE interrupt
+	USART2->CR1 = USART_CR1_UE | USART_CR1_TE | USART_CR1_RE | USART_CR1_RXNEIE;
+
+	// Enable USART2 interrupt in NVIC
+	NVIC_EnableIRQ(USART2_IRQn);
+}
+
+/* Timer 2 initialization (100Hz) */
+void TIM2_Init(void) {
+	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+
+	// TIM2 runs at APB1 clock (16MHz assumed)
+	// Prescaler: 16000-1 (1ms tick)
+	// Auto-reload: 10-1 (10ms = 100Hz)
+	TIM2->PSC = 16000 - 1;
+	TIM2->ARR = 10 - 1;
+
+	// Enable update interrupt
+	TIM2->DIER |= TIM_DIER_UIE;
+
+	// Enable TIM2 interrupt in NVIC
+	NVIC_EnableIRQ(TIM2_IRQn);
+
+	// Start timer
+	TIM2->CR1 |= TIM_CR1_CEN;
+}
+
+/* TIM2 interrupt handler (100Hz heartbeat) */
+void TIM2_IRQHandler(void) {
+	if (TIM2->SR & TIM_SR_UIF) {
+		TIM2->SR &= ~TIM_SR_UIF; // Clear interrupt flag
+
+		// Read ADC and determine gear
+		adc_value = ADC_Read();
+		previous_gear = current_gear;
+		current_gear = ADC_to_Gear(adc_value);
+
+		// Read button states
+		Read_Buttons();
+
+		// Update 7-segment display
+		Update_7Segment(current_gear);
+
+		// Check stall conditions
+		Check_Stall_Conditions();
+
+		// Update speed based on inputs
+		Update_Speed();
+
+		// Update LEDs
+		Update_Engine_LED();
+		Update_Wiper_LED();
+
+		// Send speed via UART every 500ms (50 timer ticks)
+		uart_send_counter++;
+		if (uart_send_counter >= 50) {
+			uart_send_counter = 0;
+			USART2_SendSpeed();
+		}
+	}
+}
+
+/* USART2 interrupt handler */
+void USART2_IRQHandler(void) {
+	if (USART2->SR & USART_SR_RXNE) {
+		uart_rx_char = USART2->DR;
+		uart_rx_flag = 1;
+	}
+}
+
+/* Read ADC value */
+uint16_t ADC_Read(void) {
+	ADC1->CR2 |= ADC_CR2_SWSTART; // Start conversion
+	while (!(ADC1->SR & ADC_SR_EOC))
+		; // Wait for EOC
+	return ADC1->DR;
+}
+
+/* Convert ADC value to gear */
+Gear ADC_to_Gear(uint16_t adc_val) {
+	// Divide 0-4095 into 6 equal ranges
+	if (adc_val > 3414)
+		return GEAR_N; //3414
+	else if (adc_val > 2732)
+		return GEAR_1; //2732
+	else if (adc_val > 2049)
+		return GEAR_2; //2049
+	else if (adc_val > 1366)
+		return GEAR_3; //1366
+	else if (adc_val > 683)
+		return GEAR_4; // 683
+	else
+		return GEAR_5;
+}
+
+/* Read button states (active low) */
+void Read_Buttons(void) {
+	clutch_pressed = !(GPIOA->IDR & GPIO_IDR_ID10);
+	brake_pressed = !(GPIOB->IDR & GPIO_IDR_ID3);
+	gas_pressed = !(GPIOB->IDR & GPIO_IDR_ID5);
+
+	// Wiper button with debouncing
+	uint8_t wiper_current = !(GPIOB->IDR & GPIO_IDR_ID4);
+	if (wiper_current && !wiper_button_last) {
+		// Rising edge detected
+		wiper_mode = (wiper_mode + 1) % 4;
+		wiper_counter = 0; // Reset wiper counter
+	}
+	wiper_button_last = wiper_current;
+}
+
+/* Check stall conditions */
+void Check_Stall_Conditions(void) {
+    if (!engine_running) return;
+
+    // Gear change without clutch -> stall (check speed limits too)
+    if (current_gear != previous_gear && !clutch_pressed) {
+        // Check if speed is too high for the new gear
+        if (current_gear != GEAR_N && current_speed > GEAR_SPEEDS[current_gear].max) {
+            engine_running = 0;
+            USART2_SendString("Engine stalled: speed too high for gear\r\n");
+            return;
+        }
+        // Regular clutchless gear change stall
+        engine_running = 0;
+        USART2_SendString("Engine stalled: clutchless gear change\r\n");
+        return;
+    }
+
+    // Gear 1 at speed 0 without gas/clutch -> stall
+    if (current_gear == GEAR_1 && current_speed < 0.1f &&
+        !gas_pressed && !clutch_pressed) {
+        engine_running = 0;
+        USART2_SendString("Engine stalled: idle at gear 1\r\n");
+        return;
+    }
+
+    // Low speed stall (speed below minimum for current gear)
+    // BUT: only check if clutch is NOT pressed (clutch disengages transmission)
+    if (current_gear != GEAR_N && current_gear != GEAR_1 && !clutch_pressed) {
+        if (current_speed < GEAR_SPEEDS[current_gear].min) {
+            engine_running = 0;
+            USART2_SendString("Engine stalled: speed too low for gear\r\n");
+            return;
+        }
+    }
+}
+
+/* Update speed based on inputs */
+void Update_Speed(void) {
+	if (!engine_running) {
+		current_speed = 0.0f;
+		return;
+	}
+
+	float accel_rate = 0.0f;
+
+	// Determine acceleration rate based on mode
+	switch (drive_mode) {
+	case MODE_ECO:
+		accel_rate = ACCEL_ECO;
+		break;
+	case MODE_NORMAL:
+		accel_rate = ACCEL_NORMAL;
+		break;
+	case MODE_SPORT:
+		accel_rate = ACCEL_SPORT;
+		break;
+	}
+
+	// Brake has priority
+	if (brake_pressed) {
+		current_speed -= DECEL_BRAKE / TIMER_FREQ;
+		if (current_speed < 0.0f)
+			current_speed = 0.0f;
+		return;
+	}
+
+	// Cannot accelerate with clutch pressed (except gear 1 special case)
+	if (clutch_pressed) {
+		if (current_gear == GEAR_1 && current_speed < 10.0f && gas_pressed) {
+			// Special case: Gear 1 + clutch + gas can accelerate to 10 km/h
+			current_speed += accel_rate / TIMER_FREQ;
+			if (current_speed > 10.0f)
+				current_speed = 10.0f;
+		} else {
+			// Coasting with clutch
+			current_speed -= DECEL_COASTING / TIMER_FREQ;
+			if (current_speed < 0.0f)
+				current_speed = 0.0f;
+		}
+		return;
+	}
+
+	// Cannot drive in neutral
+	if (current_gear == GEAR_N) {
+		current_speed -= DECEL_COASTING / TIMER_FREQ;
+		if (current_speed < 0.0f)
+			current_speed = 0.0f;
+		return;
+	}
+
+	// Accelerate if gas pressed
+	if (gas_pressed) {
+		current_speed += accel_rate / TIMER_FREQ;
+
+		// Speed limiter: cannot exceed max speed for current gear
+		if (current_speed > GEAR_SPEEDS[current_gear].max) {
+			current_speed = GEAR_SPEEDS[current_gear].max;
+		}
+	} else {
+		// Coasting (natural deceleration)
+		current_speed -= DECEL_COASTING / TIMER_FREQ;
+		if (current_speed < 0.0f)
+			current_speed = 0.0f;
+	}
+}
+
+/* Update 7-segment display (BCD output) */
+void Update_7Segment(uint8_t value) {
+	// BCD encoding: PA9 (MSB), PB10, PA8, PC7 (LSB)
+	// N=0, 1=1, 2=2, 3=3, 4=4, 5=5
+
+	// Clear all BCD pins
+	GPIOA->BSRR = GPIO_BSRR_BR9 | GPIO_BSRR_BR8;
+	GPIOB->BSRR = GPIO_BSRR_BR10;
+	GPIOC->BSRR = GPIO_BSRR_BR7;
+
+	// Set BCD value
+	if (value & 0x08)
+		GPIOA->BSRR = GPIO_BSRR_BS9;  // MSB
+	if (value & 0x04)
+		GPIOB->BSRR = GPIO_BSRR_BS10;
+	if (value & 0x02)
+		GPIOA->BSRR = GPIO_BSRR_BS8;
+	if (value & 0x01)
+		GPIOC->BSRR = GPIO_BSRR_BS7;  // LSB
+}
+
+/* Update engine LED */
+void Update_Engine_LED(void) {
+	if (engine_running) {
+		GPIOA->BSRR = GPIO_BSRR_BS5;
+	} else {
+		GPIOA->BSRR = GPIO_BSRR_BR5;
+	}
+}
+
+/* Update wiper LED */
+void Update_Wiper_LED(void) {
+	uint16_t period = 0;
+
+	switch (wiper_mode) {
+	case WIPER_OFF:
+		GPIOB->BSRR = GPIO_BSRR_BR6; // LED off
+		return;
+	case WIPER_SLOW:
+		period = 100; // 1 second (100 ticks at 100Hz)
+		break;
+	case WIPER_MEDIUM:
+		period = 50; // 0.5 second
+		break;
+	case WIPER_FAST:
+		period = 10; // 0.1 second
+		break;
+	}
+
+	wiper_counter++;
+	if (wiper_counter >= period) {
+		wiper_counter = 0;
+		wiper_led_state = !wiper_led_state;
+	}
+
+	if (wiper_led_state) {
+		GPIOB->BSRR = GPIO_BSRR_BS6;
+	} else {
+		GPIOB->BSRR = GPIO_BSRR_BR6;
+	}
+}
+
+/* Process UART commands */
+void Process_UART_Command(char cmd) {
+	switch (cmd) {
+	case 'o':
+		if (current_gear == GEAR_N && !engine_running) {
+			engine_running = 1;
+			USART2_SendString("Engine started\r\n");
+		} else {
+			USART2_SendString("Cannot start: must be in Neutral\r\n");
+		}
+		break;
+	case 'f':
+		engine_running = 0;
+		USART2_SendString("Engine stopped\r\n");
+		break;
+	case 'e':
+		drive_mode = MODE_ECO;
+		USART2_SendString("Mode: ECO\r\n");
+		break;
+	case 'n':
+		drive_mode = MODE_NORMAL;
+		USART2_SendString("Mode: NORMAL\r\n");
+		break;
+	case 's':
+		drive_mode = MODE_SPORT;
+		USART2_SendString("Mode: SPORT\r\n");
+		break;
+	default:
+		USART2_SendString("Unknown command\r\n");
+		break;
+	}
+}
+
+/* Send speed via UART */
+void USART2_SendSpeed(void) {
+	char buffer[32];
+	int speed_int = (int) current_speed;
+
+	// Simple integer to string conversion
+	buffer[0] = 'S';
+	buffer[1] = 'p';
+	buffer[2] = 'e';
+	buffer[3] = 'e';
+	buffer[4] = 'd';
+	buffer[5] = ':';
+	buffer[6] = ' ';
+
+	int idx = 7;
+	if (speed_int == 0) {
+		buffer[idx++] = '0';
+	} else {
+		int temp = speed_int;
+		int digits = 0;
+		while (temp > 0) {
+			temp /= 10;
+			digits++;
+		}
+
+		for (int i = digits - 1; i >= 0; i--) {
+			buffer[idx + i] = '0' + (speed_int % 10);
+			speed_int /= 10;
+		}
+		idx += digits;
+	}
+
+	buffer[idx++] = ' ';
+	buffer[idx++] = 'k';
+	buffer[idx++] = 'm';
+	buffer[idx++] = '/';
+	buffer[idx++] = 'h';
+	buffer[idx++] = '\r';
+	buffer[idx++] = '\n';
+	buffer[idx] = '\0';
+
+	USART2_SendString(buffer);
+}
+
+/* Send string via USART2 */
+void USART2_SendString(const char *str) {
+	while (*str) {
+		while (!(USART2->SR & USART_SR_TXE))
+			; // Wait for TXE
+		USART2->DR = *str++;
+	}
+}

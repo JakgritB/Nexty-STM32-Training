@@ -1,0 +1,113 @@
+// joystick_check.c
+// Minimal joystick check for STM32F411
+// VRy -> PC1 (ADC channel 11)
+// UART2 TX=PA2, RX=PA3
+// Edge-detect: ต้องกลับกลางก่อนจะรับการโยกครั้งถัดไป
+
+#include <stdint.h>
+#include "stm32f4xx.h"
+
+#define SYSTEM_CLOCK 16000000U
+
+// Thresholds (ปรับได้หลังทดลอง)
+#define JOY_UP_THRESHOLD    2600U
+#define JOY_DOWN_THRESHOLD  1480U
+
+volatile int8_t joy_last_dir = 0; // -1 down, 0 center, 1 up
+
+// --- UART simple send ---
+void uart_send_string(const char *s) {
+    while (*s) {
+        while (!(USART2->SR & USART_SR_TXE)) ;
+        USART2->DR = *s++;
+    }
+}
+
+// --- Simple software delay (approx ms on 16MHz, not precise) ---
+static void delay_ms(volatile uint32_t ms) {
+    // crude loop ~ 1 ms per iteration for 16MHz with optimization off
+    while (ms--) {
+        volatile uint32_t n = 12000;
+        while (n--) __asm__("nop");
+    }
+}
+
+// --- ADC read channel 11 (PC1) ---
+uint16_t read_adc_pc1(void) {
+    // select channel 11
+    ADC1->SQR3 = 11;               // first conversion -> channel 11
+    ADC1->CR2 |= ADC_CR2_SWSTART; // start conversion
+    while (!(ADC1->SR & ADC_SR_EOC)) ;
+    return (uint16_t)(ADC1->DR & 0xFFFF);
+}
+
+// --- detect function (updates current direction and reports events) ---
+void detect_joystick_and_report(uint16_t raw) {
+    int8_t dir = 0;
+    if (raw >= JOY_UP_THRESHOLD) dir = 1;
+    else if (raw <= JOY_DOWN_THRESHOLD) dir = -1;
+    else dir = 0;
+
+    if (dir != 0 && joy_last_dir == 0) {
+        // center -> moved : report once
+        if (dir == 1) uart_send_string("JOY UP\r\n");
+        else uart_send_string("JOY DOWN\r\n");
+    } else if (dir == 0 && joy_last_dir != 0) {
+        // returned to center
+        uart_send_string("JOY CENTER\r\n");
+    }
+    joy_last_dir = dir;
+}
+
+// --- main ---
+int main(void) {
+    // 1) Enable clocks
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIOAEN;
+    RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+    RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
+
+    // small delay to let clocks settle
+    for (volatile int i=0;i<10000;i++) __asm__("nop");
+
+    // 2) Configure PC1 analog (VRy)
+    GPIOC->MODER |= (0b11 << GPIO_MODER_MODER1_Pos); // PC1 analog
+
+    // 3) Configure PA2/PA3 for USART2 AF7
+    GPIOA->MODER &= ~((0b11<<GPIO_MODER_MODER2_Pos) | (0b11<<GPIO_MODER_MODER3_Pos));
+    GPIOA->MODER |=  (0b10<<GPIO_MODER_MODER2_Pos) | (0b10<<GPIO_MODER_MODER3_Pos); // AF
+    GPIOA->AFR[0] |= (7 << GPIO_AFRL_AFSEL2_Pos) | (7 << GPIO_AFRL_AFSEL3_Pos); // AF7
+
+    // 4) Setup USART2 (baud ~115200 with PCLK1=16MHz -> BRR≈139)
+    USART2->BRR = 139;
+    USART2->CR1 = USART_CR1_UE | USART_CR1_TE; // enable tx
+    // small delay to ensure uart ready
+    for (volatile int i=0;i<1000;i++) __asm__("nop");
+
+    uart_send_string("Joystick check start\r\n");
+
+    // 5) ADC setup
+    ADC1->CR2 |= ADC_CR2_ADON; // turn on ADC
+    // channel 11 uses SMPR1 register
+    ADC1->SMPR1 |= (4 << ADC_SMPR1_SMP11_Pos); // sampling time (mid)
+    // SQR1 = 0 (1 conversion)
+    ADC1->SQR1 = 0;
+
+    // allow ADC to stabilize
+    for (volatile int i=0;i<10000;i++) __asm__("nop");
+
+    // initial read to set state
+    uint16_t v = read_adc_pc1();
+    if (v >= JOY_UP_THRESHOLD) joy_last_dir = 1;
+    else if (v <= JOY_DOWN_THRESHOLD) joy_last_dir = -1;
+    else joy_last_dir = 0;
+
+    // Main loop: poll every ~50 ms
+    while (1) {
+        uint16_t raw = read_adc_pc1();
+        detect_joystick_and_report(raw);
+        delay_ms(50);
+    }
+
+    // never reach
+    return 0;
+}

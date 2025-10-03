@@ -1,0 +1,448 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+#define STM32F411xE
+#include "stm32f4xx.h"
+
+uint32_t SystemCoreClock = 16000000;
+
+/// from friend
+volatile bool engineON = false; // [true or false]
+volatile int driveMode = 1; // eco=0, normal=1, sport=2
+//////////
+
+volatile int currentSpeed = 0;
+volatile int currentGear = 0;
+
+volatile bool a = true; // can accelator status?, 1 = can, 0 = can't
+volatile float acc = 1.2f;
+
+volatile uint8_t wiperState = 0; // สถานะที่ปัดน้ำฝน (0=ปิด, 1=หน่วง, 2=ปานกลาง, 3=เร็ว)
+volatile uint32_t wiper_counter = 0;    // ตัวนับสำหรับจังหวะที่ปัดน้ำฝน
+
+// [เพิ่มใหม่] ฟังก์ชันสำหรับส่งข้อความออกไปทาง UART
+void uart_send_string(const char *str) {
+	for (int i = 0; str[i] != '\0'; i++) {
+		// รอจนกว่า Transmitter จะว่าง
+		while (!(USART2->SR & USART_SR_TXE))
+			;
+		// ส่งข้อมูลทีละตัวอักษร
+		USART2->DR = str[i];
+	}
+}
+
+bool isSpeedZero(int speed) { // is speed = 0
+	if (speed == 0) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool isSpeedEQGearN(int speed) {
+	// is speed 0 //check gear N
+	if (speed == 0) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+int checkSpeedEQGearOne(int speed) {
+	//less = 0, in range = 1, more = 2
+	// is speed 0 - 30 //check gear 1
+	if (speed >= 0 && speed <= 30) {
+		return 1;
+	} else if (speed > 30) {
+		return 2;
+	}
+	return 0;
+}
+
+int checkSpeedEQGearTwo(int speed) {
+	//less = 0, in range = 1, more = 2
+	// is speed 20 - 50 //check gear 2
+	if (speed < 20) {
+		return 0;
+	} else if (speed >= 20 && speed <= 50) {
+		return 1;
+	} else if (speed > 50) {
+		return 2;
+	}
+	return 0;
+}
+
+int checkSpeedEQGearThree(int speed) {
+	//less = 0, in range = 1, more = 2
+	// is speed 40 - 70 //check gear 3
+	if (speed < 40) {
+		return 0;
+	} else if (speed >= 40 && speed <= 70) {
+		return 1;
+	} else if (speed > 70) {
+		return 2;
+	}
+	return 0;
+}
+
+int checkSpeedEQGearFour(int speed) {
+	//less = 0, in range = 1, more = 2
+	// is speed 60 - 90 //check gear 4
+	if (speed < 60) {
+		return 0;
+	} else if (speed >= 60 && speed <= 90) {
+		return 1;
+	} else if (speed > 90) {
+		return 2;
+	}
+	return 0;
+}
+
+int checkSpeedEQGearFive(int speed) {
+	//less = 0, in range = 1, more = 2
+	// is speed 80 - 130 //check gear 5
+	if (speed < 80) {
+		return 0;
+	} else if (speed >= 80 && speed <= 130) {
+		return 1;
+	} else if (speed > 130) {
+		return 2;
+	}
+	return 0;
+}
+
+int gearChange(int potenPos) { //all = 4096
+	int gap = 682;
+
+	if (potenPos <= gap) {
+		// 0 - 682
+		// gear n
+
+		// 0000
+		GPIOC->ODR &= ~(GPIO_ODR_OD7);
+		GPIOA->ODR &= ~(GPIO_ODR_OD8);
+		GPIOB->ODR &= ~(GPIO_ODR_OD10);
+		GPIOA->ODR &= ~(GPIO_ODR_OD9);
+
+		return 0; // gear = 0
+	} else if (potenPos > gap && potenPos <= gap * 2) {
+		// 682 - 1364
+		//gear 1
+
+		// 0001
+		GPIOC->ODR |= (GPIO_ODR_OD7);
+		GPIOA->ODR &= ~(GPIO_ODR_OD8);
+		GPIOB->ODR &= ~(GPIO_ODR_OD10);
+		GPIOA->ODR &= ~(GPIO_ODR_OD9);
+
+		return 1; // gear = 1
+	} else if (potenPos > gap * 2 && potenPos <= gap * 3) {
+		// 1364 - 2046
+		//gear 2
+
+		// 0010
+		GPIOC->ODR &= ~(GPIO_ODR_OD7);
+		GPIOA->ODR |= (GPIO_ODR_OD8);
+		GPIOB->ODR &= ~(GPIO_ODR_OD10);
+		GPIOA->ODR &= ~(GPIO_ODR_OD9);
+
+		return 2; // gear = 2
+	} else if (potenPos > gap * 3 && potenPos <= gap * 4) {
+		// 2046 - 2728
+		//gear 3
+
+		// 0011
+		GPIOC->ODR |= (GPIO_ODR_OD7);
+		GPIOA->ODR |= (GPIO_ODR_OD8);
+		GPIOB->ODR &= ~(GPIO_ODR_OD10);
+		GPIOA->ODR &= ~(GPIO_ODR_OD9);
+
+		return 3; // gear = 3
+	} else if (potenPos > gap * 4 && potenPos <= gap * 5) {
+		// 2728 - 3410
+		//gear 4
+
+		// 0100
+		GPIOC->ODR &= ~(GPIO_ODR_OD7);
+		GPIOA->ODR &= ~(GPIO_ODR_OD8);
+		GPIOB->ODR |= (GPIO_ODR_OD10);
+		GPIOA->ODR &= ~(GPIO_ODR_OD9);
+
+		return 4; // gear = 4
+	} else if (potenPos > gap * 5) {
+		// 3410 - 4096
+		//gear 5
+
+		// 0101
+		GPIOC->ODR |= (GPIO_ODR_OD7);
+		GPIOA->ODR &= ~(GPIO_ODR_OD8);
+		GPIOB->ODR |= (GPIO_ODR_OD10);
+		GPIOA->ODR &= ~(GPIO_ODR_OD9);
+
+		return 5; // gear = 5
+	}
+}
+
+void checkDriveMode(int mode) {
+	if (mode == 0) { // eco
+		acc = 1.0f;
+	} else if (mode == 1) {
+		acc = 1.2f;
+	} else if (mode == 2) {
+		acc = 1.5f;
+	}
+}
+
+void USART2_IRQHandler(void) {
+	if (USART2->SR & USART_SR_RXNE) {
+		char command = USART2->DR;
+		if ((command == 'o' || command == 'O') && currentGear == 0) {
+			engineON = true;
+		} else if (command == 'f' || command == 'F') {
+			engineON = false;
+		} else if (command == 'e' || command == 'E') {
+			driveMode = 0;
+		} else if (command == 'n' || command == 'N') {
+			driveMode = 1;
+		} else if (command == 's' || command == 'S') {
+			driveMode = 2;
+		} else if (command == 'e' || command == 'E') {
+			driveMode = 0;
+			uart_send_string("Mode: Eco\n"); // [เพิ่ม] ส่งข้อความยืนยัน
+		} else if (command == 'n' || command == 'N') {
+			driveMode = 1;
+			uart_send_string("Mode: Normal\n"); // [เพิ่ม] ส่งข้อความยืนยัน
+		} else if (command == 's' || command == 'S') {
+			driveMode = 2;
+			uart_send_string("Mode: Sport\n"); // [เพิ่ม] ส่งข้อความยืนยัน
+		}
+	}
+}
+
+void EXTI4_IRQHandler(void) {
+	if ((EXTI->PR & EXTI_PR_PR4) != 0) {
+		wiperState = (wiperState + 1) % 4; // วนสถานะ 0-3
+		wiper_counter = 0; // รีเซ็ตตัวนับทุกครั้งที่เปลี่ยนโหมด
+		EXTI->PR |= EXTI_PR_PR4; // [สำคัญ] เคลียร์ธง Interrupt
+	}
+}
+
+void EXTI3_IRQHandler(void) { //brake press
+	if ((EXTI->PR & EXTI_PR_PR3) != 0) {
+		// reduce speed
+		EXTI->PR |= EXTI_PR_PR3;
+	}
+}
+
+void EXTI15_10_IRQHandler(void) { //clutch press
+	if ((EXTI->PR & EXTI_PR_PR10) != 0) {
+
+		EXTI->PR |= EXTI_PR_PR10;
+	}
+}
+
+void EXTI9_5_IRQHandler(void) { //gas press
+	if ((EXTI->PR & EXTI_PR_PR5) != 0) {
+
+		EXTI->PR |= EXTI_PR_PR5;
+	}
+}
+
+void TIM2_IRQHandler(void) {
+	if (TIM2->SR & TIM_SR_UIF) {
+		TIM2->SR &= ~TIM_SR_UIF; // [สำคัญ] เคลียร์ธงของ Timer
+
+		static int uart_counter = 0;
+
+		// --- ส่วน A: Logic ของเพื่อน (ฝั่งซ้าย) ---
+		// 1. อัปเดต LED สถานะเครื่องยนต์ (PA5)
+		if (engineON) {
+			GPIOA->BSRR = GPIO_BSRR_BS5;
+		} else {
+			GPIOA->BSRR = GPIO_BSRR_BR5;
+		}
+		// 2. จัดการจังหวะที่ปัดน้ำฝน (PB6)
+		wiper_counter++;
+		switch (wiperState) {
+		case 0:
+			GPIOB->BSRR = GPIO_BSRR_BR6;
+			break; // ปิด
+		case 1: // หน่วง (ทุก 1.5 วินาที)
+			if (wiper_counter >= 150) {
+				wiper_counter = 0;
+			}
+			(wiper_counter < 10) ?
+					(GPIOB->BSRR = GPIO_BSRR_BS6) :
+					(GPIOB->BSRR = GPIO_BSRR_BR6);
+			break;
+		case 2: // ปานกลาง (ทุก 1 วินาที)
+			if (wiper_counter >= 100) {
+				wiper_counter = 0;
+			}
+			(wiper_counter < 10) ?
+					(GPIOB->BSRR = GPIO_BSRR_BS6) :
+					(GPIOB->BSRR = GPIO_BSRR_BR6);
+			break;
+		case 3: // เร็ว (ทุก 0.5 วินาที)
+			if (wiper_counter >= 50) {
+				wiper_counter = 0;
+			}
+			(wiper_counter % 20 < 10) ?
+					(GPIOB->BSRR = GPIO_BSRR_BS6) :
+					(GPIOB->BSRR = GPIO_BSRR_BR6);
+			break;
+		}
+
+		// --- ส่วน B: Logic ของคุณ (ฝั่งขวา) ---
+		if (!engineON) {
+			currentSpeed = 0;
+			return; // ถ้าเครื่องดับ ไม่ต้องทำ Logic ด้านล่าง
+		}
+
+		if (++uart_counter >= 50) {
+			uart_counter = 0; // รีเซ็ตตัวนับ
+
+			if (engineON) {
+				// สร้าง Buffer (กล่องข้อความ) ชั่วคราว
+				char buffer[30];
+				// แปลงตัวเลขความเร็วให้เป็นข้อความ "Speed: XX km/h"
+				sprintf(buffer, "Speed: %d km/h\n", currentSpeed);
+				// เรียกใช้ฟังก์ชันที่เราสร้างไว้เพื่อส่งข้อความ
+				uart_send_string(buffer);
+			}
+		}
+
+		// 1. อ่านสถานะปุ่มและ Potentiometer
+		bool brakePress = ((GPIOB->IDR & GPIO_IDR_ID3) == 0);
+		bool clutchPress = ((GPIOA->IDR & GPIO_IDR_ID10) == 0);
+		bool gasPress = ((GPIOB->IDR & GPIO_IDR_ID5) == 0);
+
+		ADC1->CR2 |= ADC_CR2_SWSTART; // สั่ง ADC เริ่มแปลงค่า
+		while (!(ADC1->SR & ADC_SR_EOC))
+			; // รอจนแปลงเสร็จ
+		int gear = gearChange(ADC1->DR); // แสดงผลและรับค่าเกียร์
+
+		// 2. Logic การเปลี่ยนเกียร์
+		if (gear != currentGear) {
+			if (clutchPress) {
+				currentGear = gear;
+			} else {
+				engineON = false; // ดับ! เพราะเปลี่ยนเกียร์ไม่เหยียบคลัตช์
+			}
+		}
+
+		// 3. Logic การควบคุมความเร็ว
+		if (brakePress) {
+			a = false;
+			currentSpeed -= 5;
+		} else if (gasPress && a == true && currentGear != 0) {
+			checkDriveMode(driveMode);
+			currentSpeed += (acc * 2);
+		} else {
+			currentSpeed -= 1; // ความเร็วลดลงเองช้าๆ
+		}
+
+		if (clutchPress) {
+			a = false;
+		} else {
+			if (!brakePress) {
+				a = true;
+			}
+		}
+
+		// 4. Logic ป้องกันและตรวจสอบความเร็ว
+		if (currentSpeed < 0) {
+			currentSpeed = 0;
+		}
+		const int max_speeds[] = { 0, 30, 50, 70, 90, 130 };
+		if (currentSpeed > max_speeds[currentGear]) {
+			currentSpeed = max_speeds[currentGear];
+		}
+
+		// 5. Logic รถดับเมื่อความเร็วต่ำไป (เรียกใช้ฟังก์ชันของคุณ)
+		bool shouldStall = false;
+		if (currentGear == 2 && checkSpeedEQGearTwo(currentSpeed) == 0) {
+			shouldStall = true;
+		}
+		if (currentGear == 3 && checkSpeedEQGearThree(currentSpeed) == 0) {
+			shouldStall = true;
+		}
+		if (currentGear == 4 && checkSpeedEQGearFour(currentSpeed) == 0) {
+			shouldStall = true;
+		}
+		if (currentGear == 5 && checkSpeedEQGearFive(currentSpeed) == 0) {
+			shouldStall = true;
+		}
+		if (shouldStall) {
+			engineON = false;
+		}
+	}
+}
+
+int main(void) {
+	// --- 1. เปิด Clock ให้อุปกรณ์ทั้งหมด ---
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN
+			| RCC_AHB1ENR_GPIOCEN;
+	RCC->APB1ENR |= RCC_APB1ENR_USART2EN | RCC_APB1ENR_TIM2EN;
+	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN | RCC_APB2ENR_ADC1EN;
+
+	// --- 2. ตั้งค่า GPIO ทั้งหมดตาม Pin Mapping ---
+	// Outputs
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER5_Pos); // PA5 (Engine LED)
+	GPIOB->MODER |= (0b01 << GPIO_MODER_MODER6_Pos); // PB6 (Wiper LED)
+	GPIOC->MODER |= (0b01 << GPIO_MODER_MODER7_Pos); // 7-Segment LSB
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER8_Pos); // 7-Segment
+	GPIOB->MODER |= (0b01 << GPIO_MODER_MODER10_Pos); // 7-Segment
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER9_Pos); // 7-Segment MSB
+
+	// Inputs (Pull-up)
+	GPIOB->PUPDR |= (0b01 << GPIO_PUPDR_PUPD3_Pos);  // PB3 (Brake)
+	GPIOA->PUPDR |= (0b01 << GPIO_PUPDR_PUPD10_Pos); // PA10 (Clutch)
+	GPIOB->PUPDR |= (0b01 << GPIO_PUPDR_PUPD5_Pos);  // PB5 (Gas)
+	GPIOB->PUPDR |= (0b01 << GPIO_PUPDR_PUPD4_Pos);  // PB4 (Wiper Button)
+
+	// Analog
+	GPIOA->MODER |= (0b11 << GPIO_MODER_MODER4_Pos); // PA4 (Potentiometer)
+
+	// Alternate Function
+	GPIOA->MODER |= (0b10 << GPIO_MODER_MODER2_Pos)
+			| (0b10 << GPIO_MODER_MODER3_Pos); // PA2, PA3 (UART)
+	GPIOA->AFR[0] |= (0b0111 << GPIO_AFRL_AFSEL2_Pos)
+			| (0b0111 << GPIO_AFRL_AFSEL3_Pos);
+
+	// --- 3. ตั้งค่า ADC (สำหรับ Potentiometer) ---
+	ADC1->SQR3 = (4 << ADC_SQR3_SQ1_Pos); // เลือก Channel 4 (PA4)
+	ADC1->CR2 |= ADC_CR2_ADON;
+
+	// --- 4. ตั้งค่า UART2 ---
+	USART2->BRR = 16000000 / 115200; // Baud Rate 115200
+	USART2->CR1 |=
+	USART_CR1_UE | USART_CR1_RE | USART_CR1_TE | USART_CR1_RXNEIE;
+
+	// --- 5. ตั้งค่า EXTI (สำหรับปุ่มกด) ---
+	SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI3_PB;    // PB3
+	SYSCFG->EXTICR[1] |= SYSCFG_EXTICR2_EXTI4_PB | SYSCFG_EXTICR2_EXTI5_PB; // PB4, PB5
+	SYSCFG->EXTICR[2] |= SYSCFG_EXTICR3_EXTI10_PA;   // PA10
+	EXTI->IMR |= EXTI_IMR_IM3 | EXTI_IMR_IM4 | EXTI_IMR_IM5 | EXTI_IMR_IM10;
+	EXTI->FTSR |=
+	EXTI_FTSR_TR3 | EXTI_FTSR_TR4 | EXTI_FTSR_TR5 | EXTI_FTSR_TR10;
+
+	// --- 6. [หัวใจ] ตั้งค่า Timer 2 (ให้ทำงานทุก 10ms หรือ 100Hz) ---
+	TIM2->PSC = 1600 - 1;   // ลดความถี่ Clock จาก 16MHz -> 10kHz
+	TIM2->ARR = 100 - 1; // นับ 100 ครั้งที่ความถี่ 10kHz -> เกิด Interrupt ทุก 10ms (100Hz)
+	TIM2->DIER |= TIM_DIER_UIE; // เปิด Interrupt
+	TIM2->CR1 |= TIM_CR1_CEN;   // เริ่มนับ!
+
+	// --- 7. เปิดใช้งาน Interrupt ทั้งหมดใน NVIC ---
+	NVIC_EnableIRQ(USART2_IRQn);
+	NVIC_EnableIRQ(TIM2_IRQn);
+	NVIC_EnableIRQ(EXTI3_IRQn);
+	NVIC_EnableIRQ(EXTI4_IRQn);
+	NVIC_EnableIRQ(EXTI9_5_IRQn);
+	NVIC_EnableIRQ(EXTI15_10_IRQn);
+	__enable_irq();
+
+	while (1) {
+		// ปล่อยว่าง! ทุกอย่างทำงานด้วย Interrupts
+	}
+}

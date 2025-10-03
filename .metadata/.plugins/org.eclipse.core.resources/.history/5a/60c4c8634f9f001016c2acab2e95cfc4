@@ -1,0 +1,369 @@
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+
+// แก้ปัญหา Linker Error โดยกำหนดค่า Clock เริ่มต้น (16MHz HSI)
+uint32_t SystemCoreClock = 16000000;
+
+#define STM32F411xE
+#include "stm32f4xx.h"
+
+// --- Configuration Constants ---
+// Pin Mapping
+#define POT_GEAR_PIN      4  // PA4
+#define LIGHT_SENSOR_PIN  1  // PA1
+#define TEMP_SENSOR_PIN   0  // PA0
+#define CLUTCH_PIN        10 // PA10
+#define BRAKE_PIN         3  // PB3
+#define GAS_PIN           5  // PB5
+#define WIPER_BTN_PIN     4  // PB4
+#define LED_WIPER_PIN     5  // PA5
+#define LED_HEADLIGHT_PIN 6  // PA6
+#define LED_AC_PIN        7  // PA7
+#define LED_ENGINE_PIN    6  // PB6
+#define BCD_MSB_PIN       9  // PA9
+#define BCD_B2_PIN        10 // PB10
+#define BCD_B1_PIN        8  // PA8
+#define BCD_LSB_PIN       7  // PC7
+
+// ADC and Sensor Constants
+#define VREF              3.3f
+#define ADC_MAX_VAL       4095.0f
+#define NTC_RX            10000.0f
+#define NTC_R0            10000.0f
+#define NTC_T0            298.15f
+#define NTC_BETA          3950.0f
+#define LDR_RX            10000.0f
+#define LDR_SLOPE         -0.6875f
+#define LDR_OFFSET        5.1276f
+#define TEMP_THRESHOLD_C  25.0f
+#define LIGHT_THRESHOLD_LUX 50.0f
+
+// Gear ADC Thresholds
+#define GEAR_N_MAX        682
+#define GEAR_1_MAX        1365
+#define GEAR_2_MAX        2048
+#define GEAR_3_MAX        2730
+#define GEAR_4_MAX        3413
+
+// Simulation Constants
+#define SYSTICK_FREQ_HZ   100   // SysTick ทำงาน 100 ครั้ง/วินาที (ทุก 10ms)
+#define SPEED_UPDATE_RATE 10    // อัปเดตความเร็วทุก 10 ticks (100ms)
+#define UART_UPDATE_RATE  50    // ส่งข้อมูล UART ทุก 50 ticks (500ms)
+#define WIPER_DELAY_TICKS 100   // 100 ticks = 1 วินาที
+#define WIPER_BLINK_TICKS 25    // 25 ticks = 250ms (สำหรับโหมดกะพริบ)
+#define WIPE_DURATION_TICKS 10  // 10 ticks = 100ms (ระยะเวลาที่ใบปัดทำงาน)
+
+// --- Type Definitions ---
+typedef enum { GEAR_N=0, GEAR_1, GEAR_2, GEAR_3, GEAR_4, GEAR_5 } Gear_t;
+typedef enum { MODE_ECO, MODE_NORMAL, MODE_SPORT } DriveMode_t;
+typedef enum { WIPER_OFF, WIPER_DELAY, WIPER_NORMAL, WIPER_FAST } WiperMode_t;
+
+// --- Global State Variables ---
+volatile uint8_t g_engine_on = 0;
+volatile float g_current_speed = 0.0f;
+volatile Gear_t g_current_gear = GEAR_N;
+volatile DriveMode_t g_drive_mode = MODE_NORMAL;
+volatile WiperMode_t g_wiper_mode = WIPER_OFF;
+volatile uint16_t g_adc_results[3]; // [0]=Temp, [1]=Light, [2]=Gear
+
+// --- Function Prototypes ---
+void init_all(void);
+void init_gpio(void);
+void init_uart(void);
+void init_adc_with_dma(void);
+void init_systick(void);
+void init_exti(void);
+void init_fpu(void);
+void uart_send_string(const char* str);
+void display_gear_bcd(Gear_t gear);
+void update_leds(void);
+Gear_t get_gear_from_adc(uint16_t adc_value);
+void check_stall_conditions(void);
+
+// --- Main Function ---
+int main(void) {
+    init_all();
+    while (1) {
+        // รอการทำงานจาก Interrupts ทั้งหมด
+        __WFI();
+    }
+}
+
+// --- Initialization Functions ---
+void init_all() {
+    init_fpu();
+    init_gpio();
+    init_uart();
+    init_adc_with_dma();
+    init_exti();
+    init_systick(); // เริ่ม Systick เป็นลำดับสุดท้าย
+}
+
+void init_fpu() {
+    SCB->CPACR |= ((3UL << 10*2) | (3UL << 11*2));
+}
+
+void init_gpio() {
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOCEN;
+
+    // Outputs: LEDs and 7-Segment
+    GPIOA->MODER |= (1 << GPIO_MODER_MODER5_Pos) | (1 << GPIO_MODER_MODER6_Pos) | (1 << GPIO_MODER_MODER7_Pos);
+    GPIOB->MODER |= (1 << GPIO_MODER_MODER6_Pos);
+    GPIOA->MODER |= (1 << GPIO_MODER_MODER9_Pos) | (1 << GPIO_MODER_MODER8_Pos);
+    GPIOB->MODER |= (1 << GPIO_MODER_MODER10_Pos);
+    GPIOC->MODER |= (1 << GPIO_MODER_MODER7_Pos);
+
+    // Inputs: Buttons with Pull-up
+    GPIOA->PUPDR |= (1 << GPIO_PUPDR_PUPD10_Pos);
+    GPIOB->PUPDR |= (1 << GPIO_PUPDR_PUPD3_Pos) | (1 << GPIO_PUPDR_PUPD5_Pos) | (1 << GPIO_PUPDR_PUPD4_Pos);
+
+    // Analog Inputs
+    GPIOA->MODER |= (3 << GPIO_MODER_MODER0_Pos) | (3 << GPIO_MODER_MODER1_Pos) | (3 << GPIO_MODER_MODER4_Pos);
+
+    // Alternate Function: UART
+    GPIOA->MODER |= (2 << GPIO_MODER_MODER2_Pos) | (2 << GPIO_MODER_MODER3_Pos);
+    GPIOA->AFR[0] |= (7 << GPIO_AFRL_AFSEL2_Pos) | (7 << GPIO_AFRL_AFSEL3_Pos);
+}
+
+void init_uart() {
+    RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+    USART2->BRR = 0x8B; // 115200 baud for 16MHz APB1 clock
+    USART2->CR1 |= USART_CR1_TE | USART_CR1_RE | USART_CR1_RXNEIE | USART_CR1_UE;
+    NVIC_EnableIRQ(USART2_IRQn);
+}
+
+void init_adc_with_dma() {
+    RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
+    RCC->AHB1ENR |= RCC_AHB1ENR_DMA2EN;
+
+    // ADC Config
+    ADC1->CR1 |= ADC_CR1_SCAN;
+    ADC1->CR2 |= ADC_CR2_CONT | ADC_CR2_DMA | ADC_CR2_DDS;
+    ADC1->SQR1 = (2 << ADC_SQR1_L_Pos); // 3 conversions
+    ADC1->SQR3 = (TEMP_SENSOR_PIN << ADC_SQR3_SQ1_Pos)  |
+                 (LIGHT_SENSOR_PIN << ADC_SQR3_SQ2_Pos) |
+                 (POT_GEAR_PIN << ADC_SQR3_SQ3_Pos);
+
+    // DMA Config
+    DMA2_Stream0->CR &= ~DMA_SxCR_EN;
+    while(DMA2_Stream0->CR & DMA_SxCR_EN);
+    DMA2_Stream0->PAR = (uint32_t)&(ADC1->DR);
+    DMA2_Stream0->M0AR = (uint32_t)g_adc_results;
+    DMA2_Stream0->NDTR = 3;
+    DMA2_Stream0->CR = (0 << DMA_SxCR_CHSEL_Pos) | DMA_SxCR_MINC |
+                       (1 << DMA_SxCR_PSIZE_Pos) | (1 << DMA_SxCR_MSIZE_Pos) |
+                       DMA_SxCR_CIRC;
+    DMA2_Stream0->CR |= DMA_SxCR_EN;
+
+    // Start ADC
+    ADC1->CR2 |= ADC_CR2_ADON;
+    for(volatile int i=0; i<1000; i++);
+    ADC1->CR2 |= ADC_CR2_SWSTART;
+}
+
+void init_exti() {
+    RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+    SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI3_PB;
+    SYSCFG->EXTICR[1] |= SYSCFG_EXTICR2_EXTI4_PB | SYSCFG_EXTICR2_EXTI5_PB;
+    SYSCFG->EXTICR[2] |= SYSCFG_EXTICR3_EXTI10_PA;
+
+    // Configure EXTI for Wiper Button only
+    EXTI->IMR |= (1 << WIPER_BTN_PIN);
+    EXTI->RTSR &= ~(1 << WIPER_BTN_PIN);
+    EXTI->FTSR |= (1 << WIPER_BTN_PIN); // Falling edge
+    NVIC_EnableIRQ(EXTI4_IRQn);
+}
+
+void init_systick() {
+    SysTick_Config(SystemCoreClock / SYSTICK_FREQ_HZ);
+}
+
+
+// --- Interrupt Service Routines (ISRs) ---
+void SysTick_Handler(void) {
+    static uint32_t tick_counter = 0;
+
+    // --- อ่านสถานะปุ่ม ---
+    // อ่านค่าโดยตรงจาก Register แทนการใช้ Interrupt เพื่อหลีกเลี่ยงปัญหา Debouncing
+    uint8_t clutch_pressed = (GPIOA->IDR & (1 << CLUTCH_PIN)) == 0;
+    uint8_t brake_pressed = (GPIOB->IDR & (1 << BRAKE_PIN)) == 0;
+    uint8_t gas_pressed = (GPIOB->IDR & (1 << GAS_PIN)) == 0;
+
+    // --- ประมวลผล Logic หลักเมื่อเครื่องยนต์ติด ---
+    if (g_engine_on) {
+        // --- Logic ความเร็ว (ทำงานทุก 100ms) ---
+        if (tick_counter % SPEED_UPDATE_RATE == 0) {
+            float acceleration = 0.0f;
+            if (brake_pressed) {
+                g_current_speed -= 2.0f;
+            } else if (clutch_pressed) {
+                g_current_speed -= 0.1f;
+            } else if (gas_pressed && g_current_gear != GEAR_N) {
+                acceleration = 1.0f;
+                if (g_drive_mode == MODE_ECO) acceleration *= 0.7f;
+                if (g_drive_mode == MODE_SPORT) acceleration *= 1.5f;
+            } else {
+                g_current_speed -= 0.2f;
+            }
+            g_current_speed += acceleration;
+            if (g_current_speed < 0) g_current_speed = 0;
+            const int max_speeds[] = {0, 30, 50, 70, 90, 130};
+            if (g_current_speed > max_speeds[g_current_gear]) {
+                g_current_speed = max_speeds[g_current_gear];
+            }
+        }
+
+        // --- Logic Sensor อัตโนมัติ ---
+        float adc_v_temp = (g_adc_results[0] * VREF) / ADC_MAX_VAL;
+        float r_ntc = NTC_RX * adc_v_temp / (VREF - adc_v_temp);
+        float temp_c = ((NTC_BETA * NTC_T0) / (NTC_T0 * log(r_ntc / NTC_R0) + NTC_BETA)) - 273.15f;
+
+        float adc_v_light = (g_adc_results[1] * VREF) / ADC_MAX_VAL;
+        float r_ldr = LDR_RX * adc_v_light / (VREF - adc_v_light);
+        float light_lux = pow(10, (log10(r_ldr) - LDR_OFFSET) / LDR_SLOPE);
+
+        (temp_c > TEMP_THRESHOLD_C) ? (GPIOA->BSRR = GPIO_BSRR_BS7) : (GPIOA->BSRR = GPIO_BSRR_BR7);
+        (light_lux < LIGHT_THRESHOLD_LUX) ? (GPIOA->BSRR = GPIO_BSRR_BS6) : (GPIOA->BSRR = GPIO_BSRR_BR6);
+
+        // --- Logic เกียร์ ---
+        Gear_t pot_gear = get_gear_from_adc(g_adc_results[2]);
+        if (!clutch_pressed && g_current_gear != pot_gear) {
+            g_engine_on = 0; // ดับ! เปลี่ยนเกียร์ไม่เหยียบคลัตช์
+        }
+        if(clutch_pressed){
+            g_current_gear = pot_gear;
+        }
+
+        // --- Logic ที่ปัดน้ำฝน (แก้ไขใหม่ทั้งหมด ไม่มีการ block) ---
+        static uint32_t wiper_wait_counter = 0;
+        static uint32_t wipe_duration_counter = 0;
+        static uint8_t wiper_is_active = 0;
+
+        switch(g_wiper_mode) {
+            case WIPER_DELAY:
+                if (wiper_is_active) { // กำลังปัด
+                    if (++wipe_duration_counter >= WIPE_DURATION_TICKS) {
+                        GPIOA->BSRR = GPIO_BSRR_BR5; // ปัดเสร็จ, ปิด
+                        wiper_is_active = 0;
+                    }
+                } else { // กำลังรอ
+                    if (++wiper_wait_counter >= WIPER_DELAY_TICKS) {
+                        GPIOA->BSRR = GPIO_BSRR_BS5; // ถึงเวลา, เริ่มปัด
+                        wiper_is_active = 1;
+                        wipe_duration_counter = 0;
+                        wiper_wait_counter = 0;
+                    }
+                }
+                break;
+            case WIPER_NORMAL:
+                if (tick_counter % WIPER_BLINK_TICKS == 0) {
+                    GPIOA->ODR ^= (1 << LED_WIPER_PIN); // กะพริบในจังหวะที่มองเห็นได้
+                }
+                break;
+            case WIPER_FAST:
+                GPIOA->BSRR = GPIO_BSRR_BS5; // เปิดค้าง
+                break;
+            case WIPER_OFF: // ปิดและรีเซ็ตสถานะ
+            default:
+                GPIOA->BSRR = GPIO_BSRR_BR5;
+                wiper_is_active = 0;
+                wiper_wait_counter = 0;
+                break;
+        }
+
+        check_stall_conditions();
+    }
+
+    // --- อัปเดตการแสดงผล ---
+    update_leds();
+    display_gear_bcd(g_current_gear);
+
+    // --- ส่งข้อมูล UART (ทำงานทุก 500ms) ---
+    if (tick_counter % UART_UPDATE_RATE == 0) {
+        char buffer[30];
+        if(g_engine_on) {
+            sprintf(buffer, "Speed: %d km/h\n", (int)g_current_speed);
+            uart_send_string(buffer);
+        }
+    }
+
+    tick_counter++;
+}
+
+// EXTI สำหรับปุ่มปัดน้ำฝนเท่านั้น
+void EXTI4_IRQHandler(void) {
+    if (EXTI->PR & (1 << WIPER_BTN_PIN)) {
+        if(g_engine_on){
+            g_wiper_mode = (WiperMode_t)((g_wiper_mode + 1) % 4);
+        }
+        EXTI->PR = (1 << WIPER_BTN_PIN); // เคลียร์ธง Interrupt
+    }
+}
+
+void USART2_IRQHandler(void) {
+    if (USART2->SR & USART_SR_RXNE) {
+        char received_char = USART2->DR;
+        switch (received_char) {
+            case 'O': case 'o':
+                if (!g_engine_on && g_current_gear == GEAR_N) {
+                    g_engine_on = 1;
+                    g_current_speed = 0;
+                    uart_send_string("Engine ON\n");
+                }
+                break;
+            case 'F': case 'f':
+                if (g_engine_on && g_current_speed == 0) {
+                    g_engine_on = 0;
+                    uart_send_string("Engine OFF\n");
+                }
+                break;
+            case 'E': case 'e': g_drive_mode = MODE_ECO; uart_send_string("Eco Mode\n"); break;
+            case 'N': case 'n': g_drive_mode = MODE_NORMAL; uart_send_string("Normal Mode\n"); break;
+            case 'S': case 's': g_drive_mode = MODE_SPORT; uart_send_string("Sport Mode\n"); break;
+        }
+    }
+}
+
+// --- Helper Functions ---
+void uart_send_string(const char* str) {
+    for (int i = 0; str[i] != '\0'; i++) {
+        while (!(USART2->SR & USART_SR_TXE));
+        USART2->DR = str[i];
+    }
+}
+
+void display_gear_bcd(Gear_t gear) {
+    if(!g_engine_on){
+        GPIOA->BSRR = GPIO_BSRR_BR9 | GPIO_BSRR_BR8;
+        GPIOB->BSRR = GPIO_BSRR_BR10;
+        GPIOC->BSRR = GPIO_BSRR_BR7;
+        return;
+    }
+    int number = gear;
+    (number & 0b1000) ? (GPIOA->BSRR = GPIO_BSRR_BS9)  : (GPIOA->BSRR = GPIO_BSRR_BR9);
+    (number & 0b0100) ? (GPIOB->BSRR = GPIO_BSRR_BS10) : (GPIOB->BSRR = GPIO_BSRR_BR10);
+    (number & 0b0010) ? (GPIOA->BSRR = GPIO_BSRR_BS8)  : (GPIOA->BSRR = GPIO_BSRR_BR8);
+    (number & 0b0001) ? (GPIOC->BSRR = GPIO_BSRR_BS7)  : (GPIOC->BSRR = GPIO_BSRR_BR7);
+}
+
+void update_leds() {
+    (g_engine_on) ? (GPIOB->BSRR = GPIO_BSRR_BS6) : (GPIOB->BSRR = GPIO_BSRR_BR6);
+}
+
+Gear_t get_gear_from_adc(uint16_t adc_value) {
+    if (adc_value <= GEAR_N_MAX) return GEAR_N;
+    if (adc_value <= GEAR_1_MAX) return GEAR_1;
+    if (adc_value <= GEAR_2_MAX) return GEAR_2;
+    if (adc_value <= GEAR_3_MAX) return GEAR_3;
+    if (adc_value <= GEAR_4_MAX) return GEAR_4;
+    return GEAR_5;
+}
+
+void check_stall_conditions() {
+    const int min_speeds[] = {0, 0, 20, 40, 60, 80};
+    if (g_engine_on && g_current_gear != GEAR_N && g_current_speed < min_speeds[g_current_gear]) {
+        g_engine_on = 0;
+    }
+}

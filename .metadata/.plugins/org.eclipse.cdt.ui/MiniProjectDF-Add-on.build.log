@@ -1,0 +1,17 @@
+18:10:11 **** Incremental Build of configuration Debug for project MiniProjectDF-Add-on ****
+make -j12 all 
+arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
+arm-none-eabi-gcc -o "MiniProjectDF-Add-on.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\MiniProjectDF-Add-on\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MiniProjectDF-Add-on.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: MiniProjectDF-Add-on.elf
+ 
+arm-none-eabi-size  MiniProjectDF-Add-on.elf 
+arm-none-eabi-objdump -h -S MiniProjectDF-Add-on.elf  > "MiniProjectDF-Add-on.list"
+   text	   data	    bss	    dec	    hex	filename
+   8600	     84	   1908	  10592	   2960	MiniProjectDF-Add-on.elf
+Finished building: default.size.stdout
+ 
+Finished building: MiniProjectDF-Add-on.list
+ 
+
+18:10:12 Build Finished. 0 errors, 0 warnings. (took 501ms)
+

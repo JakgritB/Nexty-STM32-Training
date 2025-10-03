@@ -1,0 +1,2069 @@
+
+MiniProject.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .isr_vector   00000198  08000000  08000000  00001000  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  1 .text         00000d7c  08000198  08000198  00001198  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .rodata       0000019c  08000f14  08000f14  00001f14  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  3 .ARM.extab    00000000  080010b0  080010b0  00003004  2**0
+                  CONTENTS
+  4 .ARM          00000000  080010b0  080010b0  00003004  2**0
+                  CONTENTS
+  5 .preinit_array 00000000  080010b0  080010b0  00003004  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  6 .init_array   00000004  080010b0  080010b0  000020b0  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  7 .fini_array   00000004  080010b4  080010b4  000020b4  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  8 .data         00000004  20000000  080010b8  00003000  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  9 .bss          00000034  20000004  080010bc  00003004  2**2
+                  ALLOC
+ 10 ._user_heap_stack 00000600  20000038  080010bc  00003038  2**0
+                  ALLOC
+ 11 .ARM.attributes 00000030  00000000  00000000  00003004  2**0
+                  CONTENTS, READONLY
+ 12 .debug_info   00000fcd  00000000  00000000  00003034  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 13 .debug_abbrev 000002d4  00000000  00000000  00004001  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 14 .debug_aranges 000000e0  00000000  00000000  000042d8  2**3
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 15 .debug_rnglists 000000a7  00000000  00000000  000043b8  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 16 .debug_macro  0000eba7  00000000  00000000  0000445f  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 17 .debug_line   00000db5  00000000  00000000  00013006  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 18 .debug_str    00054e18  00000000  00000000  00013dbb  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 19 .comment      00000043  00000000  00000000  00068bd3  2**0
+                  CONTENTS, READONLY
+ 20 .debug_frame  000002e8  00000000  00000000  00068c18  2**2
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 21 .debug_line_str 00000045  00000000  00000000  00068f00  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+
+Disassembly of section .text:
+
+08000198 <__do_global_dtors_aux>:
+ 8000198:	b510      	push	{r4, lr}
+ 800019a:	4c05      	ldr	r4, [pc, #20]	@ (80001b0 <__do_global_dtors_aux+0x18>)
+ 800019c:	7823      	ldrb	r3, [r4, #0]
+ 800019e:	b933      	cbnz	r3, 80001ae <__do_global_dtors_aux+0x16>
+ 80001a0:	4b04      	ldr	r3, [pc, #16]	@ (80001b4 <__do_global_dtors_aux+0x1c>)
+ 80001a2:	b113      	cbz	r3, 80001aa <__do_global_dtors_aux+0x12>
+ 80001a4:	4804      	ldr	r0, [pc, #16]	@ (80001b8 <__do_global_dtors_aux+0x20>)
+ 80001a6:	f3af 8000 	nop.w
+ 80001aa:	2301      	movs	r3, #1
+ 80001ac:	7023      	strb	r3, [r4, #0]
+ 80001ae:	bd10      	pop	{r4, pc}
+ 80001b0:	20000004 	.word	0x20000004
+ 80001b4:	00000000 	.word	0x00000000
+ 80001b8:	08000efc 	.word	0x08000efc
+
+080001bc <frame_dummy>:
+ 80001bc:	b508      	push	{r3, lr}
+ 80001be:	4b03      	ldr	r3, [pc, #12]	@ (80001cc <frame_dummy+0x10>)
+ 80001c0:	b11b      	cbz	r3, 80001ca <frame_dummy+0xe>
+ 80001c2:	4903      	ldr	r1, [pc, #12]	@ (80001d0 <frame_dummy+0x14>)
+ 80001c4:	4803      	ldr	r0, [pc, #12]	@ (80001d4 <frame_dummy+0x18>)
+ 80001c6:	f3af 8000 	nop.w
+ 80001ca:	bd08      	pop	{r3, pc}
+ 80001cc:	00000000 	.word	0x00000000
+ 80001d0:	20000008 	.word	0x20000008
+ 80001d4:	08000efc 	.word	0x08000efc
+
+080001d8 <__NVIC_EnableIRQ>:
+  \details Enables a device specific interrupt in the NVIC interrupt controller.
+  \param [in]      IRQn  Device specific interrupt number.
+  \note    IRQn must not be negative.
+ */
+__STATIC_INLINE void __NVIC_EnableIRQ(IRQn_Type IRQn)
+{
+ 80001d8:	b480      	push	{r7}
+ 80001da:	b083      	sub	sp, #12
+ 80001dc:	af00      	add	r7, sp, #0
+ 80001de:	4603      	mov	r3, r0
+ 80001e0:	71fb      	strb	r3, [r7, #7]
+  if ((int32_t)(IRQn) >= 0)
+ 80001e2:	f997 3007 	ldrsb.w	r3, [r7, #7]
+ 80001e6:	2b00      	cmp	r3, #0
+ 80001e8:	db0b      	blt.n	8000202 <__NVIC_EnableIRQ+0x2a>
+  {
+    __COMPILER_BARRIER();
+    NVIC->ISER[(((uint32_t)IRQn) >> 5UL)] = (uint32_t)(1UL << (((uint32_t)IRQn) & 0x1FUL));
+ 80001ea:	79fb      	ldrb	r3, [r7, #7]
+ 80001ec:	f003 021f 	and.w	r2, r3, #31
+ 80001f0:	4907      	ldr	r1, [pc, #28]	@ (8000210 <__NVIC_EnableIRQ+0x38>)
+ 80001f2:	f997 3007 	ldrsb.w	r3, [r7, #7]
+ 80001f6:	095b      	lsrs	r3, r3, #5
+ 80001f8:	2001      	movs	r0, #1
+ 80001fa:	fa00 f202 	lsl.w	r2, r0, r2
+ 80001fe:	f841 2023 	str.w	r2, [r1, r3, lsl #2]
+    __COMPILER_BARRIER();
+  }
+}
+ 8000202:	bf00      	nop
+ 8000204:	370c      	adds	r7, #12
+ 8000206:	46bd      	mov	sp, r7
+ 8000208:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800020c:	4770      	bx	lr
+ 800020e:	bf00      	nop
+ 8000210:	e000e100 	.word	0xe000e100
+
+08000214 <main>:
+void Check_Stall_Conditions(void);
+void Update_Speed(void);
+void Process_UART_Command(char cmd);
+
+/* Main function */
+int main(void) {
+ 8000214:	b580      	push	{r7, lr}
+ 8000216:	af00      	add	r7, sp, #0
+	SystemInit();
+ 8000218:	f000 f826 	bl	8000268 <SystemInit>
+	GPIO_Init();
+ 800021c:	f000 f836 	bl	800028c <GPIO_Init>
+	ADC_Init();
+ 8000220:	f000 f8ec 	bl	80003fc <ADC_Init>
+	USART2_Init();
+ 8000224:	f000 f914 	bl	8000450 <USART2_Init>
+	TIM2_Init();
+ 8000228:	f000 f92a 	bl	8000480 <TIM2_Init>
+
+	USART2_SendString("Manual Transmission Car Simulator\r\n");
+ 800022c:	480a      	ldr	r0, [pc, #40]	@ (8000258 <main+0x44>)
+ 800022e:	f000 fdf7 	bl	8000e20 <USART2_SendString>
+	USART2_SendString(
+ 8000232:	480a      	ldr	r0, [pc, #40]	@ (800025c <main+0x48>)
+ 8000234:	f000 fdf4 	bl	8000e20 <USART2_SendString>
+			"Commands: o=start, f=stop, e=eco, n=normal, s=sport\r\n");
+
+	while (1) {
+		// Main loop: process UART commands
+		if (uart_rx_flag) {
+ 8000238:	4b09      	ldr	r3, [pc, #36]	@ (8000260 <main+0x4c>)
+ 800023a:	781b      	ldrb	r3, [r3, #0]
+ 800023c:	b2db      	uxtb	r3, r3
+ 800023e:	2b00      	cmp	r3, #0
+ 8000240:	d0fa      	beq.n	8000238 <main+0x24>
+			uart_rx_flag = 0;
+ 8000242:	4b07      	ldr	r3, [pc, #28]	@ (8000260 <main+0x4c>)
+ 8000244:	2200      	movs	r2, #0
+ 8000246:	701a      	strb	r2, [r3, #0]
+			Process_UART_Command(uart_rx_char);
+ 8000248:	4b06      	ldr	r3, [pc, #24]	@ (8000264 <main+0x50>)
+ 800024a:	781b      	ldrb	r3, [r3, #0]
+ 800024c:	b2db      	uxtb	r3, r3
+ 800024e:	4618      	mov	r0, r3
+ 8000250:	f000 fcbe 	bl	8000bd0 <Process_UART_Command>
+		if (uart_rx_flag) {
+ 8000254:	e7f0      	b.n	8000238 <main+0x24>
+ 8000256:	bf00      	nop
+ 8000258:	08000f14 	.word	0x08000f14
+ 800025c:	08000f38 	.word	0x08000f38
+ 8000260:	20000037 	.word	0x20000037
+ 8000264:	20000036 	.word	0x20000036
+
+08000268 <SystemInit>:
+		}
+	}
+}
+
+/* System initialization (basic clock setup) */
+void SystemInit(void) {
+ 8000268:	b480      	push	{r7}
+ 800026a:	af00      	add	r7, sp, #0
+	// Enable FPU (Floating Point Unit)
+	SCB->CPACR |= (0xF << 20);
+ 800026c:	4b06      	ldr	r3, [pc, #24]	@ (8000288 <SystemInit+0x20>)
+ 800026e:	f8d3 3088 	ldr.w	r3, [r3, #136]	@ 0x88
+ 8000272:	4a05      	ldr	r2, [pc, #20]	@ (8000288 <SystemInit+0x20>)
+ 8000274:	f443 0370 	orr.w	r3, r3, #15728640	@ 0xf00000
+ 8000278:	f8c2 3088 	str.w	r3, [r2, #136]	@ 0x88
+
+	// Using default HSI 16MHz clock
+	// For higher frequency, configure PLL here
+}
+ 800027c:	bf00      	nop
+ 800027e:	46bd      	mov	sp, r7
+ 8000280:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000284:	4770      	bx	lr
+ 8000286:	bf00      	nop
+ 8000288:	e000ed00 	.word	0xe000ed00
+
+0800028c <GPIO_Init>:
+
+/* GPIO initialization */
+void GPIO_Init(void) {
+ 800028c:	b480      	push	{r7}
+ 800028e:	af00      	add	r7, sp, #0
+	// Enable GPIO clocks
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN
+ 8000290:	4b56      	ldr	r3, [pc, #344]	@ (80003ec <GPIO_Init+0x160>)
+ 8000292:	6b1b      	ldr	r3, [r3, #48]	@ 0x30
+ 8000294:	4a55      	ldr	r2, [pc, #340]	@ (80003ec <GPIO_Init+0x160>)
+ 8000296:	f043 0307 	orr.w	r3, r3, #7
+ 800029a:	6313      	str	r3, [r2, #48]	@ 0x30
+			| RCC_AHB1ENR_GPIOCEN;
+
+	/* Output pins */
+	// PA5: Engine LED (Output)
+	GPIOA->MODER &= ~GPIO_MODER_MODER5;
+ 800029c:	4b54      	ldr	r3, [pc, #336]	@ (80003f0 <GPIO_Init+0x164>)
+ 800029e:	681b      	ldr	r3, [r3, #0]
+ 80002a0:	4a53      	ldr	r2, [pc, #332]	@ (80003f0 <GPIO_Init+0x164>)
+ 80002a2:	f423 6340 	bic.w	r3, r3, #3072	@ 0xc00
+ 80002a6:	6013      	str	r3, [r2, #0]
+	GPIOA->MODER |= GPIO_MODER_MODER5_0;
+ 80002a8:	4b51      	ldr	r3, [pc, #324]	@ (80003f0 <GPIO_Init+0x164>)
+ 80002aa:	681b      	ldr	r3, [r3, #0]
+ 80002ac:	4a50      	ldr	r2, [pc, #320]	@ (80003f0 <GPIO_Init+0x164>)
+ 80002ae:	f443 6380 	orr.w	r3, r3, #1024	@ 0x400
+ 80002b2:	6013      	str	r3, [r2, #0]
+
+	// PB6: Wiper LED (Output)
+	GPIOB->MODER &= ~GPIO_MODER_MODER6;
+ 80002b4:	4b4f      	ldr	r3, [pc, #316]	@ (80003f4 <GPIO_Init+0x168>)
+ 80002b6:	681b      	ldr	r3, [r3, #0]
+ 80002b8:	4a4e      	ldr	r2, [pc, #312]	@ (80003f4 <GPIO_Init+0x168>)
+ 80002ba:	f423 5340 	bic.w	r3, r3, #12288	@ 0x3000
+ 80002be:	6013      	str	r3, [r2, #0]
+	GPIOB->MODER |= GPIO_MODER_MODER6_0;
+ 80002c0:	4b4c      	ldr	r3, [pc, #304]	@ (80003f4 <GPIO_Init+0x168>)
+ 80002c2:	681b      	ldr	r3, [r3, #0]
+ 80002c4:	4a4b      	ldr	r2, [pc, #300]	@ (80003f4 <GPIO_Init+0x168>)
+ 80002c6:	f443 5380 	orr.w	r3, r3, #4096	@ 0x1000
+ 80002ca:	6013      	str	r3, [r2, #0]
+
+	// BCD outputs: PA9, PB10, PA8, PC7 (MSB to LSB)
+	GPIOA->MODER &= ~(GPIO_MODER_MODER9 | GPIO_MODER_MODER8);
+ 80002cc:	4b48      	ldr	r3, [pc, #288]	@ (80003f0 <GPIO_Init+0x164>)
+ 80002ce:	681b      	ldr	r3, [r3, #0]
+ 80002d0:	4a47      	ldr	r2, [pc, #284]	@ (80003f0 <GPIO_Init+0x164>)
+ 80002d2:	f423 2370 	bic.w	r3, r3, #983040	@ 0xf0000
+ 80002d6:	6013      	str	r3, [r2, #0]
+	GPIOA->MODER |= GPIO_MODER_MODER9_0 | GPIO_MODER_MODER8_0;
+ 80002d8:	4b45      	ldr	r3, [pc, #276]	@ (80003f0 <GPIO_Init+0x164>)
+ 80002da:	681b      	ldr	r3, [r3, #0]
+ 80002dc:	4a44      	ldr	r2, [pc, #272]	@ (80003f0 <GPIO_Init+0x164>)
+ 80002de:	f443 23a0 	orr.w	r3, r3, #327680	@ 0x50000
+ 80002e2:	6013      	str	r3, [r2, #0]
+
+	GPIOB->MODER &= ~GPIO_MODER_MODER10;
+ 80002e4:	4b43      	ldr	r3, [pc, #268]	@ (80003f4 <GPIO_Init+0x168>)
+ 80002e6:	681b      	ldr	r3, [r3, #0]
+ 80002e8:	4a42      	ldr	r2, [pc, #264]	@ (80003f4 <GPIO_Init+0x168>)
+ 80002ea:	f423 1340 	bic.w	r3, r3, #3145728	@ 0x300000
+ 80002ee:	6013      	str	r3, [r2, #0]
+	GPIOB->MODER |= GPIO_MODER_MODER10_0;
+ 80002f0:	4b40      	ldr	r3, [pc, #256]	@ (80003f4 <GPIO_Init+0x168>)
+ 80002f2:	681b      	ldr	r3, [r3, #0]
+ 80002f4:	4a3f      	ldr	r2, [pc, #252]	@ (80003f4 <GPIO_Init+0x168>)
+ 80002f6:	f443 1380 	orr.w	r3, r3, #1048576	@ 0x100000
+ 80002fa:	6013      	str	r3, [r2, #0]
+
+	GPIOC->MODER &= ~GPIO_MODER_MODER7;
+ 80002fc:	4b3e      	ldr	r3, [pc, #248]	@ (80003f8 <GPIO_Init+0x16c>)
+ 80002fe:	681b      	ldr	r3, [r3, #0]
+ 8000300:	4a3d      	ldr	r2, [pc, #244]	@ (80003f8 <GPIO_Init+0x16c>)
+ 8000302:	f423 4340 	bic.w	r3, r3, #49152	@ 0xc000
+ 8000306:	6013      	str	r3, [r2, #0]
+	GPIOC->MODER |= GPIO_MODER_MODER7_0;
+ 8000308:	4b3b      	ldr	r3, [pc, #236]	@ (80003f8 <GPIO_Init+0x16c>)
+ 800030a:	681b      	ldr	r3, [r3, #0]
+ 800030c:	4a3a      	ldr	r2, [pc, #232]	@ (80003f8 <GPIO_Init+0x16c>)
+ 800030e:	f443 4380 	orr.w	r3, r3, #16384	@ 0x4000
+ 8000312:	6013      	str	r3, [r2, #0]
+
+	/* Input pins with pull-up */
+	// PA10: Clutch (Input, Pull-up)
+	GPIOA->MODER &= ~GPIO_MODER_MODER10;
+ 8000314:	4b36      	ldr	r3, [pc, #216]	@ (80003f0 <GPIO_Init+0x164>)
+ 8000316:	681b      	ldr	r3, [r3, #0]
+ 8000318:	4a35      	ldr	r2, [pc, #212]	@ (80003f0 <GPIO_Init+0x164>)
+ 800031a:	f423 1340 	bic.w	r3, r3, #3145728	@ 0x300000
+ 800031e:	6013      	str	r3, [r2, #0]
+	GPIOA->PUPDR &= ~GPIO_PUPDR_PUPD10;
+ 8000320:	4b33      	ldr	r3, [pc, #204]	@ (80003f0 <GPIO_Init+0x164>)
+ 8000322:	68db      	ldr	r3, [r3, #12]
+ 8000324:	4a32      	ldr	r2, [pc, #200]	@ (80003f0 <GPIO_Init+0x164>)
+ 8000326:	f423 1340 	bic.w	r3, r3, #3145728	@ 0x300000
+ 800032a:	60d3      	str	r3, [r2, #12]
+	GPIOA->PUPDR |= GPIO_PUPDR_PUPD10_0;
+ 800032c:	4b30      	ldr	r3, [pc, #192]	@ (80003f0 <GPIO_Init+0x164>)
+ 800032e:	68db      	ldr	r3, [r3, #12]
+ 8000330:	4a2f      	ldr	r2, [pc, #188]	@ (80003f0 <GPIO_Init+0x164>)
+ 8000332:	f443 1380 	orr.w	r3, r3, #1048576	@ 0x100000
+ 8000336:	60d3      	str	r3, [r2, #12]
+
+	// PB3: Brake (Input, Pull-up)
+	GPIOB->MODER &= ~GPIO_MODER_MODER3;
+ 8000338:	4b2e      	ldr	r3, [pc, #184]	@ (80003f4 <GPIO_Init+0x168>)
+ 800033a:	681b      	ldr	r3, [r3, #0]
+ 800033c:	4a2d      	ldr	r2, [pc, #180]	@ (80003f4 <GPIO_Init+0x168>)
+ 800033e:	f023 03c0 	bic.w	r3, r3, #192	@ 0xc0
+ 8000342:	6013      	str	r3, [r2, #0]
+	GPIOB->PUPDR &= ~GPIO_PUPDR_PUPD3;
+ 8000344:	4b2b      	ldr	r3, [pc, #172]	@ (80003f4 <GPIO_Init+0x168>)
+ 8000346:	68db      	ldr	r3, [r3, #12]
+ 8000348:	4a2a      	ldr	r2, [pc, #168]	@ (80003f4 <GPIO_Init+0x168>)
+ 800034a:	f023 03c0 	bic.w	r3, r3, #192	@ 0xc0
+ 800034e:	60d3      	str	r3, [r2, #12]
+	GPIOB->PUPDR |= GPIO_PUPDR_PUPD3_0;
+ 8000350:	4b28      	ldr	r3, [pc, #160]	@ (80003f4 <GPIO_Init+0x168>)
+ 8000352:	68db      	ldr	r3, [r3, #12]
+ 8000354:	4a27      	ldr	r2, [pc, #156]	@ (80003f4 <GPIO_Init+0x168>)
+ 8000356:	f043 0340 	orr.w	r3, r3, #64	@ 0x40
+ 800035a:	60d3      	str	r3, [r2, #12]
+
+	// PB5: Gas (Input, Pull-up)
+	GPIOB->MODER &= ~GPIO_MODER_MODER5;
+ 800035c:	4b25      	ldr	r3, [pc, #148]	@ (80003f4 <GPIO_Init+0x168>)
+ 800035e:	681b      	ldr	r3, [r3, #0]
+ 8000360:	4a24      	ldr	r2, [pc, #144]	@ (80003f4 <GPIO_Init+0x168>)
+ 8000362:	f423 6340 	bic.w	r3, r3, #3072	@ 0xc00
+ 8000366:	6013      	str	r3, [r2, #0]
+	GPIOB->PUPDR &= ~GPIO_PUPDR_PUPD5;
+ 8000368:	4b22      	ldr	r3, [pc, #136]	@ (80003f4 <GPIO_Init+0x168>)
+ 800036a:	68db      	ldr	r3, [r3, #12]
+ 800036c:	4a21      	ldr	r2, [pc, #132]	@ (80003f4 <GPIO_Init+0x168>)
+ 800036e:	f423 6340 	bic.w	r3, r3, #3072	@ 0xc00
+ 8000372:	60d3      	str	r3, [r2, #12]
+	GPIOB->PUPDR |= GPIO_PUPDR_PUPD5_0;
+ 8000374:	4b1f      	ldr	r3, [pc, #124]	@ (80003f4 <GPIO_Init+0x168>)
+ 8000376:	68db      	ldr	r3, [r3, #12]
+ 8000378:	4a1e      	ldr	r2, [pc, #120]	@ (80003f4 <GPIO_Init+0x168>)
+ 800037a:	f443 6380 	orr.w	r3, r3, #1024	@ 0x400
+ 800037e:	60d3      	str	r3, [r2, #12]
+
+	// PB4: Wiper (Input, Pull-up)
+	GPIOB->MODER &= ~GPIO_MODER_MODER4;
+ 8000380:	4b1c      	ldr	r3, [pc, #112]	@ (80003f4 <GPIO_Init+0x168>)
+ 8000382:	681b      	ldr	r3, [r3, #0]
+ 8000384:	4a1b      	ldr	r2, [pc, #108]	@ (80003f4 <GPIO_Init+0x168>)
+ 8000386:	f423 7340 	bic.w	r3, r3, #768	@ 0x300
+ 800038a:	6013      	str	r3, [r2, #0]
+	GPIOB->PUPDR &= ~GPIO_PUPDR_PUPD4;
+ 800038c:	4b19      	ldr	r3, [pc, #100]	@ (80003f4 <GPIO_Init+0x168>)
+ 800038e:	68db      	ldr	r3, [r3, #12]
+ 8000390:	4a18      	ldr	r2, [pc, #96]	@ (80003f4 <GPIO_Init+0x168>)
+ 8000392:	f423 7340 	bic.w	r3, r3, #768	@ 0x300
+ 8000396:	60d3      	str	r3, [r2, #12]
+	GPIOB->PUPDR |= GPIO_PUPDR_PUPD4_0;
+ 8000398:	4b16      	ldr	r3, [pc, #88]	@ (80003f4 <GPIO_Init+0x168>)
+ 800039a:	68db      	ldr	r3, [r3, #12]
+ 800039c:	4a15      	ldr	r2, [pc, #84]	@ (80003f4 <GPIO_Init+0x168>)
+ 800039e:	f443 7380 	orr.w	r3, r3, #256	@ 0x100
+ 80003a2:	60d3      	str	r3, [r2, #12]
+
+	// PA4: ADC (Analog mode)
+	GPIOA->MODER |= GPIO_MODER_MODER4;
+ 80003a4:	4b12      	ldr	r3, [pc, #72]	@ (80003f0 <GPIO_Init+0x164>)
+ 80003a6:	681b      	ldr	r3, [r3, #0]
+ 80003a8:	4a11      	ldr	r2, [pc, #68]	@ (80003f0 <GPIO_Init+0x164>)
+ 80003aa:	f443 7340 	orr.w	r3, r3, #768	@ 0x300
+ 80003ae:	6013      	str	r3, [r2, #0]
+
+	// USART2 pins (PA2=TX, PA3=RX, AF7)
+	GPIOA->MODER &= ~(GPIO_MODER_MODER2 | GPIO_MODER_MODER3);
+ 80003b0:	4b0f      	ldr	r3, [pc, #60]	@ (80003f0 <GPIO_Init+0x164>)
+ 80003b2:	681b      	ldr	r3, [r3, #0]
+ 80003b4:	4a0e      	ldr	r2, [pc, #56]	@ (80003f0 <GPIO_Init+0x164>)
+ 80003b6:	f023 03f0 	bic.w	r3, r3, #240	@ 0xf0
+ 80003ba:	6013      	str	r3, [r2, #0]
+	GPIOA->MODER |= GPIO_MODER_MODER2_1 | GPIO_MODER_MODER3_1;
+ 80003bc:	4b0c      	ldr	r3, [pc, #48]	@ (80003f0 <GPIO_Init+0x164>)
+ 80003be:	681b      	ldr	r3, [r3, #0]
+ 80003c0:	4a0b      	ldr	r2, [pc, #44]	@ (80003f0 <GPIO_Init+0x164>)
+ 80003c2:	f043 03a0 	orr.w	r3, r3, #160	@ 0xa0
+ 80003c6:	6013      	str	r3, [r2, #0]
+	GPIOA->AFR[0] &= ~(GPIO_AFRL_AFSEL2 | GPIO_AFRL_AFSEL3);
+ 80003c8:	4b09      	ldr	r3, [pc, #36]	@ (80003f0 <GPIO_Init+0x164>)
+ 80003ca:	6a1b      	ldr	r3, [r3, #32]
+ 80003cc:	4a08      	ldr	r2, [pc, #32]	@ (80003f0 <GPIO_Init+0x164>)
+ 80003ce:	f423 437f 	bic.w	r3, r3, #65280	@ 0xff00
+ 80003d2:	6213      	str	r3, [r2, #32]
+	GPIOA->AFR[0] |= (7 << GPIO_AFRL_AFSEL2_Pos) | (7 << GPIO_AFRL_AFSEL3_Pos);
+ 80003d4:	4b06      	ldr	r3, [pc, #24]	@ (80003f0 <GPIO_Init+0x164>)
+ 80003d6:	6a1b      	ldr	r3, [r3, #32]
+ 80003d8:	4a05      	ldr	r2, [pc, #20]	@ (80003f0 <GPIO_Init+0x164>)
+ 80003da:	f443 43ee 	orr.w	r3, r3, #30464	@ 0x7700
+ 80003de:	6213      	str	r3, [r2, #32]
+}
+ 80003e0:	bf00      	nop
+ 80003e2:	46bd      	mov	sp, r7
+ 80003e4:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80003e8:	4770      	bx	lr
+ 80003ea:	bf00      	nop
+ 80003ec:	40023800 	.word	0x40023800
+ 80003f0:	40020000 	.word	0x40020000
+ 80003f4:	40020400 	.word	0x40020400
+ 80003f8:	40020800 	.word	0x40020800
+
+080003fc <ADC_Init>:
+
+/* ADC initialization */
+void ADC_Init(void) {
+ 80003fc:	b480      	push	{r7}
+ 80003fe:	af00      	add	r7, sp, #0
+	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
+ 8000400:	4b11      	ldr	r3, [pc, #68]	@ (8000448 <ADC_Init+0x4c>)
+ 8000402:	6c5b      	ldr	r3, [r3, #68]	@ 0x44
+ 8000404:	4a10      	ldr	r2, [pc, #64]	@ (8000448 <ADC_Init+0x4c>)
+ 8000406:	f443 7380 	orr.w	r3, r3, #256	@ 0x100
+ 800040a:	6453      	str	r3, [r2, #68]	@ 0x44
+
+	// ADC configuration
+	ADC1->CR2 = 0;
+ 800040c:	4b0f      	ldr	r3, [pc, #60]	@ (800044c <ADC_Init+0x50>)
+ 800040e:	2200      	movs	r2, #0
+ 8000410:	609a      	str	r2, [r3, #8]
+	ADC1->CR1 = 0;
+ 8000412:	4b0e      	ldr	r3, [pc, #56]	@ (800044c <ADC_Init+0x50>)
+ 8000414:	2200      	movs	r2, #0
+ 8000416:	605a      	str	r2, [r3, #4]
+
+	// Sampling time for channel 4 (PA4): 84 cycles
+	ADC1->SMPR2 |= (4 << ADC_SMPR2_SMP4_Pos);
+ 8000418:	4b0c      	ldr	r3, [pc, #48]	@ (800044c <ADC_Init+0x50>)
+ 800041a:	691b      	ldr	r3, [r3, #16]
+ 800041c:	4a0b      	ldr	r2, [pc, #44]	@ (800044c <ADC_Init+0x50>)
+ 800041e:	f443 4380 	orr.w	r3, r3, #16384	@ 0x4000
+ 8000422:	6113      	str	r3, [r2, #16]
+
+	// Regular sequence: 1 conversion, channel 4
+	ADC1->SQR1 = 0; // 1 conversion
+ 8000424:	4b09      	ldr	r3, [pc, #36]	@ (800044c <ADC_Init+0x50>)
+ 8000426:	2200      	movs	r2, #0
+ 8000428:	62da      	str	r2, [r3, #44]	@ 0x2c
+	ADC1->SQR3 = 4; // Channel 4
+ 800042a:	4b08      	ldr	r3, [pc, #32]	@ (800044c <ADC_Init+0x50>)
+ 800042c:	2204      	movs	r2, #4
+ 800042e:	635a      	str	r2, [r3, #52]	@ 0x34
+
+	// Enable ADC
+	ADC1->CR2 |= ADC_CR2_ADON;
+ 8000430:	4b06      	ldr	r3, [pc, #24]	@ (800044c <ADC_Init+0x50>)
+ 8000432:	689b      	ldr	r3, [r3, #8]
+ 8000434:	4a05      	ldr	r2, [pc, #20]	@ (800044c <ADC_Init+0x50>)
+ 8000436:	f043 0301 	orr.w	r3, r3, #1
+ 800043a:	6093      	str	r3, [r2, #8]
+}
+ 800043c:	bf00      	nop
+ 800043e:	46bd      	mov	sp, r7
+ 8000440:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000444:	4770      	bx	lr
+ 8000446:	bf00      	nop
+ 8000448:	40023800 	.word	0x40023800
+ 800044c:	40012000 	.word	0x40012000
+
+08000450 <USART2_Init>:
+
+/* USART2 initialization (115200 baud) */
+void USART2_Init(void) {
+ 8000450:	b580      	push	{r7, lr}
+ 8000452:	af00      	add	r7, sp, #0
+	RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+ 8000454:	4b08      	ldr	r3, [pc, #32]	@ (8000478 <USART2_Init+0x28>)
+ 8000456:	6c1b      	ldr	r3, [r3, #64]	@ 0x40
+ 8000458:	4a07      	ldr	r2, [pc, #28]	@ (8000478 <USART2_Init+0x28>)
+ 800045a:	f443 3300 	orr.w	r3, r3, #131072	@ 0x20000
+ 800045e:	6413      	str	r3, [r2, #64]	@ 0x40
+
+	// Baud rate: 115200 (assuming 16MHz APB1 clock)
+	// BRR = 16MHz / 115200 ≈ 139 (0x8B)
+	USART2->BRR = 139;
+ 8000460:	4b06      	ldr	r3, [pc, #24]	@ (800047c <USART2_Init+0x2c>)
+ 8000462:	228b      	movs	r2, #139	@ 0x8b
+ 8000464:	609a      	str	r2, [r3, #8]
+
+	// Enable USART, TX, RX, and RXNE interrupt
+	USART2->CR1 = USART_CR1_UE | USART_CR1_TE | USART_CR1_RE | USART_CR1_RXNEIE;
+ 8000466:	4b05      	ldr	r3, [pc, #20]	@ (800047c <USART2_Init+0x2c>)
+ 8000468:	f242 022c 	movw	r2, #8236	@ 0x202c
+ 800046c:	60da      	str	r2, [r3, #12]
+
+	// Enable USART2 interrupt in NVIC
+	NVIC_EnableIRQ(USART2_IRQn);
+ 800046e:	2026      	movs	r0, #38	@ 0x26
+ 8000470:	f7ff feb2 	bl	80001d8 <__NVIC_EnableIRQ>
+}
+ 8000474:	bf00      	nop
+ 8000476:	bd80      	pop	{r7, pc}
+ 8000478:	40023800 	.word	0x40023800
+ 800047c:	40004400 	.word	0x40004400
+
+08000480 <TIM2_Init>:
+
+/* Timer 2 initialization (100Hz) */
+void TIM2_Init(void) {
+ 8000480:	b580      	push	{r7, lr}
+ 8000482:	af00      	add	r7, sp, #0
+	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+ 8000484:	4b11      	ldr	r3, [pc, #68]	@ (80004cc <TIM2_Init+0x4c>)
+ 8000486:	6c1b      	ldr	r3, [r3, #64]	@ 0x40
+ 8000488:	4a10      	ldr	r2, [pc, #64]	@ (80004cc <TIM2_Init+0x4c>)
+ 800048a:	f043 0301 	orr.w	r3, r3, #1
+ 800048e:	6413      	str	r3, [r2, #64]	@ 0x40
+
+	// TIM2 runs at APB1 clock (16MHz assumed)
+	// Prescaler: 16000-1 (1ms tick)
+	// Auto-reload: 10-1 (10ms = 100Hz)
+	TIM2->PSC = 16000 - 1;
+ 8000490:	f04f 4380 	mov.w	r3, #1073741824	@ 0x40000000
+ 8000494:	f643 627f 	movw	r2, #15999	@ 0x3e7f
+ 8000498:	629a      	str	r2, [r3, #40]	@ 0x28
+	TIM2->ARR = 10 - 1;
+ 800049a:	f04f 4380 	mov.w	r3, #1073741824	@ 0x40000000
+ 800049e:	2209      	movs	r2, #9
+ 80004a0:	62da      	str	r2, [r3, #44]	@ 0x2c
+
+	// Enable update interrupt
+	TIM2->DIER |= TIM_DIER_UIE;
+ 80004a2:	f04f 4380 	mov.w	r3, #1073741824	@ 0x40000000
+ 80004a6:	68db      	ldr	r3, [r3, #12]
+ 80004a8:	f04f 4280 	mov.w	r2, #1073741824	@ 0x40000000
+ 80004ac:	f043 0301 	orr.w	r3, r3, #1
+ 80004b0:	60d3      	str	r3, [r2, #12]
+
+	// Enable TIM2 interrupt in NVIC
+	NVIC_EnableIRQ(TIM2_IRQn);
+ 80004b2:	201c      	movs	r0, #28
+ 80004b4:	f7ff fe90 	bl	80001d8 <__NVIC_EnableIRQ>
+
+	// Start timer
+	TIM2->CR1 |= TIM_CR1_CEN;
+ 80004b8:	f04f 4380 	mov.w	r3, #1073741824	@ 0x40000000
+ 80004bc:	681b      	ldr	r3, [r3, #0]
+ 80004be:	f04f 4280 	mov.w	r2, #1073741824	@ 0x40000000
+ 80004c2:	f043 0301 	orr.w	r3, r3, #1
+ 80004c6:	6013      	str	r3, [r2, #0]
+}
+ 80004c8:	bf00      	nop
+ 80004ca:	bd80      	pop	{r7, pc}
+ 80004cc:	40023800 	.word	0x40023800
+
+080004d0 <TIM2_IRQHandler>:
+
+/* TIM2 interrupt handler (100Hz heartbeat) */
+void TIM2_IRQHandler(void) {
+ 80004d0:	b580      	push	{r7, lr}
+ 80004d2:	af00      	add	r7, sp, #0
+	if (TIM2->SR & TIM_SR_UIF) {
+ 80004d4:	f04f 4380 	mov.w	r3, #1073741824	@ 0x40000000
+ 80004d8:	691b      	ldr	r3, [r3, #16]
+ 80004da:	f003 0301 	and.w	r3, r3, #1
+ 80004de:	2b00      	cmp	r3, #0
+ 80004e0:	d03d      	beq.n	800055e <TIM2_IRQHandler+0x8e>
+		TIM2->SR &= ~TIM_SR_UIF; // Clear interrupt flag
+ 80004e2:	f04f 4380 	mov.w	r3, #1073741824	@ 0x40000000
+ 80004e6:	691b      	ldr	r3, [r3, #16]
+ 80004e8:	f04f 4280 	mov.w	r2, #1073741824	@ 0x40000000
+ 80004ec:	f023 0301 	bic.w	r3, r3, #1
+ 80004f0:	6113      	str	r3, [r2, #16]
+
+		// Read ADC and determine gear
+		adc_value = ADC_Read();
+ 80004f2:	f000 f85b 	bl	80005ac <ADC_Read>
+ 80004f6:	4603      	mov	r3, r0
+ 80004f8:	461a      	mov	r2, r3
+ 80004fa:	4b1a      	ldr	r3, [pc, #104]	@ (8000564 <TIM2_IRQHandler+0x94>)
+ 80004fc:	801a      	strh	r2, [r3, #0]
+		previous_gear = current_gear;
+ 80004fe:	4b1a      	ldr	r3, [pc, #104]	@ (8000568 <TIM2_IRQHandler+0x98>)
+ 8000500:	781b      	ldrb	r3, [r3, #0]
+ 8000502:	b2da      	uxtb	r2, r3
+ 8000504:	4b19      	ldr	r3, [pc, #100]	@ (800056c <TIM2_IRQHandler+0x9c>)
+ 8000506:	701a      	strb	r2, [r3, #0]
+		current_gear = ADC_to_Gear(adc_value);
+ 8000508:	4b16      	ldr	r3, [pc, #88]	@ (8000564 <TIM2_IRQHandler+0x94>)
+ 800050a:	881b      	ldrh	r3, [r3, #0]
+ 800050c:	b29b      	uxth	r3, r3
+ 800050e:	4618      	mov	r0, r3
+ 8000510:	f000 f866 	bl	80005e0 <ADC_to_Gear>
+ 8000514:	4603      	mov	r3, r0
+ 8000516:	461a      	mov	r2, r3
+ 8000518:	4b13      	ldr	r3, [pc, #76]	@ (8000568 <TIM2_IRQHandler+0x98>)
+ 800051a:	701a      	strb	r2, [r3, #0]
+
+		// Read button states
+		Read_Buttons();
+ 800051c:	f000 f88e 	bl	800063c <Read_Buttons>
+
+		// Update 7-segment display
+		Update_7Segment(current_gear);
+ 8000520:	4b11      	ldr	r3, [pc, #68]	@ (8000568 <TIM2_IRQHandler+0x98>)
+ 8000522:	781b      	ldrb	r3, [r3, #0]
+ 8000524:	b2db      	uxtb	r3, r3
+ 8000526:	4618      	mov	r0, r3
+ 8000528:	f000 faa0 	bl	8000a6c <Update_7Segment>
+
+		// Check stall conditions
+		Check_Stall_Conditions();
+ 800052c:	f000 f8ea 	bl	8000704 <Check_Stall_Conditions>
+
+		// Update speed based on inputs
+		Update_Speed();
+ 8000530:	f000 f980 	bl	8000834 <Update_Speed>
+
+		// Update LEDs
+		Update_Engine_LED();
+ 8000534:	f000 fada 	bl	8000aec <Update_Engine_LED>
+		Update_Wiper_LED();
+ 8000538:	f000 faf0 	bl	8000b1c <Update_Wiper_LED>
+
+		// Send speed via UART every 500ms (50 timer ticks)
+		uart_send_counter++;
+ 800053c:	4b0c      	ldr	r3, [pc, #48]	@ (8000570 <TIM2_IRQHandler+0xa0>)
+ 800053e:	881b      	ldrh	r3, [r3, #0]
+ 8000540:	b29b      	uxth	r3, r3
+ 8000542:	3301      	adds	r3, #1
+ 8000544:	b29a      	uxth	r2, r3
+ 8000546:	4b0a      	ldr	r3, [pc, #40]	@ (8000570 <TIM2_IRQHandler+0xa0>)
+ 8000548:	801a      	strh	r2, [r3, #0]
+		if (uart_send_counter >= 50) {
+ 800054a:	4b09      	ldr	r3, [pc, #36]	@ (8000570 <TIM2_IRQHandler+0xa0>)
+ 800054c:	881b      	ldrh	r3, [r3, #0]
+ 800054e:	b29b      	uxth	r3, r3
+ 8000550:	2b31      	cmp	r3, #49	@ 0x31
+ 8000552:	d904      	bls.n	800055e <TIM2_IRQHandler+0x8e>
+			uart_send_counter = 0;
+ 8000554:	4b06      	ldr	r3, [pc, #24]	@ (8000570 <TIM2_IRQHandler+0xa0>)
+ 8000556:	2200      	movs	r2, #0
+ 8000558:	801a      	strh	r2, [r3, #0]
+			USART2_SendSpeed();
+ 800055a:	f000 fbb1 	bl	8000cc0 <USART2_SendSpeed>
+		}
+	}
+}
+ 800055e:	bf00      	nop
+ 8000560:	bd80      	pop	{r7, pc}
+ 8000562:	bf00      	nop
+ 8000564:	2000002e 	.word	0x2000002e
+ 8000568:	20000028 	.word	0x20000028
+ 800056c:	20000029 	.word	0x20000029
+ 8000570:	20000034 	.word	0x20000034
+
+08000574 <USART2_IRQHandler>:
+
+/* USART2 interrupt handler */
+void USART2_IRQHandler(void) {
+ 8000574:	b480      	push	{r7}
+ 8000576:	af00      	add	r7, sp, #0
+	if (USART2->SR & USART_SR_RXNE) {
+ 8000578:	4b09      	ldr	r3, [pc, #36]	@ (80005a0 <USART2_IRQHandler+0x2c>)
+ 800057a:	681b      	ldr	r3, [r3, #0]
+ 800057c:	f003 0320 	and.w	r3, r3, #32
+ 8000580:	2b00      	cmp	r3, #0
+ 8000582:	d007      	beq.n	8000594 <USART2_IRQHandler+0x20>
+		uart_rx_char = USART2->DR;
+ 8000584:	4b06      	ldr	r3, [pc, #24]	@ (80005a0 <USART2_IRQHandler+0x2c>)
+ 8000586:	685b      	ldr	r3, [r3, #4]
+ 8000588:	b2da      	uxtb	r2, r3
+ 800058a:	4b06      	ldr	r3, [pc, #24]	@ (80005a4 <USART2_IRQHandler+0x30>)
+ 800058c:	701a      	strb	r2, [r3, #0]
+		uart_rx_flag = 1;
+ 800058e:	4b06      	ldr	r3, [pc, #24]	@ (80005a8 <USART2_IRQHandler+0x34>)
+ 8000590:	2201      	movs	r2, #1
+ 8000592:	701a      	strb	r2, [r3, #0]
+	}
+}
+ 8000594:	bf00      	nop
+ 8000596:	46bd      	mov	sp, r7
+ 8000598:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800059c:	4770      	bx	lr
+ 800059e:	bf00      	nop
+ 80005a0:	40004400 	.word	0x40004400
+ 80005a4:	20000036 	.word	0x20000036
+ 80005a8:	20000037 	.word	0x20000037
+
+080005ac <ADC_Read>:
+
+/* Read ADC value */
+uint16_t ADC_Read(void) {
+ 80005ac:	b480      	push	{r7}
+ 80005ae:	af00      	add	r7, sp, #0
+	ADC1->CR2 |= ADC_CR2_SWSTART; // Start conversion
+ 80005b0:	4b0a      	ldr	r3, [pc, #40]	@ (80005dc <ADC_Read+0x30>)
+ 80005b2:	689b      	ldr	r3, [r3, #8]
+ 80005b4:	4a09      	ldr	r2, [pc, #36]	@ (80005dc <ADC_Read+0x30>)
+ 80005b6:	f043 4380 	orr.w	r3, r3, #1073741824	@ 0x40000000
+ 80005ba:	6093      	str	r3, [r2, #8]
+	while (!(ADC1->SR & ADC_SR_EOC))
+ 80005bc:	bf00      	nop
+ 80005be:	4b07      	ldr	r3, [pc, #28]	@ (80005dc <ADC_Read+0x30>)
+ 80005c0:	681b      	ldr	r3, [r3, #0]
+ 80005c2:	f003 0302 	and.w	r3, r3, #2
+ 80005c6:	2b00      	cmp	r3, #0
+ 80005c8:	d0f9      	beq.n	80005be <ADC_Read+0x12>
+		; // Wait for EOC
+	return ADC1->DR;
+ 80005ca:	4b04      	ldr	r3, [pc, #16]	@ (80005dc <ADC_Read+0x30>)
+ 80005cc:	6cdb      	ldr	r3, [r3, #76]	@ 0x4c
+ 80005ce:	b29b      	uxth	r3, r3
+}
+ 80005d0:	4618      	mov	r0, r3
+ 80005d2:	46bd      	mov	sp, r7
+ 80005d4:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80005d8:	4770      	bx	lr
+ 80005da:	bf00      	nop
+ 80005dc:	40012000 	.word	0x40012000
+
+080005e0 <ADC_to_Gear>:
+
+/* Convert ADC value to gear */
+Gear ADC_to_Gear(uint16_t adc_val) {
+ 80005e0:	b480      	push	{r7}
+ 80005e2:	b083      	sub	sp, #12
+ 80005e4:	af00      	add	r7, sp, #0
+ 80005e6:	4603      	mov	r3, r0
+ 80005e8:	80fb      	strh	r3, [r7, #6]
+	// Divide 0-4095 into 6 equal ranges
+	if (adc_val > 3414)
+ 80005ea:	88fb      	ldrh	r3, [r7, #6]
+ 80005ec:	f640 5256 	movw	r2, #3414	@ 0xd56
+ 80005f0:	4293      	cmp	r3, r2
+ 80005f2:	d901      	bls.n	80005f8 <ADC_to_Gear+0x18>
+		return GEAR_N; //3414
+ 80005f4:	2300      	movs	r3, #0
+ 80005f6:	e01b      	b.n	8000630 <ADC_to_Gear+0x50>
+	else if (adc_val > 2732)
+ 80005f8:	88fb      	ldrh	r3, [r7, #6]
+ 80005fa:	f640 22ac 	movw	r2, #2732	@ 0xaac
+ 80005fe:	4293      	cmp	r3, r2
+ 8000600:	d901      	bls.n	8000606 <ADC_to_Gear+0x26>
+		return GEAR_1; //2732
+ 8000602:	2301      	movs	r3, #1
+ 8000604:	e014      	b.n	8000630 <ADC_to_Gear+0x50>
+	else if (adc_val > 2049)
+ 8000606:	88fb      	ldrh	r3, [r7, #6]
+ 8000608:	f640 0201 	movw	r2, #2049	@ 0x801
+ 800060c:	4293      	cmp	r3, r2
+ 800060e:	d901      	bls.n	8000614 <ADC_to_Gear+0x34>
+		return GEAR_2; //2049
+ 8000610:	2302      	movs	r3, #2
+ 8000612:	e00d      	b.n	8000630 <ADC_to_Gear+0x50>
+	else if (adc_val > 1366)
+ 8000614:	88fb      	ldrh	r3, [r7, #6]
+ 8000616:	f240 5256 	movw	r2, #1366	@ 0x556
+ 800061a:	4293      	cmp	r3, r2
+ 800061c:	d901      	bls.n	8000622 <ADC_to_Gear+0x42>
+		return GEAR_3; //1366
+ 800061e:	2303      	movs	r3, #3
+ 8000620:	e006      	b.n	8000630 <ADC_to_Gear+0x50>
+	else if (adc_val > 683)
+ 8000622:	88fb      	ldrh	r3, [r7, #6]
+ 8000624:	f5b3 7f2b 	cmp.w	r3, #684	@ 0x2ac
+ 8000628:	d301      	bcc.n	800062e <ADC_to_Gear+0x4e>
+		return GEAR_4; // 683
+ 800062a:	2304      	movs	r3, #4
+ 800062c:	e000      	b.n	8000630 <ADC_to_Gear+0x50>
+	else
+		return GEAR_5;
+ 800062e:	2305      	movs	r3, #5
+}
+ 8000630:	4618      	mov	r0, r3
+ 8000632:	370c      	adds	r7, #12
+ 8000634:	46bd      	mov	sp, r7
+ 8000636:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800063a:	4770      	bx	lr
+
+0800063c <Read_Buttons>:
+
+/* Read button states (active low) */
+void Read_Buttons(void) {
+ 800063c:	b480      	push	{r7}
+ 800063e:	b083      	sub	sp, #12
+ 8000640:	af00      	add	r7, sp, #0
+	clutch_pressed = !(GPIOA->IDR & GPIO_IDR_ID10);
+ 8000642:	4b28      	ldr	r3, [pc, #160]	@ (80006e4 <Read_Buttons+0xa8>)
+ 8000644:	691b      	ldr	r3, [r3, #16]
+ 8000646:	f403 6380 	and.w	r3, r3, #1024	@ 0x400
+ 800064a:	2b00      	cmp	r3, #0
+ 800064c:	bf0c      	ite	eq
+ 800064e:	2301      	moveq	r3, #1
+ 8000650:	2300      	movne	r3, #0
+ 8000652:	b2db      	uxtb	r3, r3
+ 8000654:	461a      	mov	r2, r3
+ 8000656:	4b24      	ldr	r3, [pc, #144]	@ (80006e8 <Read_Buttons+0xac>)
+ 8000658:	701a      	strb	r2, [r3, #0]
+	brake_pressed = !(GPIOB->IDR & GPIO_IDR_ID3);
+ 800065a:	4b24      	ldr	r3, [pc, #144]	@ (80006ec <Read_Buttons+0xb0>)
+ 800065c:	691b      	ldr	r3, [r3, #16]
+ 800065e:	f003 0308 	and.w	r3, r3, #8
+ 8000662:	2b00      	cmp	r3, #0
+ 8000664:	bf0c      	ite	eq
+ 8000666:	2301      	moveq	r3, #1
+ 8000668:	2300      	movne	r3, #0
+ 800066a:	b2db      	uxtb	r3, r3
+ 800066c:	461a      	mov	r2, r3
+ 800066e:	4b20      	ldr	r3, [pc, #128]	@ (80006f0 <Read_Buttons+0xb4>)
+ 8000670:	701a      	strb	r2, [r3, #0]
+	gas_pressed = !(GPIOB->IDR & GPIO_IDR_ID5);
+ 8000672:	4b1e      	ldr	r3, [pc, #120]	@ (80006ec <Read_Buttons+0xb0>)
+ 8000674:	691b      	ldr	r3, [r3, #16]
+ 8000676:	f003 0320 	and.w	r3, r3, #32
+ 800067a:	2b00      	cmp	r3, #0
+ 800067c:	bf0c      	ite	eq
+ 800067e:	2301      	moveq	r3, #1
+ 8000680:	2300      	movne	r3, #0
+ 8000682:	b2db      	uxtb	r3, r3
+ 8000684:	461a      	mov	r2, r3
+ 8000686:	4b1b      	ldr	r3, [pc, #108]	@ (80006f4 <Read_Buttons+0xb8>)
+ 8000688:	701a      	strb	r2, [r3, #0]
+
+	// Wiper button with debouncing
+	uint8_t wiper_current = !(GPIOB->IDR & GPIO_IDR_ID4);
+ 800068a:	4b18      	ldr	r3, [pc, #96]	@ (80006ec <Read_Buttons+0xb0>)
+ 800068c:	691b      	ldr	r3, [r3, #16]
+ 800068e:	f003 0310 	and.w	r3, r3, #16
+ 8000692:	2b00      	cmp	r3, #0
+ 8000694:	bf0c      	ite	eq
+ 8000696:	2301      	moveq	r3, #1
+ 8000698:	2300      	movne	r3, #0
+ 800069a:	b2db      	uxtb	r3, r3
+ 800069c:	71fb      	strb	r3, [r7, #7]
+	if (wiper_current && !wiper_button_last) {
+ 800069e:	79fb      	ldrb	r3, [r7, #7]
+ 80006a0:	2b00      	cmp	r3, #0
+ 80006a2:	d015      	beq.n	80006d0 <Read_Buttons+0x94>
+ 80006a4:	4b14      	ldr	r3, [pc, #80]	@ (80006f8 <Read_Buttons+0xbc>)
+ 80006a6:	781b      	ldrb	r3, [r3, #0]
+ 80006a8:	b2db      	uxtb	r3, r3
+ 80006aa:	2b00      	cmp	r3, #0
+ 80006ac:	d110      	bne.n	80006d0 <Read_Buttons+0x94>
+		// Rising edge detected
+		wiper_mode = (wiper_mode + 1) % 4;
+ 80006ae:	4b13      	ldr	r3, [pc, #76]	@ (80006fc <Read_Buttons+0xc0>)
+ 80006b0:	781b      	ldrb	r3, [r3, #0]
+ 80006b2:	b2db      	uxtb	r3, r3
+ 80006b4:	3301      	adds	r3, #1
+ 80006b6:	425a      	negs	r2, r3
+ 80006b8:	f003 0303 	and.w	r3, r3, #3
+ 80006bc:	f002 0203 	and.w	r2, r2, #3
+ 80006c0:	bf58      	it	pl
+ 80006c2:	4253      	negpl	r3, r2
+ 80006c4:	b2da      	uxtb	r2, r3
+ 80006c6:	4b0d      	ldr	r3, [pc, #52]	@ (80006fc <Read_Buttons+0xc0>)
+ 80006c8:	701a      	strb	r2, [r3, #0]
+		wiper_counter = 0; // Reset wiper counter
+ 80006ca:	4b0d      	ldr	r3, [pc, #52]	@ (8000700 <Read_Buttons+0xc4>)
+ 80006cc:	2200      	movs	r2, #0
+ 80006ce:	801a      	strh	r2, [r3, #0]
+	}
+	wiper_button_last = wiper_current;
+ 80006d0:	4a09      	ldr	r2, [pc, #36]	@ (80006f8 <Read_Buttons+0xbc>)
+ 80006d2:	79fb      	ldrb	r3, [r7, #7]
+ 80006d4:	7013      	strb	r3, [r2, #0]
+}
+ 80006d6:	bf00      	nop
+ 80006d8:	370c      	adds	r7, #12
+ 80006da:	46bd      	mov	sp, r7
+ 80006dc:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80006e0:	4770      	bx	lr
+ 80006e2:	bf00      	nop
+ 80006e4:	40020000 	.word	0x40020000
+ 80006e8:	2000002b 	.word	0x2000002b
+ 80006ec:	40020400 	.word	0x40020400
+ 80006f0:	2000002c 	.word	0x2000002c
+ 80006f4:	2000002d 	.word	0x2000002d
+ 80006f8:	20000001 	.word	0x20000001
+ 80006fc:	2000002a 	.word	0x2000002a
+ 8000700:	20000030 	.word	0x20000030
+
+08000704 <Check_Stall_Conditions>:
+
+/* Check stall conditions */
+void Check_Stall_Conditions(void) {
+ 8000704:	b580      	push	{r7, lr}
+ 8000706:	af00      	add	r7, sp, #0
+    if (!engine_running) return;
+ 8000708:	4b3e      	ldr	r3, [pc, #248]	@ (8000804 <Check_Stall_Conditions+0x100>)
+ 800070a:	781b      	ldrb	r3, [r3, #0]
+ 800070c:	b2db      	uxtb	r3, r3
+ 800070e:	2b00      	cmp	r3, #0
+ 8000710:	d076      	beq.n	8000800 <Check_Stall_Conditions+0xfc>
+
+    // Clutchless gear change -> stall
+    if (current_gear != previous_gear && !clutch_pressed) {
+ 8000712:	4b3d      	ldr	r3, [pc, #244]	@ (8000808 <Check_Stall_Conditions+0x104>)
+ 8000714:	781b      	ldrb	r3, [r3, #0]
+ 8000716:	b2da      	uxtb	r2, r3
+ 8000718:	4b3c      	ldr	r3, [pc, #240]	@ (800080c <Check_Stall_Conditions+0x108>)
+ 800071a:	781b      	ldrb	r3, [r3, #0]
+ 800071c:	b2db      	uxtb	r3, r3
+ 800071e:	429a      	cmp	r2, r3
+ 8000720:	d00b      	beq.n	800073a <Check_Stall_Conditions+0x36>
+ 8000722:	4b3b      	ldr	r3, [pc, #236]	@ (8000810 <Check_Stall_Conditions+0x10c>)
+ 8000724:	781b      	ldrb	r3, [r3, #0]
+ 8000726:	b2db      	uxtb	r3, r3
+ 8000728:	2b00      	cmp	r3, #0
+ 800072a:	d106      	bne.n	800073a <Check_Stall_Conditions+0x36>
+        engine_running = 0;
+ 800072c:	4b35      	ldr	r3, [pc, #212]	@ (8000804 <Check_Stall_Conditions+0x100>)
+ 800072e:	2200      	movs	r2, #0
+ 8000730:	701a      	strb	r2, [r3, #0]
+        USART2_SendString("Engine stalled: clutchless gear change\r\n");
+ 8000732:	4838      	ldr	r0, [pc, #224]	@ (8000814 <Check_Stall_Conditions+0x110>)
+ 8000734:	f000 fb74 	bl	8000e20 <USART2_SendString>
+        return;
+ 8000738:	e063      	b.n	8000802 <Check_Stall_Conditions+0xfe>
+    }
+
+    // Gear 1 at speed 0 without gas/clutch -> stall
+    if (current_gear == GEAR_1 && current_speed < 0.1f &&
+ 800073a:	4b33      	ldr	r3, [pc, #204]	@ (8000808 <Check_Stall_Conditions+0x104>)
+ 800073c:	781b      	ldrb	r3, [r3, #0]
+ 800073e:	b2db      	uxtb	r3, r3
+ 8000740:	2b01      	cmp	r3, #1
+ 8000742:	d11a      	bne.n	800077a <Check_Stall_Conditions+0x76>
+ 8000744:	4b34      	ldr	r3, [pc, #208]	@ (8000818 <Check_Stall_Conditions+0x114>)
+ 8000746:	edd3 7a00 	vldr	s15, [r3]
+ 800074a:	ed9f 7a34 	vldr	s14, [pc, #208]	@ 800081c <Check_Stall_Conditions+0x118>
+ 800074e:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8000752:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8000756:	d510      	bpl.n	800077a <Check_Stall_Conditions+0x76>
+        !gas_pressed && !clutch_pressed) {
+ 8000758:	4b31      	ldr	r3, [pc, #196]	@ (8000820 <Check_Stall_Conditions+0x11c>)
+ 800075a:	781b      	ldrb	r3, [r3, #0]
+ 800075c:	b2db      	uxtb	r3, r3
+    if (current_gear == GEAR_1 && current_speed < 0.1f &&
+ 800075e:	2b00      	cmp	r3, #0
+ 8000760:	d10b      	bne.n	800077a <Check_Stall_Conditions+0x76>
+        !gas_pressed && !clutch_pressed) {
+ 8000762:	4b2b      	ldr	r3, [pc, #172]	@ (8000810 <Check_Stall_Conditions+0x10c>)
+ 8000764:	781b      	ldrb	r3, [r3, #0]
+ 8000766:	b2db      	uxtb	r3, r3
+ 8000768:	2b00      	cmp	r3, #0
+ 800076a:	d106      	bne.n	800077a <Check_Stall_Conditions+0x76>
+        engine_running = 0;
+ 800076c:	4b25      	ldr	r3, [pc, #148]	@ (8000804 <Check_Stall_Conditions+0x100>)
+ 800076e:	2200      	movs	r2, #0
+ 8000770:	701a      	strb	r2, [r3, #0]
+        USART2_SendString("Engine stalled: idle at gear 1\r\n");
+ 8000772:	482c      	ldr	r0, [pc, #176]	@ (8000824 <Check_Stall_Conditions+0x120>)
+ 8000774:	f000 fb54 	bl	8000e20 <USART2_SendString>
+        return;
+ 8000778:	e043      	b.n	8000802 <Check_Stall_Conditions+0xfe>
+    }
+
+    // Check speed limits when clutch is released (not pressed)
+    if (current_gear != GEAR_N && !clutch_pressed) {
+ 800077a:	4b23      	ldr	r3, [pc, #140]	@ (8000808 <Check_Stall_Conditions+0x104>)
+ 800077c:	781b      	ldrb	r3, [r3, #0]
+ 800077e:	b2db      	uxtb	r3, r3
+ 8000780:	2b00      	cmp	r3, #0
+ 8000782:	d03e      	beq.n	8000802 <Check_Stall_Conditions+0xfe>
+ 8000784:	4b22      	ldr	r3, [pc, #136]	@ (8000810 <Check_Stall_Conditions+0x10c>)
+ 8000786:	781b      	ldrb	r3, [r3, #0]
+ 8000788:	b2db      	uxtb	r3, r3
+ 800078a:	2b00      	cmp	r3, #0
+ 800078c:	d139      	bne.n	8000802 <Check_Stall_Conditions+0xfe>
+        // High speed stall (speed exceeds maximum for current gear)
+        if (current_speed > GEAR_SPEEDS[current_gear].max) {
+ 800078e:	4b1e      	ldr	r3, [pc, #120]	@ (8000808 <Check_Stall_Conditions+0x104>)
+ 8000790:	781b      	ldrb	r3, [r3, #0]
+ 8000792:	b2db      	uxtb	r3, r3
+ 8000794:	4a24      	ldr	r2, [pc, #144]	@ (8000828 <Check_Stall_Conditions+0x124>)
+ 8000796:	005b      	lsls	r3, r3, #1
+ 8000798:	4413      	add	r3, r2
+ 800079a:	785b      	ldrb	r3, [r3, #1]
+ 800079c:	ee07 3a90 	vmov	s15, r3
+ 80007a0:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 80007a4:	4b1c      	ldr	r3, [pc, #112]	@ (8000818 <Check_Stall_Conditions+0x114>)
+ 80007a6:	edd3 7a00 	vldr	s15, [r3]
+ 80007aa:	eeb4 7ae7 	vcmpe.f32	s14, s15
+ 80007ae:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80007b2:	d506      	bpl.n	80007c2 <Check_Stall_Conditions+0xbe>
+            engine_running = 0;
+ 80007b4:	4b13      	ldr	r3, [pc, #76]	@ (8000804 <Check_Stall_Conditions+0x100>)
+ 80007b6:	2200      	movs	r2, #0
+ 80007b8:	701a      	strb	r2, [r3, #0]
+            USART2_SendString("Engine stalled: speed too high for gear\r\n");
+ 80007ba:	481c      	ldr	r0, [pc, #112]	@ (800082c <Check_Stall_Conditions+0x128>)
+ 80007bc:	f000 fb30 	bl	8000e20 <USART2_SendString>
+            return;
+ 80007c0:	e01f      	b.n	8000802 <Check_Stall_Conditions+0xfe>
+        }
+
+        // Low speed stall (speed below minimum for current gear)
+        if (current_gear != GEAR_1 && current_speed < GEAR_SPEEDS[current_gear].min) {
+ 80007c2:	4b11      	ldr	r3, [pc, #68]	@ (8000808 <Check_Stall_Conditions+0x104>)
+ 80007c4:	781b      	ldrb	r3, [r3, #0]
+ 80007c6:	b2db      	uxtb	r3, r3
+ 80007c8:	2b01      	cmp	r3, #1
+ 80007ca:	d01a      	beq.n	8000802 <Check_Stall_Conditions+0xfe>
+ 80007cc:	4b0e      	ldr	r3, [pc, #56]	@ (8000808 <Check_Stall_Conditions+0x104>)
+ 80007ce:	781b      	ldrb	r3, [r3, #0]
+ 80007d0:	b2db      	uxtb	r3, r3
+ 80007d2:	461a      	mov	r2, r3
+ 80007d4:	4b14      	ldr	r3, [pc, #80]	@ (8000828 <Check_Stall_Conditions+0x124>)
+ 80007d6:	f813 3012 	ldrb.w	r3, [r3, r2, lsl #1]
+ 80007da:	ee07 3a90 	vmov	s15, r3
+ 80007de:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 80007e2:	4b0d      	ldr	r3, [pc, #52]	@ (8000818 <Check_Stall_Conditions+0x114>)
+ 80007e4:	edd3 7a00 	vldr	s15, [r3]
+ 80007e8:	eeb4 7ae7 	vcmpe.f32	s14, s15
+ 80007ec:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80007f0:	dd07      	ble.n	8000802 <Check_Stall_Conditions+0xfe>
+            engine_running = 0;
+ 80007f2:	4b04      	ldr	r3, [pc, #16]	@ (8000804 <Check_Stall_Conditions+0x100>)
+ 80007f4:	2200      	movs	r2, #0
+ 80007f6:	701a      	strb	r2, [r3, #0]
+            USART2_SendString("Engine stalled: speed too low for gear\r\n");
+ 80007f8:	480d      	ldr	r0, [pc, #52]	@ (8000830 <Check_Stall_Conditions+0x12c>)
+ 80007fa:	f000 fb11 	bl	8000e20 <USART2_SendString>
+            return;
+ 80007fe:	e000      	b.n	8000802 <Check_Stall_Conditions+0xfe>
+    if (!engine_running) return;
+ 8000800:	bf00      	nop
+        }
+    }
+}
+ 8000802:	bd80      	pop	{r7, pc}
+ 8000804:	20000020 	.word	0x20000020
+ 8000808:	20000028 	.word	0x20000028
+ 800080c:	20000029 	.word	0x20000029
+ 8000810:	2000002b 	.word	0x2000002b
+ 8000814:	08000f70 	.word	0x08000f70
+ 8000818:	20000024 	.word	0x20000024
+ 800081c:	3dcccccd 	.word	0x3dcccccd
+ 8000820:	2000002d 	.word	0x2000002d
+ 8000824:	08000f9c 	.word	0x08000f9c
+ 8000828:	080010a4 	.word	0x080010a4
+ 800082c:	08000fc0 	.word	0x08000fc0
+ 8000830:	08000fec 	.word	0x08000fec
+
+08000834 <Update_Speed>:
+
+/* Update speed based on inputs */
+void Update_Speed(void) {
+ 8000834:	b480      	push	{r7}
+ 8000836:	b083      	sub	sp, #12
+ 8000838:	af00      	add	r7, sp, #0
+	if (!engine_running) {
+ 800083a:	4b7d      	ldr	r3, [pc, #500]	@ (8000a30 <Update_Speed+0x1fc>)
+ 800083c:	781b      	ldrb	r3, [r3, #0]
+ 800083e:	b2db      	uxtb	r3, r3
+ 8000840:	2b00      	cmp	r3, #0
+ 8000842:	d104      	bne.n	800084e <Update_Speed+0x1a>
+		current_speed = 0.0f;
+ 8000844:	4b7b      	ldr	r3, [pc, #492]	@ (8000a34 <Update_Speed+0x200>)
+ 8000846:	f04f 0200 	mov.w	r2, #0
+ 800084a:	601a      	str	r2, [r3, #0]
+		return;
+ 800084c:	e0ea      	b.n	8000a24 <Update_Speed+0x1f0>
+	}
+
+	float accel_rate = 0.0f;
+ 800084e:	f04f 0300 	mov.w	r3, #0
+ 8000852:	607b      	str	r3, [r7, #4]
+
+	// Determine acceleration rate based on mode
+	switch (drive_mode) {
+ 8000854:	4b78      	ldr	r3, [pc, #480]	@ (8000a38 <Update_Speed+0x204>)
+ 8000856:	781b      	ldrb	r3, [r3, #0]
+ 8000858:	b2db      	uxtb	r3, r3
+ 800085a:	2b02      	cmp	r3, #2
+ 800085c:	d00c      	beq.n	8000878 <Update_Speed+0x44>
+ 800085e:	2b02      	cmp	r3, #2
+ 8000860:	dc0d      	bgt.n	800087e <Update_Speed+0x4a>
+ 8000862:	2b00      	cmp	r3, #0
+ 8000864:	d002      	beq.n	800086c <Update_Speed+0x38>
+ 8000866:	2b01      	cmp	r3, #1
+ 8000868:	d003      	beq.n	8000872 <Update_Speed+0x3e>
+ 800086a:	e008      	b.n	800087e <Update_Speed+0x4a>
+	case MODE_ECO:
+		accel_rate = ACCEL_ECO;
+ 800086c:	4b73      	ldr	r3, [pc, #460]	@ (8000a3c <Update_Speed+0x208>)
+ 800086e:	607b      	str	r3, [r7, #4]
+		break;
+ 8000870:	e005      	b.n	800087e <Update_Speed+0x4a>
+	case MODE_NORMAL:
+		accel_rate = ACCEL_NORMAL;
+ 8000872:	4b73      	ldr	r3, [pc, #460]	@ (8000a40 <Update_Speed+0x20c>)
+ 8000874:	607b      	str	r3, [r7, #4]
+		break;
+ 8000876:	e002      	b.n	800087e <Update_Speed+0x4a>
+	case MODE_SPORT:
+		accel_rate = ACCEL_SPORT;
+ 8000878:	4b72      	ldr	r3, [pc, #456]	@ (8000a44 <Update_Speed+0x210>)
+ 800087a:	607b      	str	r3, [r7, #4]
+		break;
+ 800087c:	bf00      	nop
+	}
+
+	// Brake has priority
+	if (brake_pressed) {
+ 800087e:	4b72      	ldr	r3, [pc, #456]	@ (8000a48 <Update_Speed+0x214>)
+ 8000880:	781b      	ldrb	r3, [r3, #0]
+ 8000882:	b2db      	uxtb	r3, r3
+ 8000884:	2b00      	cmp	r3, #0
+ 8000886:	d017      	beq.n	80008b8 <Update_Speed+0x84>
+		current_speed -= DECEL_BRAKE / TIMER_FREQ;
+ 8000888:	4b6a      	ldr	r3, [pc, #424]	@ (8000a34 <Update_Speed+0x200>)
+ 800088a:	edd3 7a00 	vldr	s15, [r3]
+ 800088e:	ed9f 7a6f 	vldr	s14, [pc, #444]	@ 8000a4c <Update_Speed+0x218>
+ 8000892:	ee77 7ac7 	vsub.f32	s15, s15, s14
+ 8000896:	4b67      	ldr	r3, [pc, #412]	@ (8000a34 <Update_Speed+0x200>)
+ 8000898:	edc3 7a00 	vstr	s15, [r3]
+		if (current_speed < 0.0f)
+ 800089c:	4b65      	ldr	r3, [pc, #404]	@ (8000a34 <Update_Speed+0x200>)
+ 800089e:	edd3 7a00 	vldr	s15, [r3]
+ 80008a2:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 80008a6:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80008aa:	d400      	bmi.n	80008ae <Update_Speed+0x7a>
+			current_speed = 0.0f;
+		return;
+ 80008ac:	e0ba      	b.n	8000a24 <Update_Speed+0x1f0>
+			current_speed = 0.0f;
+ 80008ae:	4b61      	ldr	r3, [pc, #388]	@ (8000a34 <Update_Speed+0x200>)
+ 80008b0:	f04f 0200 	mov.w	r2, #0
+ 80008b4:	601a      	str	r2, [r3, #0]
+		return;
+ 80008b6:	e0b5      	b.n	8000a24 <Update_Speed+0x1f0>
+	}
+
+	// Cannot accelerate with clutch pressed (except gear 1 special case)
+	if (clutch_pressed) {
+ 80008b8:	4b65      	ldr	r3, [pc, #404]	@ (8000a50 <Update_Speed+0x21c>)
+ 80008ba:	781b      	ldrb	r3, [r3, #0]
+ 80008bc:	b2db      	uxtb	r3, r3
+ 80008be:	2b00      	cmp	r3, #0
+ 80008c0:	d048      	beq.n	8000954 <Update_Speed+0x120>
+		if (current_gear == GEAR_1 && current_speed < 10.0f && gas_pressed) {
+ 80008c2:	4b64      	ldr	r3, [pc, #400]	@ (8000a54 <Update_Speed+0x220>)
+ 80008c4:	781b      	ldrb	r3, [r3, #0]
+ 80008c6:	b2db      	uxtb	r3, r3
+ 80008c8:	2b01      	cmp	r3, #1
+ 80008ca:	d12a      	bne.n	8000922 <Update_Speed+0xee>
+ 80008cc:	4b59      	ldr	r3, [pc, #356]	@ (8000a34 <Update_Speed+0x200>)
+ 80008ce:	edd3 7a00 	vldr	s15, [r3]
+ 80008d2:	eeb2 7a04 	vmov.f32	s14, #36	@ 0x41200000  10.0
+ 80008d6:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 80008da:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80008de:	d520      	bpl.n	8000922 <Update_Speed+0xee>
+ 80008e0:	4b5d      	ldr	r3, [pc, #372]	@ (8000a58 <Update_Speed+0x224>)
+ 80008e2:	781b      	ldrb	r3, [r3, #0]
+ 80008e4:	b2db      	uxtb	r3, r3
+ 80008e6:	2b00      	cmp	r3, #0
+ 80008e8:	d01b      	beq.n	8000922 <Update_Speed+0xee>
+			// Special case: Gear 1 + clutch + gas can accelerate to 10 km/h
+			current_speed += accel_rate / TIMER_FREQ;
+ 80008ea:	edd7 7a01 	vldr	s15, [r7, #4]
+ 80008ee:	eddf 6a5b 	vldr	s13, [pc, #364]	@ 8000a5c <Update_Speed+0x228>
+ 80008f2:	ee87 7aa6 	vdiv.f32	s14, s15, s13
+ 80008f6:	4b4f      	ldr	r3, [pc, #316]	@ (8000a34 <Update_Speed+0x200>)
+ 80008f8:	edd3 7a00 	vldr	s15, [r3]
+ 80008fc:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 8000900:	4b4c      	ldr	r3, [pc, #304]	@ (8000a34 <Update_Speed+0x200>)
+ 8000902:	edc3 7a00 	vstr	s15, [r3]
+			if (current_speed > 10.0f)
+ 8000906:	4b4b      	ldr	r3, [pc, #300]	@ (8000a34 <Update_Speed+0x200>)
+ 8000908:	edd3 7a00 	vldr	s15, [r3]
+ 800090c:	eeb2 7a04 	vmov.f32	s14, #36	@ 0x41200000  10.0
+ 8000910:	eef4 7ac7 	vcmpe.f32	s15, s14
+ 8000914:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8000918:	dd1b      	ble.n	8000952 <Update_Speed+0x11e>
+				current_speed = 10.0f;
+ 800091a:	4b46      	ldr	r3, [pc, #280]	@ (8000a34 <Update_Speed+0x200>)
+ 800091c:	4a50      	ldr	r2, [pc, #320]	@ (8000a60 <Update_Speed+0x22c>)
+ 800091e:	601a      	str	r2, [r3, #0]
+			if (current_speed > 10.0f)
+ 8000920:	e017      	b.n	8000952 <Update_Speed+0x11e>
+		} else {
+			// Coasting with clutch
+			current_speed -= DECEL_COASTING / TIMER_FREQ;
+ 8000922:	4b44      	ldr	r3, [pc, #272]	@ (8000a34 <Update_Speed+0x200>)
+ 8000924:	edd3 7a00 	vldr	s15, [r3]
+ 8000928:	ed9f 7a4e 	vldr	s14, [pc, #312]	@ 8000a64 <Update_Speed+0x230>
+ 800092c:	ee77 7ac7 	vsub.f32	s15, s15, s14
+ 8000930:	4b40      	ldr	r3, [pc, #256]	@ (8000a34 <Update_Speed+0x200>)
+ 8000932:	edc3 7a00 	vstr	s15, [r3]
+			if (current_speed < 0.0f)
+ 8000936:	4b3f      	ldr	r3, [pc, #252]	@ (8000a34 <Update_Speed+0x200>)
+ 8000938:	edd3 7a00 	vldr	s15, [r3]
+ 800093c:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 8000940:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8000944:	d400      	bmi.n	8000948 <Update_Speed+0x114>
+				current_speed = 0.0f;
+		}
+		return;
+ 8000946:	e06d      	b.n	8000a24 <Update_Speed+0x1f0>
+				current_speed = 0.0f;
+ 8000948:	4b3a      	ldr	r3, [pc, #232]	@ (8000a34 <Update_Speed+0x200>)
+ 800094a:	f04f 0200 	mov.w	r2, #0
+ 800094e:	601a      	str	r2, [r3, #0]
+		return;
+ 8000950:	e068      	b.n	8000a24 <Update_Speed+0x1f0>
+ 8000952:	e067      	b.n	8000a24 <Update_Speed+0x1f0>
+	}
+
+	// Cannot drive in neutral
+	if (current_gear == GEAR_N) {
+ 8000954:	4b3f      	ldr	r3, [pc, #252]	@ (8000a54 <Update_Speed+0x220>)
+ 8000956:	781b      	ldrb	r3, [r3, #0]
+ 8000958:	b2db      	uxtb	r3, r3
+ 800095a:	2b00      	cmp	r3, #0
+ 800095c:	d117      	bne.n	800098e <Update_Speed+0x15a>
+		current_speed -= DECEL_COASTING / TIMER_FREQ;
+ 800095e:	4b35      	ldr	r3, [pc, #212]	@ (8000a34 <Update_Speed+0x200>)
+ 8000960:	edd3 7a00 	vldr	s15, [r3]
+ 8000964:	ed9f 7a3f 	vldr	s14, [pc, #252]	@ 8000a64 <Update_Speed+0x230>
+ 8000968:	ee77 7ac7 	vsub.f32	s15, s15, s14
+ 800096c:	4b31      	ldr	r3, [pc, #196]	@ (8000a34 <Update_Speed+0x200>)
+ 800096e:	edc3 7a00 	vstr	s15, [r3]
+		if (current_speed < 0.0f)
+ 8000972:	4b30      	ldr	r3, [pc, #192]	@ (8000a34 <Update_Speed+0x200>)
+ 8000974:	edd3 7a00 	vldr	s15, [r3]
+ 8000978:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 800097c:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8000980:	d400      	bmi.n	8000984 <Update_Speed+0x150>
+			current_speed = 0.0f;
+		return;
+ 8000982:	e04f      	b.n	8000a24 <Update_Speed+0x1f0>
+			current_speed = 0.0f;
+ 8000984:	4b2b      	ldr	r3, [pc, #172]	@ (8000a34 <Update_Speed+0x200>)
+ 8000986:	f04f 0200 	mov.w	r2, #0
+ 800098a:	601a      	str	r2, [r3, #0]
+		return;
+ 800098c:	e04a      	b.n	8000a24 <Update_Speed+0x1f0>
+	}
+
+	// Accelerate if gas pressed
+	if (gas_pressed) {
+ 800098e:	4b32      	ldr	r3, [pc, #200]	@ (8000a58 <Update_Speed+0x224>)
+ 8000990:	781b      	ldrb	r3, [r3, #0]
+ 8000992:	b2db      	uxtb	r3, r3
+ 8000994:	2b00      	cmp	r3, #0
+ 8000996:	d02f      	beq.n	80009f8 <Update_Speed+0x1c4>
+		current_speed += accel_rate / TIMER_FREQ;
+ 8000998:	edd7 7a01 	vldr	s15, [r7, #4]
+ 800099c:	eddf 6a2f 	vldr	s13, [pc, #188]	@ 8000a5c <Update_Speed+0x228>
+ 80009a0:	ee87 7aa6 	vdiv.f32	s14, s15, s13
+ 80009a4:	4b23      	ldr	r3, [pc, #140]	@ (8000a34 <Update_Speed+0x200>)
+ 80009a6:	edd3 7a00 	vldr	s15, [r3]
+ 80009aa:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 80009ae:	4b21      	ldr	r3, [pc, #132]	@ (8000a34 <Update_Speed+0x200>)
+ 80009b0:	edc3 7a00 	vstr	s15, [r3]
+
+		// Speed limiter: cannot exceed max speed for current gear
+		if (current_speed > GEAR_SPEEDS[current_gear].max) {
+ 80009b4:	4b27      	ldr	r3, [pc, #156]	@ (8000a54 <Update_Speed+0x220>)
+ 80009b6:	781b      	ldrb	r3, [r3, #0]
+ 80009b8:	b2db      	uxtb	r3, r3
+ 80009ba:	4a2b      	ldr	r2, [pc, #172]	@ (8000a68 <Update_Speed+0x234>)
+ 80009bc:	005b      	lsls	r3, r3, #1
+ 80009be:	4413      	add	r3, r2
+ 80009c0:	785b      	ldrb	r3, [r3, #1]
+ 80009c2:	ee07 3a90 	vmov	s15, r3
+ 80009c6:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 80009ca:	4b1a      	ldr	r3, [pc, #104]	@ (8000a34 <Update_Speed+0x200>)
+ 80009cc:	edd3 7a00 	vldr	s15, [r3]
+ 80009d0:	eeb4 7ae7 	vcmpe.f32	s14, s15
+ 80009d4:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 80009d8:	d524      	bpl.n	8000a24 <Update_Speed+0x1f0>
+			current_speed = GEAR_SPEEDS[current_gear].max;
+ 80009da:	4b1e      	ldr	r3, [pc, #120]	@ (8000a54 <Update_Speed+0x220>)
+ 80009dc:	781b      	ldrb	r3, [r3, #0]
+ 80009de:	b2db      	uxtb	r3, r3
+ 80009e0:	4a21      	ldr	r2, [pc, #132]	@ (8000a68 <Update_Speed+0x234>)
+ 80009e2:	005b      	lsls	r3, r3, #1
+ 80009e4:	4413      	add	r3, r2
+ 80009e6:	785b      	ldrb	r3, [r3, #1]
+ 80009e8:	ee07 3a90 	vmov	s15, r3
+ 80009ec:	eef8 7a67 	vcvt.f32.u32	s15, s15
+ 80009f0:	4b10      	ldr	r3, [pc, #64]	@ (8000a34 <Update_Speed+0x200>)
+ 80009f2:	edc3 7a00 	vstr	s15, [r3]
+ 80009f6:	e015      	b.n	8000a24 <Update_Speed+0x1f0>
+		}
+	} else {
+		// Coasting (natural deceleration)
+		current_speed -= DECEL_COASTING / TIMER_FREQ;
+ 80009f8:	4b0e      	ldr	r3, [pc, #56]	@ (8000a34 <Update_Speed+0x200>)
+ 80009fa:	edd3 7a00 	vldr	s15, [r3]
+ 80009fe:	ed9f 7a19 	vldr	s14, [pc, #100]	@ 8000a64 <Update_Speed+0x230>
+ 8000a02:	ee77 7ac7 	vsub.f32	s15, s15, s14
+ 8000a06:	4b0b      	ldr	r3, [pc, #44]	@ (8000a34 <Update_Speed+0x200>)
+ 8000a08:	edc3 7a00 	vstr	s15, [r3]
+		if (current_speed < 0.0f)
+ 8000a0c:	4b09      	ldr	r3, [pc, #36]	@ (8000a34 <Update_Speed+0x200>)
+ 8000a0e:	edd3 7a00 	vldr	s15, [r3]
+ 8000a12:	eef5 7ac0 	vcmpe.f32	s15, #0.0
+ 8000a16:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8000a1a:	d503      	bpl.n	8000a24 <Update_Speed+0x1f0>
+			current_speed = 0.0f;
+ 8000a1c:	4b05      	ldr	r3, [pc, #20]	@ (8000a34 <Update_Speed+0x200>)
+ 8000a1e:	f04f 0200 	mov.w	r2, #0
+ 8000a22:	601a      	str	r2, [r3, #0]
+	}
+}
+ 8000a24:	370c      	adds	r7, #12
+ 8000a26:	46bd      	mov	sp, r7
+ 8000a28:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000a2c:	4770      	bx	lr
+ 8000a2e:	bf00      	nop
+ 8000a30:	20000020 	.word	0x20000020
+ 8000a34:	20000024 	.word	0x20000024
+ 8000a38:	20000000 	.word	0x20000000
+ 8000a3c:	41c80000 	.word	0x41c80000
+ 8000a40:	42960000 	.word	0x42960000
+ 8000a44:	42c80000 	.word	0x42c80000
+ 8000a48:	2000002c 	.word	0x2000002c
+ 8000a4c:	3dcccccd 	.word	0x3dcccccd
+ 8000a50:	2000002b 	.word	0x2000002b
+ 8000a54:	20000028 	.word	0x20000028
+ 8000a58:	2000002d 	.word	0x2000002d
+ 8000a5c:	447a0000 	.word	0x447a0000
+ 8000a60:	41200000 	.word	0x41200000
+ 8000a64:	3ba3d70a 	.word	0x3ba3d70a
+ 8000a68:	080010a4 	.word	0x080010a4
+
+08000a6c <Update_7Segment>:
+
+/* Update 7-segment display (BCD output) */
+void Update_7Segment(uint8_t value) {
+ 8000a6c:	b480      	push	{r7}
+ 8000a6e:	b083      	sub	sp, #12
+ 8000a70:	af00      	add	r7, sp, #0
+ 8000a72:	4603      	mov	r3, r0
+ 8000a74:	71fb      	strb	r3, [r7, #7]
+	// BCD encoding: PA9 (MSB), PB10, PA8, PC7 (LSB)
+	// N=0, 1=1, 2=2, 3=3, 4=4, 5=5
+
+	// Clear all BCD pins
+	GPIOA->BSRR = GPIO_BSRR_BR9 | GPIO_BSRR_BR8;
+ 8000a76:	4b1a      	ldr	r3, [pc, #104]	@ (8000ae0 <Update_7Segment+0x74>)
+ 8000a78:	f04f 7240 	mov.w	r2, #50331648	@ 0x3000000
+ 8000a7c:	619a      	str	r2, [r3, #24]
+	GPIOB->BSRR = GPIO_BSRR_BR10;
+ 8000a7e:	4b19      	ldr	r3, [pc, #100]	@ (8000ae4 <Update_7Segment+0x78>)
+ 8000a80:	f04f 6280 	mov.w	r2, #67108864	@ 0x4000000
+ 8000a84:	619a      	str	r2, [r3, #24]
+	GPIOC->BSRR = GPIO_BSRR_BR7;
+ 8000a86:	4b18      	ldr	r3, [pc, #96]	@ (8000ae8 <Update_7Segment+0x7c>)
+ 8000a88:	f44f 0200 	mov.w	r2, #8388608	@ 0x800000
+ 8000a8c:	619a      	str	r2, [r3, #24]
+
+	// Set BCD value
+	if (value & 0x08)
+ 8000a8e:	79fb      	ldrb	r3, [r7, #7]
+ 8000a90:	f003 0308 	and.w	r3, r3, #8
+ 8000a94:	2b00      	cmp	r3, #0
+ 8000a96:	d003      	beq.n	8000aa0 <Update_7Segment+0x34>
+		GPIOA->BSRR = GPIO_BSRR_BS9;  // MSB
+ 8000a98:	4b11      	ldr	r3, [pc, #68]	@ (8000ae0 <Update_7Segment+0x74>)
+ 8000a9a:	f44f 7200 	mov.w	r2, #512	@ 0x200
+ 8000a9e:	619a      	str	r2, [r3, #24]
+	if (value & 0x04)
+ 8000aa0:	79fb      	ldrb	r3, [r7, #7]
+ 8000aa2:	f003 0304 	and.w	r3, r3, #4
+ 8000aa6:	2b00      	cmp	r3, #0
+ 8000aa8:	d003      	beq.n	8000ab2 <Update_7Segment+0x46>
+		GPIOB->BSRR = GPIO_BSRR_BS10;
+ 8000aaa:	4b0e      	ldr	r3, [pc, #56]	@ (8000ae4 <Update_7Segment+0x78>)
+ 8000aac:	f44f 6280 	mov.w	r2, #1024	@ 0x400
+ 8000ab0:	619a      	str	r2, [r3, #24]
+	if (value & 0x02)
+ 8000ab2:	79fb      	ldrb	r3, [r7, #7]
+ 8000ab4:	f003 0302 	and.w	r3, r3, #2
+ 8000ab8:	2b00      	cmp	r3, #0
+ 8000aba:	d003      	beq.n	8000ac4 <Update_7Segment+0x58>
+		GPIOA->BSRR = GPIO_BSRR_BS8;
+ 8000abc:	4b08      	ldr	r3, [pc, #32]	@ (8000ae0 <Update_7Segment+0x74>)
+ 8000abe:	f44f 7280 	mov.w	r2, #256	@ 0x100
+ 8000ac2:	619a      	str	r2, [r3, #24]
+	if (value & 0x01)
+ 8000ac4:	79fb      	ldrb	r3, [r7, #7]
+ 8000ac6:	f003 0301 	and.w	r3, r3, #1
+ 8000aca:	2b00      	cmp	r3, #0
+ 8000acc:	d002      	beq.n	8000ad4 <Update_7Segment+0x68>
+		GPIOC->BSRR = GPIO_BSRR_BS7;  // LSB
+ 8000ace:	4b06      	ldr	r3, [pc, #24]	@ (8000ae8 <Update_7Segment+0x7c>)
+ 8000ad0:	2280      	movs	r2, #128	@ 0x80
+ 8000ad2:	619a      	str	r2, [r3, #24]
+}
+ 8000ad4:	bf00      	nop
+ 8000ad6:	370c      	adds	r7, #12
+ 8000ad8:	46bd      	mov	sp, r7
+ 8000ada:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000ade:	4770      	bx	lr
+ 8000ae0:	40020000 	.word	0x40020000
+ 8000ae4:	40020400 	.word	0x40020400
+ 8000ae8:	40020800 	.word	0x40020800
+
+08000aec <Update_Engine_LED>:
+
+/* Update engine LED */
+void Update_Engine_LED(void) {
+ 8000aec:	b480      	push	{r7}
+ 8000aee:	af00      	add	r7, sp, #0
+	if (engine_running) {
+ 8000af0:	4b08      	ldr	r3, [pc, #32]	@ (8000b14 <Update_Engine_LED+0x28>)
+ 8000af2:	781b      	ldrb	r3, [r3, #0]
+ 8000af4:	b2db      	uxtb	r3, r3
+ 8000af6:	2b00      	cmp	r3, #0
+ 8000af8:	d003      	beq.n	8000b02 <Update_Engine_LED+0x16>
+		GPIOA->BSRR = GPIO_BSRR_BS5;
+ 8000afa:	4b07      	ldr	r3, [pc, #28]	@ (8000b18 <Update_Engine_LED+0x2c>)
+ 8000afc:	2220      	movs	r2, #32
+ 8000afe:	619a      	str	r2, [r3, #24]
+	} else {
+		GPIOA->BSRR = GPIO_BSRR_BR5;
+	}
+}
+ 8000b00:	e003      	b.n	8000b0a <Update_Engine_LED+0x1e>
+		GPIOA->BSRR = GPIO_BSRR_BR5;
+ 8000b02:	4b05      	ldr	r3, [pc, #20]	@ (8000b18 <Update_Engine_LED+0x2c>)
+ 8000b04:	f44f 1200 	mov.w	r2, #2097152	@ 0x200000
+ 8000b08:	619a      	str	r2, [r3, #24]
+}
+ 8000b0a:	bf00      	nop
+ 8000b0c:	46bd      	mov	sp, r7
+ 8000b0e:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000b12:	4770      	bx	lr
+ 8000b14:	20000020 	.word	0x20000020
+ 8000b18:	40020000 	.word	0x40020000
+
+08000b1c <Update_Wiper_LED>:
+
+/* Update wiper LED */
+void Update_Wiper_LED(void) {
+ 8000b1c:	b480      	push	{r7}
+ 8000b1e:	b083      	sub	sp, #12
+ 8000b20:	af00      	add	r7, sp, #0
+	uint16_t period = 0;
+ 8000b22:	2300      	movs	r3, #0
+ 8000b24:	80fb      	strh	r3, [r7, #6]
+
+	switch (wiper_mode) {
+ 8000b26:	4b26      	ldr	r3, [pc, #152]	@ (8000bc0 <Update_Wiper_LED+0xa4>)
+ 8000b28:	781b      	ldrb	r3, [r3, #0]
+ 8000b2a:	b2db      	uxtb	r3, r3
+ 8000b2c:	2b03      	cmp	r3, #3
+ 8000b2e:	d819      	bhi.n	8000b64 <Update_Wiper_LED+0x48>
+ 8000b30:	a201      	add	r2, pc, #4	@ (adr r2, 8000b38 <Update_Wiper_LED+0x1c>)
+ 8000b32:	f852 f023 	ldr.w	pc, [r2, r3, lsl #2]
+ 8000b36:	bf00      	nop
+ 8000b38:	08000b49 	.word	0x08000b49
+ 8000b3c:	08000b53 	.word	0x08000b53
+ 8000b40:	08000b59 	.word	0x08000b59
+ 8000b44:	08000b5f 	.word	0x08000b5f
+	case WIPER_OFF:
+		GPIOB->BSRR = GPIO_BSRR_BR6; // LED off
+ 8000b48:	4b1e      	ldr	r3, [pc, #120]	@ (8000bc4 <Update_Wiper_LED+0xa8>)
+ 8000b4a:	f44f 0280 	mov.w	r2, #4194304	@ 0x400000
+ 8000b4e:	619a      	str	r2, [r3, #24]
+		return;
+ 8000b50:	e030      	b.n	8000bb4 <Update_Wiper_LED+0x98>
+	case WIPER_SLOW:
+		period = 100; // 1 second (100 ticks at 100Hz)
+ 8000b52:	2364      	movs	r3, #100	@ 0x64
+ 8000b54:	80fb      	strh	r3, [r7, #6]
+		break;
+ 8000b56:	e005      	b.n	8000b64 <Update_Wiper_LED+0x48>
+	case WIPER_MEDIUM:
+		period = 50; // 0.5 second
+ 8000b58:	2332      	movs	r3, #50	@ 0x32
+ 8000b5a:	80fb      	strh	r3, [r7, #6]
+		break;
+ 8000b5c:	e002      	b.n	8000b64 <Update_Wiper_LED+0x48>
+	case WIPER_FAST:
+		period = 10; // 0.1 second
+ 8000b5e:	230a      	movs	r3, #10
+ 8000b60:	80fb      	strh	r3, [r7, #6]
+		break;
+ 8000b62:	bf00      	nop
+	}
+
+	wiper_counter++;
+ 8000b64:	4b18      	ldr	r3, [pc, #96]	@ (8000bc8 <Update_Wiper_LED+0xac>)
+ 8000b66:	881b      	ldrh	r3, [r3, #0]
+ 8000b68:	b29b      	uxth	r3, r3
+ 8000b6a:	3301      	adds	r3, #1
+ 8000b6c:	b29a      	uxth	r2, r3
+ 8000b6e:	4b16      	ldr	r3, [pc, #88]	@ (8000bc8 <Update_Wiper_LED+0xac>)
+ 8000b70:	801a      	strh	r2, [r3, #0]
+	if (wiper_counter >= period) {
+ 8000b72:	4b15      	ldr	r3, [pc, #84]	@ (8000bc8 <Update_Wiper_LED+0xac>)
+ 8000b74:	881b      	ldrh	r3, [r3, #0]
+ 8000b76:	b29b      	uxth	r3, r3
+ 8000b78:	88fa      	ldrh	r2, [r7, #6]
+ 8000b7a:	429a      	cmp	r2, r3
+ 8000b7c:	d80d      	bhi.n	8000b9a <Update_Wiper_LED+0x7e>
+		wiper_counter = 0;
+ 8000b7e:	4b12      	ldr	r3, [pc, #72]	@ (8000bc8 <Update_Wiper_LED+0xac>)
+ 8000b80:	2200      	movs	r2, #0
+ 8000b82:	801a      	strh	r2, [r3, #0]
+		wiper_led_state = !wiper_led_state;
+ 8000b84:	4b11      	ldr	r3, [pc, #68]	@ (8000bcc <Update_Wiper_LED+0xb0>)
+ 8000b86:	881b      	ldrh	r3, [r3, #0]
+ 8000b88:	b29b      	uxth	r3, r3
+ 8000b8a:	2b00      	cmp	r3, #0
+ 8000b8c:	bf0c      	ite	eq
+ 8000b8e:	2301      	moveq	r3, #1
+ 8000b90:	2300      	movne	r3, #0
+ 8000b92:	b2db      	uxtb	r3, r3
+ 8000b94:	461a      	mov	r2, r3
+ 8000b96:	4b0d      	ldr	r3, [pc, #52]	@ (8000bcc <Update_Wiper_LED+0xb0>)
+ 8000b98:	801a      	strh	r2, [r3, #0]
+	}
+
+	if (wiper_led_state) {
+ 8000b9a:	4b0c      	ldr	r3, [pc, #48]	@ (8000bcc <Update_Wiper_LED+0xb0>)
+ 8000b9c:	881b      	ldrh	r3, [r3, #0]
+ 8000b9e:	b29b      	uxth	r3, r3
+ 8000ba0:	2b00      	cmp	r3, #0
+ 8000ba2:	d003      	beq.n	8000bac <Update_Wiper_LED+0x90>
+		GPIOB->BSRR = GPIO_BSRR_BS6;
+ 8000ba4:	4b07      	ldr	r3, [pc, #28]	@ (8000bc4 <Update_Wiper_LED+0xa8>)
+ 8000ba6:	2240      	movs	r2, #64	@ 0x40
+ 8000ba8:	619a      	str	r2, [r3, #24]
+ 8000baa:	e003      	b.n	8000bb4 <Update_Wiper_LED+0x98>
+	} else {
+		GPIOB->BSRR = GPIO_BSRR_BR6;
+ 8000bac:	4b05      	ldr	r3, [pc, #20]	@ (8000bc4 <Update_Wiper_LED+0xa8>)
+ 8000bae:	f44f 0280 	mov.w	r2, #4194304	@ 0x400000
+ 8000bb2:	619a      	str	r2, [r3, #24]
+	}
+}
+ 8000bb4:	370c      	adds	r7, #12
+ 8000bb6:	46bd      	mov	sp, r7
+ 8000bb8:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000bbc:	4770      	bx	lr
+ 8000bbe:	bf00      	nop
+ 8000bc0:	2000002a 	.word	0x2000002a
+ 8000bc4:	40020400 	.word	0x40020400
+ 8000bc8:	20000030 	.word	0x20000030
+ 8000bcc:	20000032 	.word	0x20000032
+
+08000bd0 <Process_UART_Command>:
+
+/* Process UART commands */
+void Process_UART_Command(char cmd) {
+ 8000bd0:	b580      	push	{r7, lr}
+ 8000bd2:	b082      	sub	sp, #8
+ 8000bd4:	af00      	add	r7, sp, #0
+ 8000bd6:	4603      	mov	r3, r0
+ 8000bd8:	71fb      	strb	r3, [r7, #7]
+	switch (cmd) {
+ 8000bda:	79fb      	ldrb	r3, [r7, #7]
+ 8000bdc:	3b65      	subs	r3, #101	@ 0x65
+ 8000bde:	2b0e      	cmp	r3, #14
+ 8000be0:	d851      	bhi.n	8000c86 <Process_UART_Command+0xb6>
+ 8000be2:	a201      	add	r2, pc, #4	@ (adr r2, 8000be8 <Process_UART_Command+0x18>)
+ 8000be4:	f852 f023 	ldr.w	pc, [r2, r3, lsl #2]
+ 8000be8:	08000c5d 	.word	0x08000c5d
+ 8000bec:	08000c4f 	.word	0x08000c4f
+ 8000bf0:	08000c87 	.word	0x08000c87
+ 8000bf4:	08000c87 	.word	0x08000c87
+ 8000bf8:	08000c87 	.word	0x08000c87
+ 8000bfc:	08000c87 	.word	0x08000c87
+ 8000c00:	08000c87 	.word	0x08000c87
+ 8000c04:	08000c87 	.word	0x08000c87
+ 8000c08:	08000c87 	.word	0x08000c87
+ 8000c0c:	08000c6b 	.word	0x08000c6b
+ 8000c10:	08000c25 	.word	0x08000c25
+ 8000c14:	08000c87 	.word	0x08000c87
+ 8000c18:	08000c87 	.word	0x08000c87
+ 8000c1c:	08000c87 	.word	0x08000c87
+ 8000c20:	08000c79 	.word	0x08000c79
+	case 'o':
+		if (current_gear == GEAR_N && !engine_running) {
+ 8000c24:	4b1c      	ldr	r3, [pc, #112]	@ (8000c98 <Process_UART_Command+0xc8>)
+ 8000c26:	781b      	ldrb	r3, [r3, #0]
+ 8000c28:	b2db      	uxtb	r3, r3
+ 8000c2a:	2b00      	cmp	r3, #0
+ 8000c2c:	d10b      	bne.n	8000c46 <Process_UART_Command+0x76>
+ 8000c2e:	4b1b      	ldr	r3, [pc, #108]	@ (8000c9c <Process_UART_Command+0xcc>)
+ 8000c30:	781b      	ldrb	r3, [r3, #0]
+ 8000c32:	b2db      	uxtb	r3, r3
+ 8000c34:	2b00      	cmp	r3, #0
+ 8000c36:	d106      	bne.n	8000c46 <Process_UART_Command+0x76>
+			engine_running = 1;
+ 8000c38:	4b18      	ldr	r3, [pc, #96]	@ (8000c9c <Process_UART_Command+0xcc>)
+ 8000c3a:	2201      	movs	r2, #1
+ 8000c3c:	701a      	strb	r2, [r3, #0]
+			USART2_SendString("Engine started\r\n");
+ 8000c3e:	4818      	ldr	r0, [pc, #96]	@ (8000ca0 <Process_UART_Command+0xd0>)
+ 8000c40:	f000 f8ee 	bl	8000e20 <USART2_SendString>
+		} else {
+			USART2_SendString("Cannot start: must be in Neutral\r\n");
+		}
+		break;
+ 8000c44:	e023      	b.n	8000c8e <Process_UART_Command+0xbe>
+			USART2_SendString("Cannot start: must be in Neutral\r\n");
+ 8000c46:	4817      	ldr	r0, [pc, #92]	@ (8000ca4 <Process_UART_Command+0xd4>)
+ 8000c48:	f000 f8ea 	bl	8000e20 <USART2_SendString>
+		break;
+ 8000c4c:	e01f      	b.n	8000c8e <Process_UART_Command+0xbe>
+	case 'f':
+		engine_running = 0;
+ 8000c4e:	4b13      	ldr	r3, [pc, #76]	@ (8000c9c <Process_UART_Command+0xcc>)
+ 8000c50:	2200      	movs	r2, #0
+ 8000c52:	701a      	strb	r2, [r3, #0]
+		USART2_SendString("Engine stopped\r\n");
+ 8000c54:	4814      	ldr	r0, [pc, #80]	@ (8000ca8 <Process_UART_Command+0xd8>)
+ 8000c56:	f000 f8e3 	bl	8000e20 <USART2_SendString>
+		break;
+ 8000c5a:	e018      	b.n	8000c8e <Process_UART_Command+0xbe>
+	case 'e':
+		drive_mode = MODE_ECO;
+ 8000c5c:	4b13      	ldr	r3, [pc, #76]	@ (8000cac <Process_UART_Command+0xdc>)
+ 8000c5e:	2200      	movs	r2, #0
+ 8000c60:	701a      	strb	r2, [r3, #0]
+		USART2_SendString("Mode: ECO\r\n");
+ 8000c62:	4813      	ldr	r0, [pc, #76]	@ (8000cb0 <Process_UART_Command+0xe0>)
+ 8000c64:	f000 f8dc 	bl	8000e20 <USART2_SendString>
+		break;
+ 8000c68:	e011      	b.n	8000c8e <Process_UART_Command+0xbe>
+	case 'n':
+		drive_mode = MODE_NORMAL;
+ 8000c6a:	4b10      	ldr	r3, [pc, #64]	@ (8000cac <Process_UART_Command+0xdc>)
+ 8000c6c:	2201      	movs	r2, #1
+ 8000c6e:	701a      	strb	r2, [r3, #0]
+		USART2_SendString("Mode: NORMAL\r\n");
+ 8000c70:	4810      	ldr	r0, [pc, #64]	@ (8000cb4 <Process_UART_Command+0xe4>)
+ 8000c72:	f000 f8d5 	bl	8000e20 <USART2_SendString>
+		break;
+ 8000c76:	e00a      	b.n	8000c8e <Process_UART_Command+0xbe>
+	case 's':
+		drive_mode = MODE_SPORT;
+ 8000c78:	4b0c      	ldr	r3, [pc, #48]	@ (8000cac <Process_UART_Command+0xdc>)
+ 8000c7a:	2202      	movs	r2, #2
+ 8000c7c:	701a      	strb	r2, [r3, #0]
+		USART2_SendString("Mode: SPORT\r\n");
+ 8000c7e:	480e      	ldr	r0, [pc, #56]	@ (8000cb8 <Process_UART_Command+0xe8>)
+ 8000c80:	f000 f8ce 	bl	8000e20 <USART2_SendString>
+		break;
+ 8000c84:	e003      	b.n	8000c8e <Process_UART_Command+0xbe>
+	default:
+		USART2_SendString("Unknown command\r\n");
+ 8000c86:	480d      	ldr	r0, [pc, #52]	@ (8000cbc <Process_UART_Command+0xec>)
+ 8000c88:	f000 f8ca 	bl	8000e20 <USART2_SendString>
+		break;
+ 8000c8c:	bf00      	nop
+	}
+}
+ 8000c8e:	bf00      	nop
+ 8000c90:	3708      	adds	r7, #8
+ 8000c92:	46bd      	mov	sp, r7
+ 8000c94:	bd80      	pop	{r7, pc}
+ 8000c96:	bf00      	nop
+ 8000c98:	20000028 	.word	0x20000028
+ 8000c9c:	20000020 	.word	0x20000020
+ 8000ca0:	08001018 	.word	0x08001018
+ 8000ca4:	0800102c 	.word	0x0800102c
+ 8000ca8:	08001050 	.word	0x08001050
+ 8000cac:	20000000 	.word	0x20000000
+ 8000cb0:	08001064 	.word	0x08001064
+ 8000cb4:	08001070 	.word	0x08001070
+ 8000cb8:	08001080 	.word	0x08001080
+ 8000cbc:	08001090 	.word	0x08001090
+
+08000cc0 <USART2_SendSpeed>:
+
+/* Send speed via UART */
+void USART2_SendSpeed(void) {
+ 8000cc0:	b580      	push	{r7, lr}
+ 8000cc2:	b08e      	sub	sp, #56	@ 0x38
+ 8000cc4:	af00      	add	r7, sp, #0
+	char buffer[32];
+	int speed_int = (int) current_speed;
+ 8000cc6:	4b54      	ldr	r3, [pc, #336]	@ (8000e18 <USART2_SendSpeed+0x158>)
+ 8000cc8:	edd3 7a00 	vldr	s15, [r3]
+ 8000ccc:	eefd 7ae7 	vcvt.s32.f32	s15, s15
+ 8000cd0:	ee17 3a90 	vmov	r3, s15
+ 8000cd4:	637b      	str	r3, [r7, #52]	@ 0x34
+
+	// Simple integer to string conversion
+	buffer[0] = 'S';
+ 8000cd6:	2353      	movs	r3, #83	@ 0x53
+ 8000cd8:	713b      	strb	r3, [r7, #4]
+	buffer[1] = 'p';
+ 8000cda:	2370      	movs	r3, #112	@ 0x70
+ 8000cdc:	717b      	strb	r3, [r7, #5]
+	buffer[2] = 'e';
+ 8000cde:	2365      	movs	r3, #101	@ 0x65
+ 8000ce0:	71bb      	strb	r3, [r7, #6]
+	buffer[3] = 'e';
+ 8000ce2:	2365      	movs	r3, #101	@ 0x65
+ 8000ce4:	71fb      	strb	r3, [r7, #7]
+	buffer[4] = 'd';
+ 8000ce6:	2364      	movs	r3, #100	@ 0x64
+ 8000ce8:	723b      	strb	r3, [r7, #8]
+	buffer[5] = ':';
+ 8000cea:	233a      	movs	r3, #58	@ 0x3a
+ 8000cec:	727b      	strb	r3, [r7, #9]
+	buffer[6] = ' ';
+ 8000cee:	2320      	movs	r3, #32
+ 8000cf0:	72bb      	strb	r3, [r7, #10]
+
+	int idx = 7;
+ 8000cf2:	2307      	movs	r3, #7
+ 8000cf4:	633b      	str	r3, [r7, #48]	@ 0x30
+	if (speed_int == 0) {
+ 8000cf6:	6b7b      	ldr	r3, [r7, #52]	@ 0x34
+ 8000cf8:	2b00      	cmp	r3, #0
+ 8000cfa:	d108      	bne.n	8000d0e <USART2_SendSpeed+0x4e>
+		buffer[idx++] = '0';
+ 8000cfc:	6b3b      	ldr	r3, [r7, #48]	@ 0x30
+ 8000cfe:	1c5a      	adds	r2, r3, #1
+ 8000d00:	633a      	str	r2, [r7, #48]	@ 0x30
+ 8000d02:	3338      	adds	r3, #56	@ 0x38
+ 8000d04:	443b      	add	r3, r7
+ 8000d06:	2230      	movs	r2, #48	@ 0x30
+ 8000d08:	f803 2c34 	strb.w	r2, [r3, #-52]
+ 8000d0c:	e03e      	b.n	8000d8c <USART2_SendSpeed+0xcc>
+	} else {
+		int temp = speed_int;
+ 8000d0e:	6b7b      	ldr	r3, [r7, #52]	@ 0x34
+ 8000d10:	62fb      	str	r3, [r7, #44]	@ 0x2c
+		int digits = 0;
+ 8000d12:	2300      	movs	r3, #0
+ 8000d14:	62bb      	str	r3, [r7, #40]	@ 0x28
+		while (temp > 0) {
+ 8000d16:	e00a      	b.n	8000d2e <USART2_SendSpeed+0x6e>
+			temp /= 10;
+ 8000d18:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 8000d1a:	4a40      	ldr	r2, [pc, #256]	@ (8000e1c <USART2_SendSpeed+0x15c>)
+ 8000d1c:	fb82 1203 	smull	r1, r2, r2, r3
+ 8000d20:	1092      	asrs	r2, r2, #2
+ 8000d22:	17db      	asrs	r3, r3, #31
+ 8000d24:	1ad3      	subs	r3, r2, r3
+ 8000d26:	62fb      	str	r3, [r7, #44]	@ 0x2c
+			digits++;
+ 8000d28:	6abb      	ldr	r3, [r7, #40]	@ 0x28
+ 8000d2a:	3301      	adds	r3, #1
+ 8000d2c:	62bb      	str	r3, [r7, #40]	@ 0x28
+		while (temp > 0) {
+ 8000d2e:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 8000d30:	2b00      	cmp	r3, #0
+ 8000d32:	dcf1      	bgt.n	8000d18 <USART2_SendSpeed+0x58>
+		}
+
+		for (int i = digits - 1; i >= 0; i--) {
+ 8000d34:	6abb      	ldr	r3, [r7, #40]	@ 0x28
+ 8000d36:	3b01      	subs	r3, #1
+ 8000d38:	627b      	str	r3, [r7, #36]	@ 0x24
+ 8000d3a:	e020      	b.n	8000d7e <USART2_SendSpeed+0xbe>
+			buffer[idx + i] = '0' + (speed_int % 10);
+ 8000d3c:	6b7a      	ldr	r2, [r7, #52]	@ 0x34
+ 8000d3e:	4b37      	ldr	r3, [pc, #220]	@ (8000e1c <USART2_SendSpeed+0x15c>)
+ 8000d40:	fb83 1302 	smull	r1, r3, r3, r2
+ 8000d44:	1099      	asrs	r1, r3, #2
+ 8000d46:	17d3      	asrs	r3, r2, #31
+ 8000d48:	1ac9      	subs	r1, r1, r3
+ 8000d4a:	460b      	mov	r3, r1
+ 8000d4c:	009b      	lsls	r3, r3, #2
+ 8000d4e:	440b      	add	r3, r1
+ 8000d50:	005b      	lsls	r3, r3, #1
+ 8000d52:	1ad1      	subs	r1, r2, r3
+ 8000d54:	b2ca      	uxtb	r2, r1
+ 8000d56:	6b39      	ldr	r1, [r7, #48]	@ 0x30
+ 8000d58:	6a7b      	ldr	r3, [r7, #36]	@ 0x24
+ 8000d5a:	440b      	add	r3, r1
+ 8000d5c:	3230      	adds	r2, #48	@ 0x30
+ 8000d5e:	b2d2      	uxtb	r2, r2
+ 8000d60:	3338      	adds	r3, #56	@ 0x38
+ 8000d62:	443b      	add	r3, r7
+ 8000d64:	f803 2c34 	strb.w	r2, [r3, #-52]
+			speed_int /= 10;
+ 8000d68:	6b7b      	ldr	r3, [r7, #52]	@ 0x34
+ 8000d6a:	4a2c      	ldr	r2, [pc, #176]	@ (8000e1c <USART2_SendSpeed+0x15c>)
+ 8000d6c:	fb82 1203 	smull	r1, r2, r2, r3
+ 8000d70:	1092      	asrs	r2, r2, #2
+ 8000d72:	17db      	asrs	r3, r3, #31
+ 8000d74:	1ad3      	subs	r3, r2, r3
+ 8000d76:	637b      	str	r3, [r7, #52]	@ 0x34
+		for (int i = digits - 1; i >= 0; i--) {
+ 8000d78:	6a7b      	ldr	r3, [r7, #36]	@ 0x24
+ 8000d7a:	3b01      	subs	r3, #1
+ 8000d7c:	627b      	str	r3, [r7, #36]	@ 0x24
+ 8000d7e:	6a7b      	ldr	r3, [r7, #36]	@ 0x24
+ 8000d80:	2b00      	cmp	r3, #0
+ 8000d82:	dadb      	bge.n	8000d3c <USART2_SendSpeed+0x7c>
+		}
+		idx += digits;
+ 8000d84:	6b3a      	ldr	r2, [r7, #48]	@ 0x30
+ 8000d86:	6abb      	ldr	r3, [r7, #40]	@ 0x28
+ 8000d88:	4413      	add	r3, r2
+ 8000d8a:	633b      	str	r3, [r7, #48]	@ 0x30
+	}
+
+	buffer[idx++] = ' ';
+ 8000d8c:	6b3b      	ldr	r3, [r7, #48]	@ 0x30
+ 8000d8e:	1c5a      	adds	r2, r3, #1
+ 8000d90:	633a      	str	r2, [r7, #48]	@ 0x30
+ 8000d92:	3338      	adds	r3, #56	@ 0x38
+ 8000d94:	443b      	add	r3, r7
+ 8000d96:	2220      	movs	r2, #32
+ 8000d98:	f803 2c34 	strb.w	r2, [r3, #-52]
+	buffer[idx++] = 'k';
+ 8000d9c:	6b3b      	ldr	r3, [r7, #48]	@ 0x30
+ 8000d9e:	1c5a      	adds	r2, r3, #1
+ 8000da0:	633a      	str	r2, [r7, #48]	@ 0x30
+ 8000da2:	3338      	adds	r3, #56	@ 0x38
+ 8000da4:	443b      	add	r3, r7
+ 8000da6:	226b      	movs	r2, #107	@ 0x6b
+ 8000da8:	f803 2c34 	strb.w	r2, [r3, #-52]
+	buffer[idx++] = 'm';
+ 8000dac:	6b3b      	ldr	r3, [r7, #48]	@ 0x30
+ 8000dae:	1c5a      	adds	r2, r3, #1
+ 8000db0:	633a      	str	r2, [r7, #48]	@ 0x30
+ 8000db2:	3338      	adds	r3, #56	@ 0x38
+ 8000db4:	443b      	add	r3, r7
+ 8000db6:	226d      	movs	r2, #109	@ 0x6d
+ 8000db8:	f803 2c34 	strb.w	r2, [r3, #-52]
+	buffer[idx++] = '/';
+ 8000dbc:	6b3b      	ldr	r3, [r7, #48]	@ 0x30
+ 8000dbe:	1c5a      	adds	r2, r3, #1
+ 8000dc0:	633a      	str	r2, [r7, #48]	@ 0x30
+ 8000dc2:	3338      	adds	r3, #56	@ 0x38
+ 8000dc4:	443b      	add	r3, r7
+ 8000dc6:	222f      	movs	r2, #47	@ 0x2f
+ 8000dc8:	f803 2c34 	strb.w	r2, [r3, #-52]
+	buffer[idx++] = 'h';
+ 8000dcc:	6b3b      	ldr	r3, [r7, #48]	@ 0x30
+ 8000dce:	1c5a      	adds	r2, r3, #1
+ 8000dd0:	633a      	str	r2, [r7, #48]	@ 0x30
+ 8000dd2:	3338      	adds	r3, #56	@ 0x38
+ 8000dd4:	443b      	add	r3, r7
+ 8000dd6:	2268      	movs	r2, #104	@ 0x68
+ 8000dd8:	f803 2c34 	strb.w	r2, [r3, #-52]
+	buffer[idx++] = '\r';
+ 8000ddc:	6b3b      	ldr	r3, [r7, #48]	@ 0x30
+ 8000dde:	1c5a      	adds	r2, r3, #1
+ 8000de0:	633a      	str	r2, [r7, #48]	@ 0x30
+ 8000de2:	3338      	adds	r3, #56	@ 0x38
+ 8000de4:	443b      	add	r3, r7
+ 8000de6:	220d      	movs	r2, #13
+ 8000de8:	f803 2c34 	strb.w	r2, [r3, #-52]
+	buffer[idx++] = '\n';
+ 8000dec:	6b3b      	ldr	r3, [r7, #48]	@ 0x30
+ 8000dee:	1c5a      	adds	r2, r3, #1
+ 8000df0:	633a      	str	r2, [r7, #48]	@ 0x30
+ 8000df2:	3338      	adds	r3, #56	@ 0x38
+ 8000df4:	443b      	add	r3, r7
+ 8000df6:	220a      	movs	r2, #10
+ 8000df8:	f803 2c34 	strb.w	r2, [r3, #-52]
+	buffer[idx] = '\0';
+ 8000dfc:	1d3a      	adds	r2, r7, #4
+ 8000dfe:	6b3b      	ldr	r3, [r7, #48]	@ 0x30
+ 8000e00:	4413      	add	r3, r2
+ 8000e02:	2200      	movs	r2, #0
+ 8000e04:	701a      	strb	r2, [r3, #0]
+
+	USART2_SendString(buffer);
+ 8000e06:	1d3b      	adds	r3, r7, #4
+ 8000e08:	4618      	mov	r0, r3
+ 8000e0a:	f000 f809 	bl	8000e20 <USART2_SendString>
+}
+ 8000e0e:	bf00      	nop
+ 8000e10:	3738      	adds	r7, #56	@ 0x38
+ 8000e12:	46bd      	mov	sp, r7
+ 8000e14:	bd80      	pop	{r7, pc}
+ 8000e16:	bf00      	nop
+ 8000e18:	20000024 	.word	0x20000024
+ 8000e1c:	66666667 	.word	0x66666667
+
+08000e20 <USART2_SendString>:
+
+/* Send string via USART2 */
+void USART2_SendString(const char *str) {
+ 8000e20:	b480      	push	{r7}
+ 8000e22:	b083      	sub	sp, #12
+ 8000e24:	af00      	add	r7, sp, #0
+ 8000e26:	6078      	str	r0, [r7, #4]
+	while (*str) {
+ 8000e28:	e00c      	b.n	8000e44 <USART2_SendString+0x24>
+		while (!(USART2->SR & USART_SR_TXE))
+ 8000e2a:	bf00      	nop
+ 8000e2c:	4b0b      	ldr	r3, [pc, #44]	@ (8000e5c <USART2_SendString+0x3c>)
+ 8000e2e:	681b      	ldr	r3, [r3, #0]
+ 8000e30:	f003 0380 	and.w	r3, r3, #128	@ 0x80
+ 8000e34:	2b00      	cmp	r3, #0
+ 8000e36:	d0f9      	beq.n	8000e2c <USART2_SendString+0xc>
+			; // Wait for TXE
+		USART2->DR = *str++;
+ 8000e38:	687b      	ldr	r3, [r7, #4]
+ 8000e3a:	1c5a      	adds	r2, r3, #1
+ 8000e3c:	607a      	str	r2, [r7, #4]
+ 8000e3e:	781a      	ldrb	r2, [r3, #0]
+ 8000e40:	4b06      	ldr	r3, [pc, #24]	@ (8000e5c <USART2_SendString+0x3c>)
+ 8000e42:	605a      	str	r2, [r3, #4]
+	while (*str) {
+ 8000e44:	687b      	ldr	r3, [r7, #4]
+ 8000e46:	781b      	ldrb	r3, [r3, #0]
+ 8000e48:	2b00      	cmp	r3, #0
+ 8000e4a:	d1ee      	bne.n	8000e2a <USART2_SendString+0xa>
+	}
+}
+ 8000e4c:	bf00      	nop
+ 8000e4e:	bf00      	nop
+ 8000e50:	370c      	adds	r7, #12
+ 8000e52:	46bd      	mov	sp, r7
+ 8000e54:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000e58:	4770      	bx	lr
+ 8000e5a:	bf00      	nop
+ 8000e5c:	40004400 	.word	0x40004400
+
+08000e60 <Reset_Handler>:
+
+  .section .text.Reset_Handler
+  .weak Reset_Handler
+  .type Reset_Handler, %function
+Reset_Handler:
+  ldr   r0, =_estack
+ 8000e60:	480d      	ldr	r0, [pc, #52]	@ (8000e98 <LoopForever+0x2>)
+  mov   sp, r0          /* set stack pointer */
+ 8000e62:	4685      	mov	sp, r0
+/* Call the clock system initialization function.*/
+  bl  SystemInit
+ 8000e64:	f7ff fa00 	bl	8000268 <SystemInit>
+
+/* Copy the data segment initializers from flash to SRAM */
+  ldr r0, =_sdata
+ 8000e68:	480c      	ldr	r0, [pc, #48]	@ (8000e9c <LoopForever+0x6>)
+  ldr r1, =_edata
+ 8000e6a:	490d      	ldr	r1, [pc, #52]	@ (8000ea0 <LoopForever+0xa>)
+  ldr r2, =_sidata
+ 8000e6c:	4a0d      	ldr	r2, [pc, #52]	@ (8000ea4 <LoopForever+0xe>)
+  movs r3, #0
+ 8000e6e:	2300      	movs	r3, #0
+  b LoopCopyDataInit
+ 8000e70:	e002      	b.n	8000e78 <LoopCopyDataInit>
+
+08000e72 <CopyDataInit>:
+
+CopyDataInit:
+  ldr r4, [r2, r3]
+ 8000e72:	58d4      	ldr	r4, [r2, r3]
+  str r4, [r0, r3]
+ 8000e74:	50c4      	str	r4, [r0, r3]
+  adds r3, r3, #4
+ 8000e76:	3304      	adds	r3, #4
+
+08000e78 <LoopCopyDataInit>:
+
+LoopCopyDataInit:
+  adds r4, r0, r3
+ 8000e78:	18c4      	adds	r4, r0, r3
+  cmp r4, r1
+ 8000e7a:	428c      	cmp	r4, r1
+  bcc CopyDataInit
+ 8000e7c:	d3f9      	bcc.n	8000e72 <CopyDataInit>
+
+/* Zero fill the bss segment. */
+  ldr r2, =_sbss
+ 8000e7e:	4a0a      	ldr	r2, [pc, #40]	@ (8000ea8 <LoopForever+0x12>)
+  ldr r4, =_ebss
+ 8000e80:	4c0a      	ldr	r4, [pc, #40]	@ (8000eac <LoopForever+0x16>)
+  movs r3, #0
+ 8000e82:	2300      	movs	r3, #0
+  b LoopFillZerobss
+ 8000e84:	e001      	b.n	8000e8a <LoopFillZerobss>
+
+08000e86 <FillZerobss>:
+
+FillZerobss:
+  str  r3, [r2]
+ 8000e86:	6013      	str	r3, [r2, #0]
+  adds r2, r2, #4
+ 8000e88:	3204      	adds	r2, #4
+
+08000e8a <LoopFillZerobss>:
+
+LoopFillZerobss:
+  cmp r2, r4
+ 8000e8a:	42a2      	cmp	r2, r4
+  bcc FillZerobss
+ 8000e8c:	d3fb      	bcc.n	8000e86 <FillZerobss>
+
+/* Call static constructors */
+  bl __libc_init_array
+ 8000e8e:	f000 f811 	bl	8000eb4 <__libc_init_array>
+/* Call the application's entry point.*/
+  bl main
+ 8000e92:	f7ff f9bf 	bl	8000214 <main>
+
+08000e96 <LoopForever>:
+
+LoopForever:
+  b LoopForever
+ 8000e96:	e7fe      	b.n	8000e96 <LoopForever>
+  ldr   r0, =_estack
+ 8000e98:	20020000 	.word	0x20020000
+  ldr r0, =_sdata
+ 8000e9c:	20000000 	.word	0x20000000
+  ldr r1, =_edata
+ 8000ea0:	20000004 	.word	0x20000004
+  ldr r2, =_sidata
+ 8000ea4:	080010b8 	.word	0x080010b8
+  ldr r2, =_sbss
+ 8000ea8:	20000004 	.word	0x20000004
+  ldr r4, =_ebss
+ 8000eac:	20000038 	.word	0x20000038
+
+08000eb0 <ADC_IRQHandler>:
+ * @retval : None
+*/
+  .section .text.Default_Handler,"ax",%progbits
+Default_Handler:
+Infinite_Loop:
+  b Infinite_Loop
+ 8000eb0:	e7fe      	b.n	8000eb0 <ADC_IRQHandler>
+	...
+
+08000eb4 <__libc_init_array>:
+ 8000eb4:	b570      	push	{r4, r5, r6, lr}
+ 8000eb6:	4d0d      	ldr	r5, [pc, #52]	@ (8000eec <__libc_init_array+0x38>)
+ 8000eb8:	4c0d      	ldr	r4, [pc, #52]	@ (8000ef0 <__libc_init_array+0x3c>)
+ 8000eba:	1b64      	subs	r4, r4, r5
+ 8000ebc:	10a4      	asrs	r4, r4, #2
+ 8000ebe:	2600      	movs	r6, #0
+ 8000ec0:	42a6      	cmp	r6, r4
+ 8000ec2:	d109      	bne.n	8000ed8 <__libc_init_array+0x24>
+ 8000ec4:	4d0b      	ldr	r5, [pc, #44]	@ (8000ef4 <__libc_init_array+0x40>)
+ 8000ec6:	4c0c      	ldr	r4, [pc, #48]	@ (8000ef8 <__libc_init_array+0x44>)
+ 8000ec8:	f000 f818 	bl	8000efc <_init>
+ 8000ecc:	1b64      	subs	r4, r4, r5
+ 8000ece:	10a4      	asrs	r4, r4, #2
+ 8000ed0:	2600      	movs	r6, #0
+ 8000ed2:	42a6      	cmp	r6, r4
+ 8000ed4:	d105      	bne.n	8000ee2 <__libc_init_array+0x2e>
+ 8000ed6:	bd70      	pop	{r4, r5, r6, pc}
+ 8000ed8:	f855 3b04 	ldr.w	r3, [r5], #4
+ 8000edc:	4798      	blx	r3
+ 8000ede:	3601      	adds	r6, #1
+ 8000ee0:	e7ee      	b.n	8000ec0 <__libc_init_array+0xc>
+ 8000ee2:	f855 3b04 	ldr.w	r3, [r5], #4
+ 8000ee6:	4798      	blx	r3
+ 8000ee8:	3601      	adds	r6, #1
+ 8000eea:	e7f2      	b.n	8000ed2 <__libc_init_array+0x1e>
+ 8000eec:	080010b0 	.word	0x080010b0
+ 8000ef0:	080010b0 	.word	0x080010b0
+ 8000ef4:	080010b0 	.word	0x080010b0
+ 8000ef8:	080010b4 	.word	0x080010b4
+
+08000efc <_init>:
+ 8000efc:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8000efe:	bf00      	nop
+ 8000f00:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8000f02:	bc08      	pop	{r3}
+ 8000f04:	469e      	mov	lr, r3
+ 8000f06:	4770      	bx	lr
+
+08000f08 <_fini>:
+ 8000f08:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8000f0a:	bf00      	nop
+ 8000f0c:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8000f0e:	bc08      	pop	{r3}
+ 8000f10:	469e      	mov	lr, r3
+ 8000f12:	4770      	bx	lr

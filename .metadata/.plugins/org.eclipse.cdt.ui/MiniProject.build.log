@@ -1,0 +1,10 @@
+13:33:44 **** Incremental Build of configuration Debug for project MiniProject ****
+make -j12 all 
+arm-none-eabi-size  MiniProject.elf 
+   text	   data	    bss	    dec	    hex	filename
+   4280	      4	   1588	   5872	   16f0	MiniProject.elf
+Finished building: default.size.stdout
+ 
+
+13:33:44 Build Finished. 0 errors, 0 warnings. (took 143ms)
+

@@ -1,0 +1,137 @@
+#include <stdint.h>
+#include <stdbool.h>
+#define STM32F411xE
+#include "stm32f4xx.h"
+
+int a = 1;
+
+bool isSpeedZero(int speed) { // is speed = 0
+	if (speed == 0) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool isSpeedEQGearN(int speed) {
+	// is speed 0 //check gear N
+	if (speed == 0) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool isSpeedEQGearOne(int speed) {
+	// is speed 0 - 30 //check gear 1
+	if (speed >= 0 && speed <= 30) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool isSpeedEQGearTwo(int speed) {
+	// is speed 20 - 50 //check gear 2
+	if (speed >= 20 && speed <= 50) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool isSpeedEQGearThree(int speed) {
+	// is speed 40 - 70 //check gear 3
+	if (speed >= 40 && speed <= 70) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool isSpeedEQGearFour(int speed) {
+	// is speed 60 - 90 //check gear 4
+	if (speed >= 60 && speed <= 90) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool isSpeedEQGearFive(int speed) {
+	// is speed 80 - 130 //check gear 5
+	if (speed >= 80 && speed <= 130) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+void EXTI3_IRQHandler(void) { //brake press
+	if ((EXTI->PR & EXTI_PR_PR3) != 0) {
+		if ((GPIOB->IDR & GPIO_IDR_ID3) == 0) {
+			a = 0;
+			// reduce speed
+		} else {
+			a = 1;
+		}
+		EXTI->PR |= EXTI_PR_PR3;
+	}
+}
+
+void EXTI15_10_IRQHandler(void) { //clutch press
+	if ((EXTI->PR & EXTI_PR_PR10) != 0) {
+		if ((GPIOB->IDR & GPIO_IDR_ID10) == 0) {
+
+			// reduce speed
+		} else {
+
+		}
+		EXTI->PR |= EXTI_PR_PR10;
+	}
+}
+
+int main(void) {
+	// enable clock
+	RCC->AHB1ENR |= (RCC_AHB1ENR_GPIOAEN + RCC_AHB1ENR_GPIOBEN);
+	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+
+	// - PB3 - //
+	GPIOB->MODER &= ~(GPIO_MODER_MODER3);
+	GPIOB->PUPDR &= ~(GPIO_PUPDR_PUPD3);
+	GPIOB->PUPDR |= (0b01 << GPIO_PUPDR_PUPD3_Pos);
+
+	//EXTI
+	EXTI->IMR |= EXTI_IMR_IM3;
+	EXTI->RTSR |= EXTI_RTSR_TR3;
+	EXTI->FTSR |= EXTI_FTSR_TR3;
+
+	//EXTI port mux
+	SYSCFG->EXTICR[0] &= ~SYSCFG_EXTICR1_EXTI3;
+	SYSCFG->EXTICR[0] |= (1 << SYSCFG_EXTICR1_EXTI3_Pos);
+
+	// - PB10 - //
+	GPIOA->MODER &= ~(GPIO_MODER_MODER10);
+	GPIOA->PUPDR &= ~(GPIO_PUPDR_PUPD10);
+	GPIOA->PUPDR |= (0b01 << GPIO_PUPDR_PUPD10_Pos);
+
+	//EXTI
+	EXTI->IMR |= EXTI_IMR_IM10;
+	EXTI->RTSR |= EXTI_RTSR_TR10;
+	EXTI->FTSR |= EXTI_FTSR_TR10;
+
+	//EXTI port mux
+	SYSCFG->EXTICR[2] &= ~SYSCFG_EXTICR3_EXTI3;
+	SYSCFG->EXTICR[2] |= (1 << SYSCFG_EXTICR3_EXTI3_Pos);
+
+	NVIC_EnableIRQ(EXTI3_IRQn);
+	NVIC_EnableIRQ(EXTI15_10_IRQn);
+
+	//set priority
+	NVIC_SetPriority(EXTI3_IRQn, 0);
+	NVIC_SetPriority(EXTI5_10_IRQn, 1);
+
+	while (1) {
+
+	}
+}
