@@ -1,47 +1,18 @@
-18:04:21 **** Clean-only build of configuration Debug for project MiniProjectDF-Add-on ****
-make -j12 clean 
-rm -rf ./Startup/startup_stm32f411retx.d ./Startup/startup_stm32f411retx.o
-rm -rf ./Src/main.cyclo ./Src/main.d ./Src/main.o ./Src/main.su ./Src/syscalls.cyclo ./Src/syscalls.d ./Src/syscalls.o ./Src/syscalls.su ./Src/sysmem.cyclo ./Src/sysmem.d ./Src/sysmem.o ./Src/sysmem.su
-rm -rf MiniProjectDF-Add-on.elf MiniProjectDF-Add-on.list MiniProjectDF-Add-on.map default.size.stdout
- 
-18:04:21 **** Incremental Build of configuration Debug for project MiniProjectDF-Add-on ****
+18:21:17 **** Incremental Build of configuration Debug for project MiniProjectDF-Add-on ****
 make -j12 all 
-arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -DDEBUG -c -x assembler-with-cpp -MMD -MP -MF"Startup/startup_stm32f411retx.d" -MT"Startup/startup_stm32f411retx.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Startup/startup_stm32f411retx.o" "../Startup/startup_stm32f411retx.s"
 arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
-arm-none-eabi-gcc "../Src/syscalls.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/syscalls.d" -MT"Src/syscalls.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/syscalls.o"
-arm-none-eabi-gcc "../Src/sysmem.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/sysmem.d" -MT"Src/sysmem.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/sysmem.o"
-arm-none-eabi-gcc -o "MiniProjectDF-Test.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\MiniProjectDF-Test\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MiniProjectDF-Test.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: MiniProjectDF-Test.elf
- 
-arm-none-eabi-size  MiniProjectDF-Test.elf 
-arm-none-eabi-objdump -h -S MiniProjectDF-Test.elf  > "MiniProjectDF-Test.list"
-   text	   data	    bss	    dec	    hex	filename
-   8624	     84	   1908	  10616	   2978	MiniProjectDF-Test.elf
-Finished building: default.size.stdout
- 
-Finished building: MiniProjectDF-Test.list
- 
-18:04:59 **** Incremental Build of configuration Debug for project MiniProjectDF-Add-on ****
-make -j12 all 
 arm-none-eabi-gcc -o "MiniProjectDF-Add-on.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\MiniProjectDF-Add-on\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MiniProjectDF-Add-on.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 Finished building target: MiniProjectDF-Add-on.elf
  
 arm-none-eabi-size  MiniProjectDF-Add-on.elf 
 arm-none-eabi-objdump -h -S MiniProjectDF-Add-on.elf  > "MiniProjectDF-Add-on.list"
    text	   data	    bss	    dec	    hex	filename
-   8624	     84	   1908	  10616	   2978	MiniProjectDF-Add-on.elf
+   9400	     84	   1916	  11400	   2c88	MiniProjectDF-Add-on.elf
 Finished building: default.size.stdout
  
 Finished building: MiniProjectDF-Add-on.list
  
-18:05:04 **** Incremental Build of configuration Debug for project MiniProjectDF-Add-on ****
-make -j12 all 
-arm-none-eabi-size  MiniProjectDF-Add-on.elf 
-   text	   data	    bss	    dec	    hex	filename
-   8624	     84	   1908	  10616	   2978	MiniProjectDF-Add-on.elf
-Finished building: default.size.stdout
- 
-18:10:11 **** Incremental Build of configuration Debug for project MiniProjectDF-Add-on ****
+18:21:27 **** Incremental Build of configuration Debug for project MiniProjectDF-Add-on ****
 make -j12 all 
 arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DNUCLEO_F411RE -DSTM32 -DSTM32F4 -DSTM32F411RETx -c -I../Inc -I"D:/NextyLab/Library/CMSIS/Core/Include" -I"D:/NextyLab/Library/CMSIS-DEVICE-F4/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
 arm-none-eabi-gcc -o "MiniProjectDF-Add-on.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\NextyLab\MiniProjectDF-Add-on\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MiniProjectDF-Add-on.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
@@ -50,7 +21,7 @@ Finished building target: MiniProjectDF-Add-on.elf
 arm-none-eabi-size  MiniProjectDF-Add-on.elf 
 arm-none-eabi-objdump -h -S MiniProjectDF-Add-on.elf  > "MiniProjectDF-Add-on.list"
    text	   data	    bss	    dec	    hex	filename
-   8600	     84	   1908	  10592	   2960	MiniProjectDF-Add-on.elf
+   9400	     84	   1916	  11400	   2c88	MiniProjectDF-Add-on.elf
 Finished building: default.size.stdout
  
 Finished building: MiniProjectDF-Add-on.list

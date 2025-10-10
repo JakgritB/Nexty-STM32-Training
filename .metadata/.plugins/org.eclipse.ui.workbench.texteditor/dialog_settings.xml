@@ -6,25 +6,30 @@
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
-		<item key="selection" value="Gear ADC"/>
+		<item key="selection" value="ADC1-&gt;SMPR"/>
 		<list key="findhistory">
-			<item value="gear ADC"/>
-			<item value="gear"/>
-			<item value="current_gear"/>
-			<item value="current"/>
-			<item value="check_stall"/>
-			<item value="brake"/>
-			<item value="if (current_gear"/>
-			<item value="uart_counter"/>
-			<item value="engineON"/>
-			<item value="GPIO_MODER"/>
+			<item value="ADC1-&gt;SMPR"/>
+			<item value="ADC1-&gt;"/>
+			<item value="tim2"/>
+			<item value="uart"/>
+			<item value="read_joy"/>
+			<item value="PA2"/>
+			<item value="adc"/>
+			<item value="&#x09;GPIOB-&gt;MODER |= (0b01 &lt;&lt; GPIO_MODER_MODER13_Pos);  // PB13: Buzzer"/>
+			<item value="&#x09;GPIOB-&gt;MODER |= (0b01 &lt;&lt; GPIO_MODER_MODER13_Pos);  // PB13: Buzzer ← ลบบรรทัดนี้"/>
+			<item value="clutch"/>
+			<item value="เงื่อนไข 1"/>
+			<item value="SMPR2"/>
+			<item value="ADC1-&gt;SMPR2 |= (4 &lt;&lt; ADC_SMPR2_SMP0_Pos) | (4 &lt;&lt; ADC_SMPR2_SMP1_Pos) | (4 &lt;&lt; ADC_SMPR2_SMP4_Pos);"/>
+			<item value="PA4:"/>
+			<item value="adc_gear = read_adc_gear();"/>
 		</list>
 		<list key="replacehistory">
 		</list>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
-		<item key="DIALOG_X_ORIGIN" value="-203"/>
-		<item key="DIALOG_Y_ORIGIN" value="287"/>
+		<item key="DIALOG_X_ORIGIN" value="-711"/>
+		<item key="DIALOG_Y_ORIGIN" value="554"/>
 		<item key="DIALOG_WIDTH" value="414"/>
 		<item key="DIALOG_HEIGHT" value="454"/>
 		<item key="DIALOG_FONT_NAME" value="1|Segoe UI|9.0|0|WINDOWS|1|-15|0|0|0|400|0|0|0|1|0|0|0|0|Segoe UI"/>

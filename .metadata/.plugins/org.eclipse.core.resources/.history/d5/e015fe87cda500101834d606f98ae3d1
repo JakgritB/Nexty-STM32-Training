@@ -1,0 +1,844 @@
+#include <stdint.h>
+#define STM32F411xE
+#include "stm32f4xx.h"
+#include <math.h>
+
+// ============================================
+// ค่าคงที่และการตั้งค่า
+// ============================================
+#define SYSTEM_CLOCK 16000000
+#define TIMER_100HZ  1000
+
+// ค่าคงที่สำหรับ Temperature Sensor (NTC)
+#define ADC_MAX      4095.0f
+#define VREF         3.3f
+#define R_FIXED      10000.0f
+#define R0           10000.0f
+#define T0           298.15f
+#define BETA         3950.0f
+
+// ค่าความเร่ง/ชะลอ (km/h ต่อวินาที)
+#define ACCEL_ECO       25.0f
+#define ACCEL_NORMAL    75.0f
+#define ACCEL_SPORT     100.0f
+#define DECEL_BRAKE     150.0f
+#define DECEL_COAST     5.0f
+
+#define MIN_ENGINE_FREQ 50.0f  // ความถี่เสียงเดินเบา (Hz)
+#define MAX_ENGINE_FREQ 225.0f // ความถี่เสียงรอบสูงสุด (Hz)
+// ... (Global variables เดิม) ...
+volatile float engine_rev_progress = 0.0f;
+#define REV_INCREASE_RATE 0.02f
+#define REV_DECREASE_RATE 0.01f
+
+// <<<< เพิ่ม: ตัวแปรและค่าคงที่สำหรับ "การเบิ้ลเครื่อง" ที่เกียร์ N >>>>
+volatile float neutral_rev_level = 0.0f; // ระดับการเร่งปัจจุบันเมื่ออยู่เกียร์ว่าง (0.0 ถึง 1.0)
+#define NEUTRAL_REV_UP_RATE   0.02f  // ความเร็วในการไต่ของรอบเครื่อง
+#define NEUTRAL_REV_DOWN_RATE 0.5f  // ความเร็วในการตกของรอบเครื่อง (เร็วกว่าตอนขึ้น)
+
+volatile uint16_t adc_rgb_pot = 0;  // ค่า ADC จาก potentiometer PA4
+volatile uint8_t current_rgb_color = 0;  // สีปัจจุบัน (0-6)
+
+// ============================================
+// Enumerations
+// ============================================
+enum {
+	MODE_ECO = 0, MODE_NORMAL, MODE_SPORT
+};
+
+enum {
+	WIPER_OFF = 0, WIPER_SLOW, WIPER_MEDIUM, WIPER_FAST
+};
+
+enum {
+	GEAR_N = 0, GEAR_1, GEAR_2, GEAR_3, GEAR_4, GEAR_5
+};
+
+// ============================================
+// ตัวแปร Global
+// ============================================
+volatile uint8_t engine_running = 0;
+volatile float current_speed = 0.0f;
+volatile uint8_t current_gear = GEAR_N;
+volatile uint8_t previous_gear = GEAR_N;
+volatile uint8_t drive_mode = MODE_NORMAL;
+volatile uint8_t wiper_mode = WIPER_OFF;
+
+volatile uint8_t clutch_pressed = 0;
+volatile uint8_t brake_pressed = 0;
+volatile uint8_t gas_pressed = 0;
+volatile uint8_t wiper_button_last = 1;
+
+volatile uint16_t adc_gear = 0;
+volatile uint16_t adc_temp = 0;
+volatile uint16_t adc_light = 0;
+
+volatile uint16_t adc_joystick_y = 0;
+volatile uint8_t joystick_state = 0;  // 0=center, 1=up, 2=down
+volatile uint8_t last_joystick_state = 0;
+
+volatile uint16_t wiper_counter = 0;
+volatile uint16_t wiper_led_state = 0;
+volatile uint16_t uart_counter = 0;
+
+volatile char uart_rx_char = 0;
+volatile uint8_t uart_rx_flag = 0;
+
+// ============================================
+// อ่านค่า ADC แต่ละ Channel (Hard Code)
+// ============================================
+
+uint16_t read_adc_temp(void) {
+	ADC1->SQR3 = 0;  // Channel 0 = PA0
+	ADC1->CR2 |= ADC_CR2_SWSTART;
+	while (!(ADC1->SR & ADC_SR_EOC))
+		;
+	return ADC1->DR;
+}
+
+uint16_t read_adc_light(void) {
+	ADC1->SQR3 = 1;  // Channel 1 = PA1
+	ADC1->CR2 |= ADC_CR2_SWSTART;
+	while (!(ADC1->SR & ADC_SR_EOC))
+		;
+	return ADC1->DR;
+}
+// อ่าน Joystick Y-axis
+uint16_t read_joystick_y(void) {
+	ADC1->SQR3 = 11;  // PC1 = ADC Channel 11
+	ADC1->CR2 |= ADC_CR2_SWSTART;
+	while (!(ADC1->SR & ADC_SR_EOC))
+		;
+	return ADC1->DR;
+}
+
+// ============================================
+// อ่านค่า ADC จาก Potentiometer (PA4 = Channel 4)
+// ============================================
+uint16_t read_adc_rgb_pot(void) {
+	ADC1->SQR3 = 4;  // Channel 4 = PA4
+	ADC1->CR2 |= ADC_CR2_SWSTART;
+	while (!(ADC1->SR & ADC_SR_EOC))
+		;
+	return ADC1->DR;
+}
+
+// ============================================
+// อัพเดต LED RGB ตามค่า Potentiometer
+// ============================================
+void update_rgb_led(void) {
+	// แบ่งช่วง ADC (0-4095) เป็น 7 สี
+	// สี: แดง, เหลือง, เขียว, ฟ้า, น้ำเงิน, ม่วง, ขาว
+
+	uint8_t color_index = adc_rgb_pot / 586;  // 4096 / 7 ≈ 586
+	if (color_index > 6)
+		color_index = 6;
+
+	current_rgb_color = color_index;
+
+	// ตั้งค่า RGB (Common Cathode: 1=เปิด, 0=ปิด)
+	switch (color_index) {
+	case 0:  // แดง (Red)
+		GPIOA->BSRR = GPIO_BSRR_BS13;   // R=1
+		GPIOA->BSRR = GPIO_BSRR_BR14;   // G=0
+		GPIOA->BSRR = GPIO_BSRR_BR15;   // B=0
+		break;
+
+	case 1:  // เหลือง (Yellow)
+		GPIOA->BSRR = GPIO_BSRR_BS13;   // R=1
+		GPIOA->BSRR = GPIO_BSRR_BS14;   // G=1
+		GPIOA->BSRR = GPIO_BSRR_BR15;   // B=0
+		break;
+
+	case 2:  // เขียว (Green)
+		GPIOA->BSRR = GPIO_BSRR_BR13;   // R=0
+		GPIOA->BSRR = GPIO_BSRR_BS14;   // G=1
+		GPIOA->BSRR = GPIO_BSRR_BR15;   // B=0
+		break;
+
+	case 3:  // ฟ้า (Cyan)
+		GPIOA->BSRR = GPIO_BSRR_BR13;   // R=0
+		GPIOA->BSRR = GPIO_BSRR_BS14;   // G=1
+		GPIOA->BSRR = GPIO_BSRR_BS15;   // B=1
+		break;
+
+	case 4:  // น้ำเงิน (Blue)
+		GPIOA->BSRR = GPIO_BSRR_BR13;   // R=0
+		GPIOA->BSRR = GPIO_BSRR_BR14;   // G=0
+		GPIOA->BSRR = GPIO_BSRR_BS15;   // B=1
+		break;
+
+	case 5:  // ม่วง (Magenta)
+		GPIOA->BSRR = GPIO_BSRR_BS13;   // R=1
+		GPIOA->BSRR = GPIO_BSRR_BR14;   // G=0
+		GPIOA->BSRR = GPIO_BSRR_BS15;   // B=1
+		break;
+
+	case 6:  // ขาว (White)
+		GPIOA->BSRR = GPIO_BSRR_BS13;   // R=1
+		GPIOA->BSRR = GPIO_BSRR_BS14;   // G=1
+		GPIOA->BSRR = GPIO_BSRR_BS15;   // B=1
+		break;
+	}
+}
+
+void TIM3_IRQHandler(void) {
+	if (TIM3->SR & TIM_SR_UIF) {
+		TIM3->SR &= ~TIM_SR_UIF; // เคลียร์ Flag
+		GPIOB->ODR ^= (1 << 13); // สลับสถานะ (Toggle) ขา PB13
+	}
+}
+
+/**
+ * @brief คำนวณความถี่เสียงเครื่องยนต์และอัปเดต Timer 3 (ฉบับแก้ไข)
+ */
+/**
+ * @brief คำนวณความถี่เสียงเครื่องยนต์ (ฉบับแก้ไข: เสียงนุ่มนวล)
+ */
+/**
+ * @brief คำนวณความถี่เสียงเครื่องยนต์ (ฉบับแก้ไข: เพิ่มความสมจริงที่เกียร์ N)
+ */
+void update_engine_sound(void) {
+	if (engine_running == 0) {
+		TIM3->CR1 &= ~TIM_CR1_CEN;
+		GPIOB->BSRR = (1 << (13 + 16));
+		engine_rev_progress = 0.0f;
+		neutral_rev_level = 0.0f; // << รีเซ็ตค่าเมื่อเครื่องดับ
+		return;
+	}
+
+	float target_progress = 0.0f;
+
+	// --- คำนวณหา "เป้าหมาย" ของเสียง ---
+	if (current_gear == GEAR_N) {
+		// <<<< ตรรกะใหม่: จำลองความเฉื่อยของรอบเครื่องยนต์ที่เกียร์ N >>>>
+		if (gas_pressed == 1) {
+			// ถ้าเหยียบคันเร่ง ให้ค่อยๆ เพิ่มระดับการเร่ง
+			neutral_rev_level += NEUTRAL_REV_UP_RATE;
+			// จำกัดรอบสูงสุดไม่ให้เกิน 80%
+			if (neutral_rev_level > 0.8f) {
+				neutral_rev_level = 0.8f;
+			}
+		} else {
+			// ถ้าปล่อยคันเร่ง ให้ค่อยๆ ลดระดับการเร่งลง
+			neutral_rev_level -= NEUTRAL_REV_DOWN_RATE;
+			if (neutral_rev_level < 0.0f) {
+				neutral_rev_level = 0.0f;
+			}
+		}
+		// กำหนดเป้าหมายของเสียงให้เท่ากับระดับการเร่งปัจจุบัน
+		target_progress = neutral_rev_level;
+
+	} else {
+		// ตรรกะเดิมสำหรับเกียร์อื่นๆ
+		if (current_gear == GEAR_1)
+			target_progress = current_speed / 30.0f;
+		else if (current_gear == GEAR_2)
+			target_progress = (current_speed - 20.0f) / (50.0f - 20.0f);
+		else if (current_gear == GEAR_3)
+			target_progress = (current_speed - 40.0f) / (70.0f - 40.0f);
+		else if (current_gear == GEAR_4)
+			target_progress = (current_speed - 60.0f) / (90.0f - 60.0f);
+		else if (current_gear == GEAR_5)
+			target_progress = (current_speed - 80.0f) / (130.0f - 80.0f);
+
+		// รีเซ็ตค่า neutral_rev_level เมื่อเข้าเกียร์
+		neutral_rev_level = 0.0f;
+	}
+
+	// --- ส่วนที่เหลือของฟังก์ชันเหมือนเดิมทั้งหมด ---
+	if (target_progress < 0.0f)
+		target_progress = 0.0f;
+	if (target_progress > 1.0f)
+		target_progress = 1.0f;
+
+	if (engine_rev_progress < target_progress) {
+		engine_rev_progress += REV_INCREASE_RATE;
+		if (engine_rev_progress > target_progress)
+			engine_rev_progress = target_progress;
+	} else if (engine_rev_progress > target_progress) {
+		engine_rev_progress -= REV_DECREASE_RATE;
+		if (engine_rev_progress < target_progress)
+			engine_rev_progress = target_progress;
+	}
+
+	float current_freq = MIN_ENGINE_FREQ
+			+ (engine_rev_progress * (MAX_ENGINE_FREQ - MIN_ENGINE_FREQ));
+	uint32_t new_arr = 800000 / (uint32_t) current_freq;
+	TIM3->ARR = new_arr;
+
+	if (!(TIM3->CR1 & TIM_CR1_CEN)) {
+		TIM3->CR1 |= TIM_CR1_CEN;
+	}
+}
+// ตรวจจับ Edge และเปลี่ยนเกียร์
+void process_joystick(void) {
+	// อ่านค่า ADC
+	uint16_t y_val = adc_joystick_y;
+
+	// กำหนดสถานะปัจจุบัน
+	if (y_val < 1000) {
+		joystick_state = 1;  // โยกขึ้น
+	} else if (y_val > 3000) {
+		joystick_state = 2;  // โยกลง
+	} else if (y_val >= 1500 && y_val <= 2500) {
+		joystick_state = 0;  // กลาง
+	}
+	// ค่าอื่นๆ (1000-1500, 2500-3000) = ไม่เปลี่ยนสถานะ (transition zone)
+
+	// ตรวจจับ Edge: จากกลาง → ขึ้น/ลง
+	if (last_joystick_state == 0) {
+		if (joystick_state == 1) {
+			// โยกขึ้น = เพิ่มเกียร์ (ไม่ต้องเหยียบคลัตช์)
+			if (current_gear < GEAR_5) {
+				current_gear++;
+			}
+		} else if (joystick_state == 2) {
+			// โยกลง = ลดเกียร์ (ไม่ต้องเหยียบคลัตช์)
+			if (current_gear > GEAR_N) {
+				current_gear--;
+			}
+		}
+	}
+
+	last_joystick_state = joystick_state;
+}
+
+// ============================================
+// อ่านสถานะปุ่มทั้งหมด
+// ============================================
+void read_all_buttons(void) {
+	// อ่านปุ่ม Clutch (PA10) - Active Low
+	if ((GPIOA->IDR & GPIO_IDR_ID10) == 0) {
+		clutch_pressed = 1;
+	} else {
+		clutch_pressed = 0;
+	}
+
+	// อ่านปุ่ม Brake (PB3) - Active Low
+	if ((GPIOB->IDR & GPIO_IDR_ID3) == 0) {
+		brake_pressed = 1;
+	} else {
+		brake_pressed = 0;
+	}
+
+	// อ่านปุ่ม Gas (PB5) - Active Low
+	if ((GPIOB->IDR & GPIO_IDR_ID5) == 0) {
+		gas_pressed = 1;
+	} else {
+		gas_pressed = 0;
+	}
+
+	// อ่านปุ่ม Wiper (PB4) - ตรวจจับขอบขาขึ้น
+	uint8_t wiper_now = 0;
+	if ((GPIOB->IDR & GPIO_IDR_ID4) == 0) {
+		wiper_now = 1;
+	}
+
+	if (wiper_now == 1 && wiper_button_last == 0) {
+		// ขอบขาขึ้น - เปลี่ยนโหมด Wiper
+		if (wiper_mode == WIPER_OFF) {
+			wiper_mode = WIPER_SLOW;
+		} else if (wiper_mode == WIPER_SLOW) {
+			wiper_mode = WIPER_MEDIUM;
+		} else if (wiper_mode == WIPER_MEDIUM) {
+			wiper_mode = WIPER_FAST;
+		} else {
+			wiper_mode = WIPER_OFF;
+		}
+		wiper_counter = 0;
+	}
+	wiper_button_last = wiper_now;
+}
+
+// ============================================
+// ตรวจสอบเงื่อนไขที่ทำให้เครื่องดับ (Hard Code)
+// ============================================
+void check_engine_stall(void) {
+	if (engine_running == 0)
+		return;
+
+	// เงื่อนไข 1: เปลี่ยนเกียร์โดยไม่เหยียบคลัตช์
+	// (ตอนนี้ process_joystick() จะเปลี่ยนเกียร์ได้ก็ต่อเมื่อเหยียบคลัตช์แล้ว
+	// แต่ถ้ามีการเปลี่ยนเกียร์แล้วปล่อยคลัตช์ระหว่างที่เกียร์ไม่เหมาะกับความเร็ว ก็จะดับ)
+	if (current_gear != previous_gear && clutch_pressed == 0) {
+		engine_running = 0;
+		return;
+	}
+
+	// เงื่อนไข 2: เกียร์ 1 ความเร็ว 0 ไม่เหยียบคลัตช์/แก๊ส
+	if (current_gear == GEAR_1 && current_speed < 0.1f && gas_pressed == 0
+			&& clutch_pressed == 0) {
+		engine_running = 0;
+		return;
+	}
+
+	// เงื่อนไข 3: ความเร็วไม่เหมาะกับเกียร์ (เมื่อไม่เหยียบคลัตช์)
+	if (current_gear != GEAR_N && clutch_pressed == 0) {
+		// ตรวจสอบแต่ละเกียร์
+		if (current_gear == GEAR_1) {
+			if (current_speed > 30) {
+				engine_running = 0;  // เร็วเกินไป
+				return;
+			}
+		} else if (current_gear == GEAR_2) {
+			if (current_speed > 50) {
+				engine_running = 0;  // เร็วเกินไป
+				return;
+			}
+			if (current_speed < 20) {
+				engine_running = 0;  // ช้าเกินไป
+				return;
+			}
+		} else if (current_gear == GEAR_3) {
+			if (current_speed > 70) {
+				engine_running = 0;
+				return;
+			}
+			if (current_speed < 40) {
+				engine_running = 0;
+				return;
+			}
+		} else if (current_gear == GEAR_4) {
+			if (current_speed > 90) {
+				engine_running = 0;
+				return;
+			}
+			if (current_speed < 60) {
+				engine_running = 0;
+				return;
+			}
+		} else if (current_gear == GEAR_5) {
+			if (current_speed > 130) {
+				engine_running = 0;
+				return;
+			}
+			if (current_speed < 80) {
+				engine_running = 0;
+				return;
+			}
+		}
+	}
+}
+
+// ============================================
+// คำนวณความเร็วรถ
+// ============================================
+void calculate_speed(void) {
+	if (engine_running == 0) {
+		current_speed = 0.0f;
+		return;
+	}
+
+	// เลือกค่าความเร่งตามโหมด
+	float accel = ACCEL_NORMAL;
+	if (drive_mode == MODE_ECO) {
+		accel = ACCEL_ECO;
+	} else if (drive_mode == MODE_SPORT) {
+		accel = ACCEL_SPORT;
+	}
+
+	// เบรกมีความสำคัญสูงสุด
+	if (brake_pressed == 1) {
+		current_speed -= DECEL_BRAKE / TIMER_100HZ;
+		if (current_speed < 0.0f)
+			current_speed = 0.0f;
+		return;
+	}
+
+	// เหยียบคลัตช์ = ไม่สามารถเร่งได้
+	if (clutch_pressed == 1) {
+		// กรณีพิเศษ: เกียร์ 1 + คลัตช์ + แก๊ส สามารถเร่งได้ถึง 10 km/h
+		if (current_gear == GEAR_1 && current_speed < 10.0f
+				&& gas_pressed == 1) {
+			current_speed += accel / TIMER_100HZ;
+			if (current_speed > 10.0f)
+				current_speed = 10.0f;
+		} else {
+			// ชะลอเบาๆ
+			current_speed -= DECEL_COAST / TIMER_100HZ;
+			if (current_speed < 0.0f)
+				current_speed = 0.0f;
+		}
+		return;
+	}
+
+	// เกียร์ว่าง = รถไม่วิ่ง
+	if (current_gear == GEAR_N) {
+		current_speed -= DECEL_COAST / TIMER_100HZ;
+		if (current_speed < 0.0f)
+			current_speed = 0.0f;
+		return;
+	}
+
+	// เหยียบแก๊ส = เร่ง
+	if (gas_pressed == 1) {
+		current_speed += accel / TIMER_100HZ;
+
+		// จำกัดความเร็วไม่ให้เกินเกียร์ (Hard Code)
+		if (current_gear == GEAR_1 && current_speed > 30) {
+			current_speed = 30;
+		} else if (current_gear == GEAR_2 && current_speed > 50) {
+			current_speed = 50;
+		} else if (current_gear == GEAR_3 && current_speed > 70) {
+			current_speed = 70;
+		} else if (current_gear == GEAR_4 && current_speed > 90) {
+			current_speed = 90;
+		} else if (current_gear == GEAR_5 && current_speed > 130) {
+			current_speed = 130;
+		}
+	} else {
+		// ปล่อยแก๊ส = ชะลอเบาๆ
+		current_speed -= DECEL_COAST / TIMER_100HZ;
+		if (current_speed < 0.0f)
+			current_speed = 0.0f;
+	}
+}
+
+// ============================================
+// อัพเดต 7-Segment Display (Hard Code)
+// ============================================
+void update_7segment(uint8_t gear) {
+	// BCD Pins: PA9 (MSB), PB10, PA8, PC7 (LSB)
+
+	if (gear == GEAR_N) {  // BCD = 0000
+		GPIOA->BSRR = GPIO_BSRR_BR9;
+		GPIOB->BSRR = GPIO_BSRR_BR10;
+		GPIOA->BSRR = GPIO_BSRR_BR8;
+		GPIOC->BSRR = GPIO_BSRR_BR7;
+
+	} else if (gear == GEAR_1) {  // BCD = 0001
+		GPIOA->BSRR = GPIO_BSRR_BR9;
+		GPIOB->BSRR = GPIO_BSRR_BR10;
+		GPIOA->BSRR = GPIO_BSRR_BR8;
+		GPIOC->BSRR = GPIO_BSRR_BS7;
+
+	} else if (gear == GEAR_2) {  // BCD = 0010
+		GPIOA->BSRR = GPIO_BSRR_BR9;
+		GPIOB->BSRR = GPIO_BSRR_BR10;
+		GPIOA->BSRR = GPIO_BSRR_BS8;
+		GPIOC->BSRR = GPIO_BSRR_BR7;
+
+	} else if (gear == GEAR_3) {  // BCD = 0011
+		GPIOA->BSRR = GPIO_BSRR_BR9;
+		GPIOB->BSRR = GPIO_BSRR_BR10;
+		GPIOA->BSRR = GPIO_BSRR_BS8;
+		GPIOC->BSRR = GPIO_BSRR_BS7;
+
+	} else if (gear == GEAR_4) {  // BCD = 0100
+		GPIOA->BSRR = GPIO_BSRR_BR9;
+		GPIOB->BSRR = GPIO_BSRR_BS10;
+		GPIOA->BSRR = GPIO_BSRR_BR8;
+		GPIOC->BSRR = GPIO_BSRR_BR7;
+
+	} else if (gear == GEAR_5) {  // BCD = 0101
+		GPIOA->BSRR = GPIO_BSRR_BR9;
+		GPIOB->BSRR = GPIO_BSRR_BS10;
+		GPIOA->BSRR = GPIO_BSRR_BR8;
+		GPIOC->BSRR = GPIO_BSRR_BS7;
+	}
+}
+
+// ============================================
+// อัพเดต LED เครื่องยนต์ (PA5)
+// ============================================
+void update_engine_led(void) {
+	if (engine_running == 1) {
+		GPIOA->BSRR = GPIO_BSRR_BS5;  // เปิด
+	} else {
+		GPIOA->BSRR = GPIO_BSRR_BR5;  // ปิด
+	}
+}
+
+// ============================================
+// อัพเดต LED ที่ปัดน้ำฝน (PB6)
+// ============================================
+void update_wiper_led(void) {
+	if (wiper_mode == WIPER_OFF) {
+		GPIOB->BSRR = GPIO_BSRR_BR6;  // ปิด
+		return;
+	}
+
+	// กำหนดคาบเวลาการกระพริบ (Hard Code)
+	uint16_t period = 0;
+	if (wiper_mode == WIPER_SLOW) {
+		period = 100;  // 1 วินาที
+	} else if (wiper_mode == WIPER_MEDIUM) {
+		period = 50;   // 0.5 วินาที
+	} else if (wiper_mode == WIPER_FAST) {
+		period = 10;   // 0.1 วินาที
+	}
+
+	wiper_counter++;
+	if (wiper_counter >= period) {
+		wiper_counter = 0;
+		if (wiper_led_state == 0) {
+			wiper_led_state = 1;
+		} else {
+			wiper_led_state = 0;
+		}
+	}
+
+	if (wiper_led_state == 1) {
+		GPIOB->BSRR = GPIO_BSRR_BS6;  // เปิด
+	} else {
+		GPIOB->BSRR = GPIO_BSRR_BR6;  // ปิด
+	}
+}
+
+// ============================================
+// อัพเดต LED ไฟหน้า (PA6)
+// ============================================
+void update_headlight_led(void) {
+	// แสงน้อย (ADC > 2048) = เปิดไฟ
+	if (adc_light > 2048) {
+		GPIOA->BSRR = GPIO_BSRR_BS6;  // เปิด
+	} else {
+		GPIOA->BSRR = GPIO_BSRR_BR6;  // ปิด
+	}
+}
+
+// ============================================
+// อัพเดต LED แอร์ (PA7)
+// ============================================
+void update_ac_led(void) {
+	// คำนวณอุณหภูมิจาก NTC Sensor
+	float voltage = (adc_temp * VREF) / ADC_MAX;
+	float r_ntc = R_FIXED * voltage / (VREF - voltage);
+
+	if (r_ntc <= 0)
+		return;
+
+	float temp = ((BETA * T0) / (T0 * log(r_ntc / R0) + BETA)) - 273.15f;
+
+	// Hysteresis: เปิดที่ >28°C, ปิดที่ <26°C
+	if (temp > 28.0f) {
+		GPIOA->BSRR = GPIO_BSRR_BS7;  // เปิดแอร์
+	} else if (temp < 26.0f) {
+		GPIOA->BSRR = GPIO_BSRR_BR7;  // ปิดแอร์
+	}
+	// ถ้าอยู่ระหว่าง 26-28 = คงสถานะเดิม
+}
+
+// ============================================
+// ส่งข้อความทาง UART
+// ============================================
+void uart_send_string(const char *str) {
+	while (*str) {
+		while (!(USART2->SR & USART_SR_TXE))
+			;
+		USART2->DR = *str++;
+	}
+}
+
+// ============================================
+// ส่งความเร็วทาง UART (Hard Code)
+// ============================================
+void uart_send_speed(void) {
+	char buffer[32];
+	int speed = (int) current_speed;
+
+	// สร้างข้อความ "Speed: "
+	buffer[0] = 'S';
+	buffer[1] = 'p';
+	buffer[2] = 'e';
+	buffer[3] = 'e';
+	buffer[4] = 'd';
+	buffer[5] = ':';
+	buffer[6] = ' ';
+
+	int idx = 7;
+
+	// แปลงตัวเลขเป็นข้อความ (Hard Code)
+	if (speed >= 100) {  // 3 หลัก (100-130)
+		buffer[idx++] = '0' + (speed / 100);
+		buffer[idx++] = '0' + ((speed / 10) % 10);
+		buffer[idx++] = '0' + (speed % 10);
+	} else if (speed >= 10) {  // 2 หลัก (10-99)
+		buffer[idx++] = '0' + (speed / 10);
+		buffer[idx++] = '0' + (speed % 10);
+	} else {  // 1 หลัก (0-9)
+		buffer[idx++] = '0' + speed;
+	}
+
+	buffer[idx++] = ' ';
+	buffer[idx++] = 'k';
+	buffer[idx++] = 'm';
+	buffer[idx++] = '/';
+	buffer[idx++] = 'h';
+	buffer[idx++] = '\r';
+	buffer[idx++] = '\n';
+	buffer[idx] = '\0';
+
+	uart_send_string(buffer);
+}
+
+// ============================================
+// ประมวลผลคำสั่งจาก UART
+// ============================================
+void process_uart_command(char cmd) {
+	if (cmd == 'o' || cmd == 'O') {
+		if (current_gear == GEAR_N && engine_running == 0) {
+			engine_running = 1;
+			uart_send_string("Engine started\r\n");
+		} else {
+			uart_send_string("Cannot start: must be in Neutral\r\n");
+		}
+	} else if (cmd == 'f' || cmd == 'F') {
+		engine_running = 0;
+		uart_send_string("Engine stopped\r\n");
+	} else if (cmd == 'e' || cmd == 'E') {
+		drive_mode = MODE_ECO;
+		uart_send_string("Mode: ECO\r\n");
+	} else if (cmd == 'n' || cmd == 'N') {
+		drive_mode = MODE_NORMAL;
+		uart_send_string("Mode: NORMAL\r\n");
+	} else if (cmd == 's' || cmd == 'S') {
+		drive_mode = MODE_SPORT;
+		uart_send_string("Mode: SPORT\r\n");
+	} else {
+		uart_send_string("Unknown command\r\n");
+	}
+}
+
+// ============================================
+// Interrupt Handler: Timer 2 (100Hz)
+// ============================================
+void TIM2_IRQHandler(void) {
+	if (TIM2->SR & TIM_SR_UIF) {
+		TIM2->SR &= ~TIM_SR_UIF;
+
+		// อ่านค่า ADC ทั้งหมด
+		adc_joystick_y = read_joystick_y();
+		adc_temp = read_adc_temp();
+		adc_light = read_adc_light();
+		adc_rgb_pot = read_adc_rgb_pot();
+
+		// ประมวลผล
+		previous_gear = current_gear;
+		process_joystick();
+		read_all_buttons();
+		check_engine_stall();
+		calculate_speed();
+
+		// อัพเดตการแสดงผล
+		update_7segment(current_gear);
+		update_engine_led();
+		update_wiper_led();
+		update_headlight_led();
+		update_ac_led();
+		update_engine_sound();
+		update_rgb_led();
+
+		// ส่งข้อมูลทาง UART ทุก 500ms
+		uart_counter++;
+		if (uart_counter >= 50) {
+			uart_counter = 0;
+			uart_send_speed();
+		}
+	}
+}
+
+// ============================================
+// Interrupt Handler: USART2
+// ============================================
+void USART2_IRQHandler(void) {
+	if (USART2->SR & USART_SR_RXNE) {
+		uart_rx_char = USART2->DR;
+		uart_rx_flag = 1;
+	}
+}
+
+// ============================================
+// MAIN FUNCTION
+// ============================================
+int main(void) {
+	// --- 1. เปิด FPU (สำหรับ float) ---
+	SCB->CPACR |= ((3UL << 10 * 2) | (3UL << 11 * 2));
+	__DSB();
+	__ISB();
+
+	// --- 2. เปิด Clock ---
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN
+			| RCC_AHB1ENR_GPIOCEN;
+	RCC->APB1ENR |= RCC_APB1ENR_USART2EN | RCC_APB1ENR_TIM2EN
+			| RCC_APB1ENR_TIM3EN;
+	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
+
+	// --- 3. ตั้งค่า GPIO Outputs (LEDs) ---
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER5_Pos);   // PA5: Engine
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER6_Pos);   // PA6: Headlight
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER7_Pos);   // PA7: AC
+	GPIOB->MODER |= (0b01 << GPIO_MODER_MODER6_Pos);   // PB6: Wiper
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER13_Pos);  // PA13: RGB Red
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER14_Pos);  // PA14: RGB Green
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER15_Pos);  // PA15: RGB Blue
+
+	// --- 4. ตั้งค่า GPIO Outputs (7-Segment BCD) ---
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER9_Pos);   // PA9: MSB
+	GPIOB->MODER |= (0b01 << GPIO_MODER_MODER10_Pos);  // PB10
+	GPIOA->MODER |= (0b01 << GPIO_MODER_MODER8_Pos);   // PA8
+	GPIOC->MODER |= (0b01 << GPIO_MODER_MODER7_Pos);   // PC7: LSB
+	GPIOB->MODER |= (0b01 << GPIO_MODER_MODER13_Pos);
+
+	// --- 5. ตั้งค่า GPIO Inputs (Buttons) ---
+	GPIOA->MODER &= ~GPIO_MODER_MODER10;  // PA10: Clutch
+	GPIOA->PUPDR |= (0b01 << GPIO_PUPDR_PUPD10_Pos);
+
+	GPIOB->MODER &= ~GPIO_MODER_MODER3;   // PB3: Brake
+	GPIOB->PUPDR |= (0b01 << GPIO_PUPDR_PUPD3_Pos);
+
+	GPIOB->MODER &= ~GPIO_MODER_MODER5;   // PB5: Gas
+	GPIOB->PUPDR |= (0b01 << GPIO_PUPDR_PUPD5_Pos);
+
+	GPIOB->MODER &= ~GPIO_MODER_MODER4;   // PB4: Wiper
+	GPIOB->PUPDR |= (0b01 << GPIO_PUPDR_PUPD4_Pos);
+
+	// --- 6. ตั้งค่า GPIO Analog Inputs ---
+	GPIOC->MODER |= (0b11 << GPIO_MODER_MODER1_Pos); // PC1: Joystick Y
+	GPIOA->MODER |= (0b11 << GPIO_MODER_MODER0_Pos);  // PA0: Temp
+	GPIOA->MODER |= (0b11 << GPIO_MODER_MODER1_Pos);  // PA1: Light
+	GPIOA->MODER |= (0b11 << GPIO_MODER_MODER4_Pos);  // PA4: RGB Pot (Analog)
+
+	// --- 7. ตั้งค่า UART (PA2=TX, PA3=RX) ---
+	GPIOA->MODER |= (0b10 << GPIO_MODER_MODER2_Pos)
+			| (0b10 << GPIO_MODER_MODER3_Pos);
+	GPIOA->AFR[0] |= (0b0111 << GPIO_AFRL_AFSEL2_Pos)
+			| (0b0111 << GPIO_AFRL_AFSEL3_Pos);
+
+	USART2->BRR = 139;
+	USART2->CR1 = USART_CR1_UE | USART_CR1_TE | USART_CR1_RE | USART_CR1_RXNEIE;
+
+	// --- 8. ตั้งค่า ADC ---
+	ADC1->CR2 |= ADC_CR2_ADON;
+	ADC1->SQR1 = 0;
+	ADC1->SMPR2 |= (4 << ADC_SMPR2_SMP0_Pos) | (4 << ADC_SMPR2_SMP1_Pos);
+	ADC1->SMPR1 |= (4 << ADC_SMPR1_SMP11_Pos);  // Channel 11 = PC1
+	ADC1->SMPR2 |= (4 << ADC_SMPR2_SMP4_Pos);  // Channel 4 = PA4
+
+	// --- 9. ตั้งค่า Timer 2 (100Hz) ---
+	TIM2->PSC = 16000 - 1;
+	TIM2->ARR = 10 - 1;
+	TIM2->DIER |= TIM_DIER_UIE;
+	TIM2->CR1 |= TIM_CR1_CEN;
+	TIM3->PSC = 10 - 1; // 16MHz -> 1.6MHz clock
+	TIM3->DIER |= TIM_DIER_UIE; // เปิด Update Interrupt
+
+	// --- 10. เปิด Interrupts ---
+	NVIC_EnableIRQ(USART2_IRQn);
+	NVIC_EnableIRQ(TIM2_IRQn);
+	NVIC_EnableIRQ(TIM3_IRQn);
+	__enable_irq();
+
+	// ข้อความเริ่มต้น
+	uart_send_string("=== Manual Car Simulator ===\r\n");
+	uart_send_string("o=start, f=stop, e=eco, n=normal, s=sport\r\n");
+
+	// Main Loop
+	while (1) {
+		if (uart_rx_flag == 1) {
+			uart_rx_flag = 0;
+			process_uart_command(uart_rx_char);
+		}
+	}
+}

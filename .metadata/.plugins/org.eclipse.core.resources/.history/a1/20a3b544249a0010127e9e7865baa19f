@@ -1,5 +1,0 @@
-#include <stdint.h>
-#define STM32F411xE
-#include "stm32f4xx.h"
-
-int main(void) {
